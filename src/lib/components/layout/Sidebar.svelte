@@ -6,6 +6,7 @@
 	const ownerMenu = [
 		{ href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
 		{ href: '/orders', label: 'Order', icon: 'receipt_long' },
+		{ href: '/products', label: 'Produk', icon: 'inventory_2' },
 		{ href: '/customers', label: 'Pelanggan', icon: 'people' },
 		{ href: '/finance', label: 'Keuangan', icon: 'payments' },
 		{ href: '/tools', label: 'Tools', icon: 'build' },

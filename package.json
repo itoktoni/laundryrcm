@@ -36,7 +36,7 @@
 		"xlsx": "^0.18.5"
 	},
 	"optionalDependencies": {
-		"@libsql/linux-x64-gnu": "*",
+		"@libsql/linux-x64-gnu": "^0.5.29",
 		"@libsql/linux-x64-musl": "*"
 	}
 }

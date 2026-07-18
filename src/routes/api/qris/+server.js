@@ -45,12 +45,15 @@ export async function GET({ url }) {
 	}
 
 	let finalAmount = amount;
+	let uniqValue = 0;
 
 	if (uniq < 0) {
 		finalAmount = amount + uniq;
+		uniqValue = uniq;
 	} else if (uniq > 0) {
 		const suffix = String(Math.floor(Math.random() * Math.pow(10, uniq))).padStart(uniq, '0');
 		finalAmount = parseInt(String(amount) + suffix);
+		uniqValue = parseInt(suffix);
 	}
 
 	const dynamicQris = convertStaticToDynamic(qris, finalAmount);
@@ -59,6 +62,6 @@ export async function GET({ url }) {
 		qris: dynamicQris,
 		originalAmount: amount,
 		finalAmount: finalAmount,
-		uniq: uniq
+		uniq: uniqValue
 	});
 }

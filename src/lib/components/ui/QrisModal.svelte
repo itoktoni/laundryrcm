@@ -155,7 +155,7 @@
 					{#if qrisData}
 						<p class="font-display text-display text-primary font-bold">{formatCurrency(qrisData.finalAmount)}</p>
 						{#if qrisData.uniq !== 0}
-							<p class="text-label-sm text-on-surface-variant mt-1">Kode unik: {qrisData.uniq > 0 ? '+' : ''}{qrisData.uniq}</p>
+							<p class="text-label-sm text-on-surface-variant mt-1">Kode unik: {qrisData.uniq > 0 ? '+' : ''}{formatCurrency(Math.abs(qrisData.uniq))}</p>
 						{/if}
 					{:else}
 						<p class="font-display text-display text-primary font-bold">{formatCurrency(amount)}</p>

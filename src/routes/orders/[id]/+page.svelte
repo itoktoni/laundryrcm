@@ -100,21 +100,21 @@
 					<span class="text-error">-{formatCurrency(order.order_discount_amount)}</span>
 				</div>
 			{/if}
+			{#if order.order_unique_code}
+				<div class="flex justify-between text-body-sm">
+					<span class="text-on-surface-variant">Kode Unik</span>
+					<span class="text-on-surface">+{formatCurrency(order.order_paid_amount - order.order_total_price)}</span>
+				</div>
+			{/if}
 			<div class="flex justify-between pt-2 border-t border-outline-variant">
-				<span class="font-headline-md text-on-surface">Total</span>
-				<span class="font-display text-display text-primary">{formatCurrency(order.order_total_price)}</span>
+				<span class="font-headline-md text-on-surface">{order.order_unique_code ? 'Total Dibayar' : 'Total'}</span>
+				<span class="font-display text-display text-primary">{formatCurrency(order.order_unique_code ? order.order_paid_amount : order.order_total_price)}</span>
 			</div>
 			{#if order.order_payment_status === 'paid'}
 				<div class="flex justify-between text-body-sm pt-1">
-					<span class="text-on-surface-variant">Dibayar</span>
-					<span class="text-success font-label-md">{formatCurrency(order.order_paid_amount ?? order.order_total_price)}</span>
+					<span class="text-on-surface-variant">Status</span>
+					<span class="text-success font-label-md">Lunas</span>
 				</div>
-				{#if order.order_unique_code}
-					<div class="flex justify-between text-body-sm">
-						<span class="text-on-surface-variant">Kode Unik</span>
-						<span class="text-on-surface">{order.order_unique_code}</span>
-					</div>
-				{/if}
 			{/if}
 		</div>
 	</div>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer List - LaundryKu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e1e2ed",
+                    "dark-card": "#1F2937",
+                    "setrika": "#8B5CF6",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f0f0fb",
+                    "on-error-container": "#93000a",
+                    "on-primary-container": "#eeefff",
+                    "surface-variant": "#e1e2ed",
+                    "surface-container-lowest": "#ffffff",
+                    "pending": "#94A3B8",
+                    "on-secondary-fixed": "#121c28",
+                    "inverse-primary": "#b4c5ff",
+                    "on-tertiary-container": "#ffede6",
+                    "success": "#22C55E",
+                    "tertiary": "#943700",
+                    "surface-bright": "#faf8ff",
+                    "on-secondary": "#ffffff",
+                    "surface": "#faf8ff",
+                    "primary": "#004ac6",
+                    "danger": "#EF4444",
+                    "surface-dim": "#d9d9e5",
+                    "on-surface": "#191b23",
+                    "on-primary-fixed": "#00174b",
+                    "on-secondary-fixed-variant": "#3e4755",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary": "#555f6d",
+                    "secondary-container": "#d6e0f1",
+                    "secondary-fixed": "#d9e3f4",
+                    "dark-bg": "#111827",
+                    "secondary-fixed-dim": "#bdc7d8",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface-tint": "#0053db",
+                    "outline-variant": "#c3c6d7",
+                    "on-surface-variant": "#434655",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#2e3039",
+                    "tertiary-fixed": "#ffdbcd",
+                    "background": "#faf8ff",
+                    "outline": "#737686",
+                    "primary-container": "#2563eb",
+                    "warning": "#EAB308",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-low": "#f3f3fe",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-background": "#191b23",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "on-secondary-container": "#596372",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container-high": "#e7e7f3",
+                    "kering": "#0EA5E9",
+                    "on-error": "#ffffff",
+                    "surface-container": "#ededf9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "gutter": "1rem",
+                    "stack-sm": "0.5rem",
+                    "touch-target": "2.75rem",
+                    "container-margin": "1rem",
+                    "stack-lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "display": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant h-14 flex justify-between items-center px-container-margin">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="local_laundry_service">local_laundry_service</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">LaundryKu</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="notifications">notifications</span>
+</div>
+</header>
+<main class="pt-20 pb-24 px-container-margin min-h-screen">
+<!-- Search & Stats Header -->
+<div class="mb-stack-lg">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full h-12 pl-10 pr-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary text-body-md" placeholder="Search by name or phone..." type="text"/>
+</div>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-2 mb-stack-lg overflow-x-auto no-scrollbar">
+<button class="px-5 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform">Semua</button>
+<button class="px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-highest">VIP</button>
+<button class="px-5 py-2 bg-surface-container-high text-on-surface-variant rounded-full font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-highest">Baru</button>
+</div>
+<!-- Customer List Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-md">
+<!-- VIP Card Example -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex justify-between items-start hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-headline-md">
+                        AS
+                    </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Agus Santoso</h3>
+<span class="px-2 py-0.5 bg-warning text-on-surface text-[10px] font-bold rounded uppercase tracking-wider">VIP</span>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-2">0812-3456-7890</p>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="receipt_long">receipt_long</span>
+<span class="text-label-md font-label-md">24 Total Orders</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Regular Card Example -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex justify-between items-start hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-headline-md">
+                        BP
+                    </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Budi Pratama</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-2">0857-1122-3344</p>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]" data-icon="receipt_long">receipt_long</span>
+<span class="text-label-md font-label-md">8 Total Orders</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- New Customer Example -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex justify-between items-start hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold text-headline-md">
+                        CW
+                    </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Citra Wijaya</h3>
+<span class="px-2 py-0.5 bg-success text-on-primary text-[10px] font-bold rounded uppercase tracking-wider">Baru</span>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-2">0899-8877-6655</p>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]" data-icon="receipt_long">receipt_long</span>
+<span class="text-label-md font-label-md">1 Total Order</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Another Card -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex justify-between items-start hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-headline-md">
+                        DS
+                    </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Deni Setiawan</h3>
+<span class="px-2 py-0.5 bg-warning text-on-surface text-[10px] font-bold rounded uppercase tracking-wider">VIP</span>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-2">0813-9900-1122</p>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="receipt_long">receipt_long</span>
+<span class="text-label-md font-label-md">112 Total Orders</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Another Card -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex justify-between items-start hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-headline-md">
+                        EP
+                    </div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Endah Permata</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-2">0878-5544-3322</p>
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[16px]" data-icon="receipt_long">receipt_long</span>
+<span class="text-label-md font-label-md">15 Total Orders</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-20 right-4 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-lg flex items-center justify-center active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined text-[32px]" data-icon="person_add">person_add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant h-16 flex justify-around items-center px-2">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<!-- Orders -->
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</a>
+<!-- New -->
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-sm text-label-sm">New</span>
+</a>
+<!-- Finance -->
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-sm text-label-sm">Finance</span>
+</a>
+<!-- Profile (Active for Customer List context) -->
+<a class="flex flex-col items-center justify-center text-primary font-bold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<!-- Floating Atmosphere Elements -->
+<div class="fixed inset-0 pointer-events-none z-[-1] opacity-30">
+<div class="absolute top-1/4 -left-20 w-64 h-64 bg-primary-fixed-dim rounded-full blur-[120px]"></div>
+<div class="absolute bottom-1/4 -right-20 w-64 h-64 bg-secondary-fixed-dim rounded-full blur-[120px]"></div>
+</div>
+<script>
+        // Micro-interactions for Filter Chips
+        const filterChips = document.querySelectorAll('.filter-chip');
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                filterChips.forEach(c => {
+                    c.classList.remove('bg-primary', 'text-on-primary');
+                    c.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+                });
+                chip.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+                chip.classList.add('bg-primary', 'text-on-primary');
+            });
+        });
+
+        // Simple Search Simulation
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.grid > div');
+            cards.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const phone = card.querySelector('p').textContent.toLowerCase();
+                if (name.includes(term) || phone.includes(term)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body></html>

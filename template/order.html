@@ -1,0 +1,324 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>New Order - LaundryKu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e1e2ed",
+                    "dark-card": "#1F2937",
+                    "setrika": "#8B5CF6",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f0f0fb",
+                    "on-error-container": "#93000a",
+                    "on-primary-container": "#eeefff",
+                    "surface-variant": "#e1e2ed",
+                    "surface-container-lowest": "#ffffff",
+                    "pending": "#94A3B8",
+                    "on-secondary-fixed": "#121c28",
+                    "inverse-primary": "#b4c5ff",
+                    "on-tertiary-container": "#ffede6",
+                    "success": "#22C55E",
+                    "tertiary": "#943700",
+                    "surface-bright": "#faf8ff",
+                    "on-secondary": "#ffffff",
+                    "surface": "#faf8ff",
+                    "primary": "#004ac6",
+                    "danger": "#EF4444",
+                    "surface-dim": "#d9d9e5",
+                    "on-surface": "#191b23",
+                    "on-primary-fixed": "#00174b",
+                    "on-secondary-fixed-variant": "#3e4755",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary": "#555f6d",
+                    "secondary-container": "#d6e0f1",
+                    "secondary-fixed": "#d9e3f4",
+                    "dark-bg": "#111827",
+                    "secondary-fixed-dim": "#bdc7d8",
+                    "on-tertiary-fixed": "#360f00",
+                    "surface-tint": "#0053db",
+                    "outline-variant": "#c3c6d7",
+                    "on-surface-variant": "#434655",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#2e3039",
+                    "tertiary-fixed": "#ffdbcd",
+                    "background": "#faf8ff",
+                    "outline": "#737686",
+                    "primary-container": "#2563eb",
+                    "warning": "#EAB308",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-low": "#f3f3fe",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-background": "#191b23",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "on-secondary-container": "#596372",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container-high": "#e7e7f3",
+                    "kering": "#0EA5E9",
+                    "on-error": "#ffffff",
+                    "surface-container": "#ededf9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "gutter": "1rem",
+                    "stack-sm": "0.5rem",
+                    "touch-target": "2.75rem",
+                    "container-margin": "1rem",
+                    "stack-lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "display": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center px-container-margin h-14">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary active:opacity-70">arrow_back</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">New Order</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 px-container-margin max-w-md mx-auto space-y-stack-lg">
+<!-- Step 1: Customer Selection -->
+<section class="space-y-stack-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">CUSTOMER INFORMATION</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">person_search</span>
+<input class="w-full pl-10 pr-4 h-touch-target rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-container-lowest outline-none transition-all font-body-md text-body-md" placeholder="Cari nama pelanggan..." type="text">
+</div>
+<div class="flex gap-2 overflow-x-auto hide-scrollbar py-1">
+<button class="flex-shrink-0 px-4 py-2 bg-primary-container text-on-primary-container rounded-full text-label-md font-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">add</span> Pelanggan Baru
+                </button>
+<button class="flex-shrink-0 px-4 py-2 border border-outline-variant rounded-full text-label-md font-label-md text-secondary">Budi Santoso</button>
+<button class="flex-shrink-0 px-4 py-2 border border-outline-variant rounded-full text-label-md font-label-md text-secondary">Siti Aminah</button>
+</div>
+</section>
+<!-- Step 2: Item Entry -->
+<section class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-stack-md">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Pilih Produk &amp; Layanan</label>
+<span class="text-primary font-bold text-label-md">#ORD-202308-01</span>
+</div>
+<!-- Category Tabs -->
+<div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2 mb-2">
+<button class="flex-shrink-0 px-4 py-1.5 bg-primary text-on-primary rounded-full text-label-md font-label-md">Kiloan</button>
+<button class="flex-shrink-0 px-4 py-1.5 border border-outline-variant rounded-full text-label-md font-label-md text-secondary">Satuan</button>
+<button class="flex-shrink-0 px-4 py-1.5 border border-outline-variant rounded-full text-label-md font-label-md text-secondary">Layanan Tambahan</button>
+</div><div class="relative mb-4">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 h-10 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-container-lowest outline-none transition-all font-body-sm text-body-sm" placeholder="Cari produk..." type="text">
+</div>
+<!-- Compact Product List -->
+<div class="grid grid-cols-2 gap-2">
+<!-- Cuci Lipat -->
+<label class="cursor-pointer block">
+<input checked="" class="hidden peer" name="product" type="radio">
+<div class="flex flex-col items-center text-center p-3 border border-outline-variant rounded-lg bg-surface-container-lowest peer-checked:bg-secondary-container peer-checked:border-primary transition-all h-full justify-center"><span class="text-label-md font-bold text-on-surface leading-tight">Cuci Lipat</span><span class="text-[10px] text-secondary">Rp 7.000/kg</span></div>
+</label>
+<!-- Cuci Setrika -->
+<label class="cursor-pointer block">
+<input class="hidden peer" name="product" type="radio">
+<div class="flex flex-col items-center text-center p-3 border border-outline-variant rounded-lg bg-surface-container-lowest peer-checked:bg-secondary-container peer-checked:border-primary transition-all h-full justify-center"><span class="text-label-md font-bold text-on-surface leading-tight">Cuci Setrika</span><span class="text-[10px] text-secondary">Rp 10.000/kg</span></div>
+</label>
+<!-- Express -->
+<label class="cursor-pointer block">
+<input class="hidden peer" name="product" type="radio">
+<div class="flex flex-col items-center text-center p-3 border border-outline-variant rounded-lg bg-surface-container-lowest peer-checked:bg-secondary-container peer-checked:border-primary transition-all h-full justify-center"><span class="text-label-md font-bold text-on-surface leading-tight">Express</span><span class="text-[10px] text-secondary">+ Rp 5.000/kg</span></div>
+</label>
+</div>
+<!-- Dynamic Quantity Input -->
+<div class="space-y-stack-sm pt-2">
+<label class="font-label-md text-label-md text-on-surface-variant" id="qty-label">Berat (Kg)</label>
+<div class="flex items-center gap-4">
+<button class="w-touch-target h-touch-target rounded-full bg-outline-variant flex items-center justify-center active:scale-95 transition-transform" id="minus-btn">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<div class="flex-1 flex items-center justify-center border-b-2 border-primary">
+<input class="w-20 text-center font-headline-md text-headline-md bg-transparent border-none focus:ring-0 p-0" id="weight-input" step="0.1" type="number" value="1.0">
+<span class="text-secondary font-label-md ml-1" id="unit-label">Kg</span>
+</div>
+<button class="w-touch-target h-touch-target rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform" id="plus-btn">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Payment & Promo -->
+<section class="space-y-stack-md">
+<div class="flex items-center gap-3 bg-surface-container p-3 rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-primary">sell</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-body-md text-body-md" placeholder="Gunakan kode promo..." type="text">
+<button class="text-primary font-bold text-label-md px-2">PAKAI</button>
+</div>
+<div class="flex justify-between items-center p-4 bg-surface-container-lowest rounded-xl border border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">payments</span>
+<span class="font-body-md text-body-md">Status Pembayaran</span>
+</div>
+<div class="relative w-14 h-8 bg-pending rounded-full cursor-pointer transition-colors duration-300" id="payment-toggle">
+<div class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition-all duration-300 transform" id="toggle-circle"></div>
+</div>
+</div>
+<div class="flex justify-end">
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider" id="payment-label">BELUM LUNAS</span>
+</div>
+</section>
+<!-- Summary & Button -->
+<section class="pt-4 border-t border-outline-variant">
+<div class="flex justify-between items-end mb-6">
+<div class="space-y-1">
+<p class="text-label-sm font-label-sm text-secondary">Total Tagihan</p>
+<p class="font-display text-display text-primary tracking-tight">Rp <span id="total-price" class="">12.500</span></p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-secondary">Subtotal: Rp 10.000</p>
+<p class="text-[10px] text-secondary">Express: Rp 2.500</p>
+</div>
+</div>
+<button class="w-full h-14 bg-primary text-on-primary rounded-xl font-headline-md text-headline-md shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">save</span>
+                Simpan Order
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-sm text-label-sm">New</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-sm text-label-sm">Finance</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions and calculation logic
+        const weightInput = document.getElementById('weight-input');
+        const plusBtn = document.getElementById('plus-btn');
+        const minusBtn = document.getElementById('minus-btn');
+        const totalPriceEl = document.getElementById('total-price');
+        const paymentToggle = document.getElementById('payment-toggle');
+        const toggleCircle = document.getElementById('toggle-circle');
+        const paymentLabel = document.getElementById('payment-label');
+
+        const updatePrice = () => {
+            const weight = parseFloat(weightInput.value);
+            const basePrice = 10000;
+            const expressFee = 2500;
+            const total = (weight * basePrice) + (weight * expressFee);
+            totalPriceEl.textContent = total.toLocaleString('id-ID');
+        };
+
+        plusBtn.addEventListener('click', () => {
+            weightInput.value = (parseFloat(weightInput.value) + 0.5).toFixed(1);
+            updatePrice();
+        });
+
+        minusBtn.addEventListener('click', () => {
+            if (parseFloat(weightInput.value) > 0.5) {
+                weightInput.value = (parseFloat(weightInput.value) - 0.5).toFixed(1);
+                updatePrice();
+            }
+        });
+
+        weightInput.addEventListener('input', updatePrice);
+
+        let isPaid = false;
+        paymentToggle.addEventListener('click', () => {
+            isPaid = !isPaid;
+            if (isPaid) {
+                paymentToggle.classList.replace('bg-pending', 'bg-success');
+                toggleCircle.classList.add('translate-x-6');
+                paymentLabel.textContent = 'LUNAS';
+                paymentLabel.classList.replace('text-secondary', 'text-success');
+            } else {
+                paymentToggle.classList.replace('bg-success', 'bg-pending');
+                toggleCircle.classList.remove('translate-x-6');
+                paymentLabel.textContent = 'BELUM LUNAS';
+                paymentLabel.classList.replace('text-success', 'text-secondary');
+            }
+        });
+
+        // Add some atmospheric shadow logic on scroll for the TopAppBar
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
+
+
+</body></html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Komponen Form - LaundryKu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#121c28",
+                    "inverse-primary": "#b4c5ff",
+                    "dark-bg": "#111827",
+                    "on-surface-variant": "#434655",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#d9e3f4",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "tertiary": "#943700",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container-low": "#f3f3fe",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#2e3039",
+                    "tertiary-container": "#bc4800",
+                    "secondary-fixed-dim": "#bdc7d8",
+                    "surface-container": "#ededf9",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f0f0fb",
+                    "on-primary-container": "#eeefff",
+                    "success": "#22C55E",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#0053db",
+                    "dark-card": "#1F2937",
+                    "on-tertiary-container": "#ffede6",
+                    "on-error": "#ffffff",
+                    "warning": "#EAB308",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "surface": "#faf8ff",
+                    "surface-bright": "#faf8ff",
+                    "surface-variant": "#e1e2ed",
+                    "outline-variant": "#c3c6d7",
+                    "on-surface": "#191b23",
+                    "kering": "#0EA5E9",
+                    "outline": "#737686",
+                    "on-secondary-container": "#596372",
+                    "setrika": "#8B5CF6",
+                    "secondary-container": "#d6e0f1",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed-variant": "#3e4755",
+                    "pending": "#94A3B8",
+                    "surface-container-high": "#e7e7f3",
+                    "danger": "#EF4444",
+                    "tertiary-fixed": "#ffdbcd",
+                    "primary-fixed": "#dbe1ff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed": "#360f00",
+                    "background": "#faf8ff",
+                    "surface-container-highest": "#e1e2ed",
+                    "primary-container": "#2563eb",
+                    "secondary": "#555f6d",
+                    "primary": "#004ac6",
+                    "on-background": "#191b23",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-dim": "#d9d9e5",
+                    "on-primary-fixed": "#00174b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "stack-sm": "0.5rem",
+                    "container-margin": "1rem",
+                    "touch-target": "2.75rem",
+                    "gutter": "1rem",
+                    "stack-lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface pb-[120px]">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant h-touch-target flex items-center justify-between px-container-margin">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-100 text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary">Komponen Form</h1>
+</div>
+<div class="h-8 w-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional circular avatar portrait of a modern business owner, lit with bright high-key lighting to match a clean light-mode interface. The person is smiling warmly, representing reliability and professional laundry service management. The background is a soft, blurred corporate office setting with hints of blue and white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzzc624zoGg60U4OjjM5xkkX70DpiwVhuBFmCxvfWhSNrTO_84OlBQsgG6pcNdkCVwRypAxK1m6QqzVC-07AS4Atw58_GcOpyuwLEJxk6CHKB4Qq9daE0VYoEaWxXxlYq37D_8WVl31E_hE9CF7n0-t_VwrWGwrKy-58EqBK56Rci159ROhi-oyx707HWLjY6Ao-at5GIxix7FF-FjRr43hqxc7nEnrMZhdTzdVCnSQdtBEt7gAXKT01dKjNHk0Fih8DG4kHMPBvk"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-16 px-container-margin max-w-2xl mx-auto space-y-stack-lg">
+<!-- Text & Area Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Text &amp; Area</h2>
+<div class="space-y-stack-md">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface">Nama Pelanggan</label>
+<input class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-body-md bg-surface" placeholder="Contoh: Budi Santoso" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface">Catatan Order</label>
+<textarea class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary p-4 text-body-md bg-surface resize-none" placeholder="Tambahkan instruksi khusus..." rows="3"></textarea>
+</div>
+</div>
+</section>
+<!-- Selection Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Selection</h2>
+<div class="space-y-stack-md">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface">Kategori</label>
+<div class="relative">
+<select class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 appearance-none bg-surface text-body-md">
+<option>Pakaian Sehari-hari</option>
+<option>Bedding &amp; Linen</option>
+<option>Jas &amp; Pakaian Formal</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-3 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface">Prioritas</label>
+<div class="flex flex-wrap gap-4">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 text-primary border-outline-variant focus:ring-primary" name="priority" type="radio"/>
+<span class="text-body-md text-on-surface">Rendah</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="w-5 h-5 text-primary border-outline-variant focus:ring-primary" name="priority" type="radio"/>
+<span class="text-body-md text-on-surface">Sedang</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 text-primary border-outline-variant focus:ring-primary" name="priority" type="radio"/>
+<span class="text-body-md text-on-surface">Tinggi</span>
+</label>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface">Layanan Tambahan</label>
+<div class="grid grid-cols-2 gap-3">
+<label class="flex items-center gap-2 p-3 rounded-lg border border-outline-variant bg-surface active:bg-secondary-container transition-colors">
+<input class="w-5 h-5 rounded text-primary border-outline-variant focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm">Pewangi</span>
+</label>
+<label class="flex items-center gap-2 p-3 rounded-lg border border-outline-variant bg-surface active:bg-secondary-container transition-colors">
+<input class="w-5 h-5 rounded text-primary border-outline-variant focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm">Kantong Plastik</span>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Data & Numbers Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Data &amp; Numbers</h2>
+<div class="space-y-stack-md">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface">Berat (Kg)</label>
+<div class="flex items-center border border-outline-variant rounded-lg bg-surface overflow-hidden h-12">
+<button class="w-12 h-full flex items-center justify-center hover:bg-surface-container transition-colors border-r border-outline-variant" onclick="decrement('weight')">
+<span class="material-symbols-outlined text-primary">remove</span>
+</button>
+<input class="w-full text-center border-none focus:ring-0 text-body-md font-semibold bg-transparent" id="weight-input" type="number" value="1"/>
+<button class="w-12 h-full flex items-center justify-center hover:bg-surface-container transition-colors border-l border-outline-variant" onclick="increment('weight')">
+<span class="material-symbols-outlined text-primary">add</span>
+</button>
+</div>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface">Tgl. Selesai</label>
+<div class="relative">
+<input class="w-full rounded-lg border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-body-md bg-surface" type="date"/>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Controls Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Controls</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-surface rounded-lg border border-outline-variant">
+<div class="flex flex-col">
+<span class="font-body-md font-medium">Status Pembayaran</span>
+<span class="text-label-md text-on-surface-variant">Sudah Dibayar</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface rounded-lg border border-outline-variant">
+<div class="flex flex-col">
+<span class="font-body-md font-medium">Mode Kilat</span>
+<span class="text-label-md text-on-surface-variant">Selesai dalam 6 jam</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Special Action -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Special</h2>
+<button class="w-full h-16 flex items-center justify-center gap-3 border-2 border-dashed border-primary text-primary rounded-xl hover:bg-primary-container/10 transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">barcode_scanner</span>
+<span class="font-headline-md">Scan Barcode</span>
+</button>
+</section>
+<!-- Main Actions -->
+<div class="flex flex-col gap-3 py-stack-lg">
+<button class="w-full h-12 bg-primary text-white font-headline-md rounded-lg shadow-sm active:scale-95 transition-transform">
+                Simpan
+            </button>
+<button class="w-full h-12 bg-white border border-outline-variant text-on-surface-variant font-body-md rounded-lg hover:bg-surface-container-low active:scale-95 transition-all">
+                Batal
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 h-[72px] bg-surface border-t border-outline-variant shadow-sm flex justify-around items-center px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest transition-colors px-3 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest transition-colors px-3 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-sm text-label-sm">New</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest transition-colors px-3 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-sm text-label-sm">Finance</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest transition-colors px-3 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        function increment(id) {
+            const input = document.getElementById(id + '-input');
+            input.value = parseInt(input.value) + 1;
+            animateScale(input.parentElement);
+        }
+
+        function decrement(id) {
+            const input = document.getElementById(id + '-input');
+            if(parseInt(input.value) > 0) {
+                input.value = parseInt(input.value) - 1;
+                animateScale(input.parentElement);
+            }
+        }
+
+        function animateScale(el) {
+            el.classList.add('scale-105');
+            setTimeout(() => el.classList.remove('scale-105'), 100);
+        }
+
+        // Add visual feedback to checkboxes and radios
+        document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const parent = this.closest('label');
+                if(parent && this.type === 'checkbox') {
+                    if(this.checked) {
+                        parent.classList.add('bg-secondary-container', 'border-primary');
+                    } else {
+                        parent.classList.remove('bg-secondary-container', 'border-primary');
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

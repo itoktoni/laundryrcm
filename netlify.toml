@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "build"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["libsql", "@libsql/client", "@libsql/linux-x64-gnu", "@libsql/linux-x64-musl"]
+  included_files = []

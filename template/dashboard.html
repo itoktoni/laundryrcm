@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>LaundryKu Owner Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .chart-bar {
+            transition: height 1s ease-in-out;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e1e2ed",
+                        "dark-card": "#1F2937",
+                        "setrika": "#8B5CF6",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#eeefff",
+                        "surface-variant": "#e1e2ed",
+                        "surface-container-lowest": "#ffffff",
+                        "pending": "#94A3B8",
+                        "on-secondary-fixed": "#121c28",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-container": "#ffede6",
+                        "success": "#22C55E",
+                        "tertiary": "#943700",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary": "#ffffff",
+                        "surface": "#faf8ff",
+                        "primary": "#004ac6",
+                        "danger": "#EF4444",
+                        "surface-dim": "#d9d9e5",
+                        "on-surface": "#191b23",
+                        "on-primary-fixed": "#00174b",
+                        "on-secondary-fixed-variant": "#3e4755",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary": "#555f6d",
+                        "secondary-container": "#d6e0f1",
+                        "secondary-fixed": "#d9e3f4",
+                        "dark-bg": "#111827",
+                        "secondary-fixed-dim": "#bdc7d8",
+                        "on-tertiary-fixed": "#360f00",
+                        "surface-tint": "#0053db",
+                        "outline-variant": "#c3c6d7",
+                        "on-surface-variant": "#434655",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2e3039",
+                        "tertiary-fixed": "#ffdbcd",
+                        "background": "#faf8ff",
+                        "outline": "#737686",
+                        "primary-container": "#2563eb",
+                        "warning": "#EAB308",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-low": "#f3f3fe",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-background": "#191b23",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "on-secondary-container": "#596372",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "surface-container-high": "#e7e7f3",
+                        "kering": "#0EA5E9",
+                        "on-error": "#ffffff",
+                        "surface-container": "#ededf9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "gutter": "1rem",
+                        "stack-sm": "0.5rem",
+                        "touch-target": "2.75rem",
+                        "container-margin": "1rem",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface">
+    <!-- TopAppBar -->
+    <header
+        class="fixed top-0 w-full z-50 bg-surface dark:bg-dark-bg border-b border-outline-variant dark:border-outline flex justify-between items-center px-container-margin h-14">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary dark:text-inverse-primary">local_laundry_service</span>
+            <h1
+                class="font-headline-lg-mobile text-headline-lg-mobile text-primary dark:text-inverse-primary tracking-tight">
+                LaundryKu</h1>
+        </div>
+        <div class="relative cursor-pointer active:opacity-70">
+            <span class="material-symbols-outlined text-primary dark:text-inverse-primary">notifications</span>
+            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-error ring-2 ring-surface"></span>
+        </div>
+    </header>
+    <main class="pt-14 pb-20 px-container-margin min-h-screen">
+        <!-- Welcome Section -->
+        <section class="mt-stack-lg mb-stack-md">
+            <p class="font-label-md text-label-md text-on-surface-variant">Halo, Owner 👋</p>
+            <h2 class="font-headline-md text-headline-md text-on-surface">Statistik Toko Anda</h2>
+        </section>
+        <!-- Summary Bento Grid -->
+        <section class="grid grid-cols-2 gap-stack-sm mb-stack-lg">
+            <div
+                class="col-span-2 bg-primary-container p-4 rounded-xl text-on-primary-container flex justify-between items-center overflow-hidden relative">
+                <div class="relative z-10">
+                    <p class="font-label-md text-label-md opacity-90">Omset Hari Ini</p>
+                    <p class="font-display text-display font-bold">Rp 1.250.000</p>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-10">
+                    <span class="material-symbols-outlined text-[120px]">payments</span>
+                </div>
+            </div>
+            <div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-primary text-sm">receipt_long</span>
+                    <p class="font-label-md text-label-md text-on-surface-variant">Order Aktif</p>
+                </div>
+                <p class="font-headline-lg text-headline-lg text-on-surface">15</p>
+            </div>
+            <div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-success text-sm">person_add</span>
+                    <p class="font-label-md text-label-md text-on-surface-variant">Pelanggan Baru</p>
+                </div>
+                <p class="font-headline-lg text-headline-lg text-on-surface">3</p>
+            </div>
+        </section>
+        <!-- Charts Section -->
+        <section class="mb-stack-lg bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Omset 7 Hari
+                    Terakhir</h3>
+                <span class="text-xs text-on-surface-variant bg-surface-variant px-2 py-1 rounded">Update 1 jam
+                    lalu</span>
+            </div>
+            <div class="flex items-end justify-between h-32 gap-2 px-1">
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full bg-secondary-container chart-bar rounded-t" style="height: 40%"></div>
+                    <span class="text-[10px] font-medium opacity-60">Sen</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full bg-secondary-container chart-bar rounded-t" style="height: 60%"></div>
+                    <span class="text-[10px] font-medium opacity-60">Sel</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full bg-secondary-container chart-bar rounded-t" style="height: 35%"></div>
+                    <span class="text-[10px] font-medium opacity-60">Rab</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full bg-secondary-container chart-bar rounded-t" style="height: 75%"></div>
+                    <span class="text-[10px] font-medium opacity-60">Kam</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full bg-secondary-container chart-bar rounded-t" style="height: 50%"></div>
+                    <span class="text-[10px] font-medium opacity-60">Jum</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full bg-primary chart-bar rounded-t" style="height: 90%"></div>
+                    <span class="text-[10px] font-bold text-primary">Sab</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="w-full bg-secondary-container chart-bar rounded-t" style="height: 20%"></div>
+                    <span class="text-[10px] font-medium opacity-60">Min</span>
+                </div>
+            </div>
+        </section>
+        <!-- Quick Actions -->
+        <section class="mb-stack-lg">
+            <h3 class="font-label-md text-label-md mb-stack-sm text-on-surface font-bold uppercase tracking-wider">Aksi
+                Cepat</h3>
+            <div class="grid grid-cols-2 gap-stack-sm">
+                <button
+                    class="flex items-center justify-center gap-2 py-4 bg-primary text-on-primary rounded-xl font-bold active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    Order Baru
+                </button>
+                <button
+                    class="flex items-center justify-center gap-2 py-4 bg-surface-container-highest text-on-surface border border-outline-variant rounded-xl font-bold active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined">outbox</span>
+                    Pengeluaran
+                </button>
+            </div>
+        </section>
+        <!-- Notifications/Alerts -->
+        <section class="mb-stack-lg">
+            <h3 class="font-label-md text-label-md mb-stack-sm text-on-surface font-bold uppercase tracking-wider">
+                Pemberitahuan</h3>
+            <div class="space-y-2">
+                <div class="flex items-start gap-3 p-3 bg-warning/10 border border-warning/30 rounded-lg">
+                    <span class="material-symbols-outlined text-warning">warning</span>
+                    <div>
+                        <p class="font-body-md text-body-md font-semibold text-on-surface">Deterjen sisa 2 Liter</p>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">Segera lakukan pembelian stok baru
+                            hari ini.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-error-container border border-error/20 rounded-lg">
+                    <span class="material-symbols-outlined text-error">settings_suggest</span>
+                    <div>
+                        <p class="font-body-md text-body-md font-semibold text-on-surface">Mesin 2 perlu servis</p>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">Sudah mencapai batas 500 siklus
+                            operasional.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Recent Activity Image/Context -->
+        <section class="mb-stack-lg">
+            <h3 class="font-label-md text-label-md mb-stack-sm text-on-surface font-bold uppercase tracking-wider">
+                Kondisi Toko</h3>
+            <div class="relative w-full h-40 rounded-xl overflow-hidden group">
+                <div class="bg-cover bg-center w-full h-full transform transition-transform duration-700 group-hover:scale-105"
+                    data-alt="A professional and clean interior of a modern laundry shop during the golden hour. Rows of high-tech washing machines in silver and white are visible against a minimalist background of light wood and gray industrial tiles. The scene is bright, organized, and conveys a sense of high operational efficiency and professional reliability, reflecting a successful business environment."
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA35FRU1ou4-KD_d888J7UNqwD6dsI7AJgsaKoOrD5tczmiy88t0LHpwYimBNwI2CYIbp_mYRU2PBpM0NW8zRlkL5YSgRbsWAEiRhyLN2B46TDhiz0h2ZawkliYpqwOZxL1DCoLZ9pb_nOtjnnSeC6ee-vFL67QoDsKHQawzpBo0ZSfA7jyMoXrzVFy6-QA3qo27TPTOQ86ZPuZHVVxqY6TRrBMESe4AaPAkWcTJJkhHDQctiDZPojmZ4o6W6hBhwsShjmIWl5M6qI')">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                    <div class="text-white">
+                        <p class="text-xs font-bold uppercase tracking-tight opacity-80">Terakhir Dipantau</p>
+                        <p class="text-sm">Store Main Hall - 10:45 AM</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- BottomNavBar -->
+    <nav
+        class="fixed bottom-0 w-full z-50 bg-surface dark:bg-dark-bg border-t border-outline-variant dark:border-outline flex justify-around items-center h-16 w-full px-2">
+        <!-- Home (Active) -->
+        <a class="flex flex-col items-center justify-center text-primary dark:text-inverse-primary font-bold active:scale-95 transition-transform duration-150"
+            href="#">
+            <span class="material-symbols-outlined fill-icon">dashboard</span>
+            <span class="font-label-sm text-label-sm">Home</span>
+        </a>
+        <!-- Orders -->
+        <a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim active:scale-95 transition-transform duration-150"
+            href="#">
+            <span class="material-symbols-outlined">receipt_long</span>
+            <span class="font-label-sm text-label-sm">Orders</span>
+        </a>
+        <!-- New -->
+        <a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim active:scale-95 transition-transform duration-150"
+            href="#">
+            <span class="material-symbols-outlined text-primary text-3xl">add_circle</span>
+            <span class="font-label-sm text-label-sm">New</span>
+        </a>
+        <!-- Finance -->
+        <a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim active:scale-95 transition-transform duration-150"
+            href="#">
+            <span class="material-symbols-outlined">payments</span>
+            <span class="font-label-sm text-label-sm">Finance</span>
+        </a>
+        <!-- Profile -->
+        <a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim active:scale-95 transition-transform duration-150"
+            href="#">
+            <span class="material-symbols-outlined">person</span>
+            <span class="font-label-sm text-label-sm">Profile</span>
+        </a>
+    </nav>
+    <script>
+        // Micro-interactions for chart bars
+        document.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach(bar => {
+                const finalHeight = bar.style.height;
+                bar.style.height = '0px';
+                setTimeout(() => {
+                    bar.style.height = finalHeight;
+                }, 100);
+            });
+        });
+
+        // Add haptic feedback simulation on buttons
+        const buttons = document.querySelectorAll('button, a');
+        buttons.forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

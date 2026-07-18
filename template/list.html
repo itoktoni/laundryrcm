@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LaundryKu - Order List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#e1e2ed",
+                      "dark-card": "#1F2937",
+                      "setrika": "#8B5CF6",
+                      "error": "#ba1a1a",
+                      "error-container": "#ffdad6",
+                      "inverse-on-surface": "#f0f0fb",
+                      "on-error-container": "#93000a",
+                      "on-primary-container": "#eeefff",
+                      "surface-variant": "#e1e2ed",
+                      "surface-container-lowest": "#ffffff",
+                      "pending": "#94A3B8",
+                      "on-secondary-fixed": "#121c28",
+                      "inverse-primary": "#b4c5ff",
+                      "on-tertiary-container": "#ffede6",
+                      "success": "#22C55E",
+                      "tertiary": "#943700",
+                      "surface-bright": "#faf8ff",
+                      "on-secondary": "#ffffff",
+                      "surface": "#faf8ff",
+                      "primary": "#004ac6",
+                      "danger": "#EF4444",
+                      "surface-dim": "#d9d9e5",
+                      "on-surface": "#191b23",
+                      "on-primary-fixed": "#00174b",
+                      "on-secondary-fixed-variant": "#3e4755",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary": "#555f6d",
+                      "secondary-container": "#d6e0f1",
+                      "secondary-fixed": "#d9e3f4",
+                      "dark-bg": "#111827",
+                      "secondary-fixed-dim": "#bdc7d8",
+                      "on-tertiary-fixed": "#360f00",
+                      "surface-tint": "#0053db",
+                      "outline-variant": "#c3c6d7",
+                      "on-surface-variant": "#434655",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#2e3039",
+                      "tertiary-fixed": "#ffdbcd",
+                      "background": "#faf8ff",
+                      "outline": "#737686",
+                      "primary-container": "#2563eb",
+                      "warning": "#EAB308",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#bc4800",
+                      "surface-container-low": "#f3f3fe",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-background": "#191b23",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "on-secondary-container": "#596372",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "surface-container-high": "#e7e7f3",
+                      "kering": "#0EA5E9",
+                      "on-error": "#ffffff",
+                      "surface-container": "#ededf9"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-md": "1rem",
+                      "gutter": "1rem",
+                      "stack-sm": "0.5rem",
+                      "touch-target": "2.75rem",
+                      "container-margin": "1rem",
+                      "stack-lg": "1.5rem"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "display": ["Inter"],
+                      "label-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "display": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-tab { position: relative; color: #004ac6; }
+        .active-tab::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 3px; background-color: #004ac6; border-radius: 999px; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface dark:bg-dark-bg text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-dark-bg border-b border-outline-variant dark:border-outline flex justify-between items-center px-container-margin h-14">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary">local_laundry_service</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary dark:text-inverse-primary tracking-tight">LaundryKu</h1>
+</div>
+<div class="flex items-center cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-surface-variant">notifications</span>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="pt-14 pb-20 min-h-screen max-w-md mx-auto md:max-w-4xl">
+<!-- Search & Filter Section -->
+<div class="sticky top-14 bg-surface/95 dark:bg-dark-bg/95 backdrop-blur-md z-40 px-container-margin pt-stack-md pb-stack-sm space-y-4">
+<!-- Search Bar -->
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full h-11 pl-10 pr-4 bg-surface-container-low dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-body-md placeholder-outline-variant transition-all" placeholder="Search by Order ID or Name" type="text"/>
+</div>
+<!-- Tabs -->
+<div class="flex items-center justify-between border-b border-outline-variant dark:border-outline overflow-x-auto hide-scrollbar">
+<button class="active-tab px-4 py-2 font-label-md text-label-md whitespace-nowrap">Semua</button>
+<button class="px-4 py-2 text-on-surface-variant dark:text-surface-variant font-label-md text-label-md whitespace-nowrap">Proses</button>
+<button class="px-4 py-2 text-on-surface-variant dark:text-surface-variant font-label-md text-label-md whitespace-nowrap">Selesai</button>
+<button class="px-4 py-2 text-on-surface-variant dark:text-surface-variant font-label-md text-label-md whitespace-nowrap">Diambil</button>
+</div>
+</div>
+<!-- Orders List -->
+<div class="px-container-margin py-stack-md space-y-4">
+<!-- Order Card 1 (Active/Cuci) -->
+<div class="bg-surface-container-lowest dark:bg-dark-card p-4 rounded-xl border border-outline-variant dark:border-gray-700 shadow-[0px_1px_3px_rgba(0,0,0,0.05)] active:scale-[0.98] transition-transform duration-150">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Budi Santoso</h3>
+<p class="text-label-md font-label-md text-outline">#ORD-20230901-001</p>
+</div>
+<div class="text-right">
+<span class="block font-headline-md text-headline-md text-primary">Rp 45.000</span>
+<p class="text-label-sm font-label-sm text-outline">24 Oct, 09:30</p>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed rounded-md text-label-sm font-label-md">Cuci + Setrika</span>
+<span class="px-2 py-1 bg-surface-container-high dark:bg-gray-700 text-on-surface-variant dark:text-surface-variant rounded-md text-label-sm font-label-md">5 kg</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-gray-700">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-label-md font-label-md text-primary">Cuci</span>
+</div>
+<button class="flex items-center gap-1 text-primary font-label-md text-label-md uppercase tracking-wider">
+                        Update Status <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Order Card 2 (Pending/Urgent) -->
+<div class="bg-surface-container-lowest dark:bg-dark-card p-4 rounded-xl border border-outline-variant dark:border-gray-700 shadow-[0px_1px_3px_rgba(0,0,0,0.05)] active:scale-[0.98] transition-transform duration-150">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Siti Aminah</h3>
+<p class="text-label-md font-label-md text-outline">#ORD-20230901-005</p>
+</div>
+<div class="text-right">
+<span class="block font-headline-md text-headline-md text-primary">Rp 72.000</span>
+<p class="text-label-sm font-label-sm text-outline">24 Oct, 10:15</p>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-2 py-1 bg-tertiary-fixed text-on-tertiary-fixed rounded-md text-label-sm font-label-md">Express Cuci</span>
+<span class="px-2 py-1 bg-surface-container-high dark:bg-gray-700 text-on-surface-variant dark:text-surface-variant rounded-md text-label-sm font-label-md">8 kg</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-gray-700">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-warning"></div>
+<span class="text-label-md font-label-md text-warning">Antre</span>
+</div>
+<button class="flex items-center gap-1 text-primary font-label-md text-label-md uppercase tracking-wider">
+                        Mulai <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+</button>
+</div>
+</div>
+<!-- Order Card 3 (Success) -->
+<div class="bg-surface-container-lowest dark:bg-dark-card p-4 rounded-xl border border-outline-variant dark:border-gray-700 shadow-[0px_1px_3px_rgba(0,0,0,0.05)] opacity-80">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Agus Pratama</h3>
+<p class="text-label-md font-label-md text-outline">#ORD-20230831-012</p>
+</div>
+<div class="text-right">
+<span class="block font-headline-md text-headline-md text-secondary">Rp 28.000</span>
+<p class="text-label-sm font-label-sm text-outline">23 Oct, 14:20</p>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-2 py-1 bg-surface-container-high dark:bg-gray-700 text-on-surface-variant dark:text-surface-variant rounded-md text-label-sm font-label-md">Setrika Saja</span>
+<span class="px-2 py-1 bg-surface-container-high dark:bg-gray-700 text-on-surface-variant dark:text-surface-variant rounded-md text-label-sm font-label-md">4 kg</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-gray-700">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-success text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-label-md font-label-md text-success">Selesai</span>
+</div>
+<span class="text-label-md font-label-md text-outline italic">Menunggu Diambil</span>
+</div>
+</div>
+<!-- Order Card 4 (Setrika State) -->
+<div class="bg-surface-container-lowest dark:bg-dark-card p-4 rounded-xl border border-outline-variant dark:border-gray-700 shadow-[0px_1px_3px_rgba(0,0,0,0.05)] active:scale-[0.98] transition-transform duration-150">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Ratna Dewi</h3>
+<p class="text-label-md font-label-md text-outline">#ORD-20230901-009</p>
+</div>
+<div class="text-right">
+<span class="block font-headline-md text-headline-md text-primary">Rp 55.000</span>
+<p class="text-label-sm font-label-sm text-outline">24 Oct, 11:45</p>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed rounded-md text-label-sm font-label-md">Cuci + Setrika</span>
+<span class="px-2 py-1 bg-surface-container-high dark:bg-gray-700 text-on-surface-variant dark:text-surface-variant rounded-md text-label-sm font-label-md">6 kg</span>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-outline-variant dark:border-gray-700">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-setrika animate-pulse"></div>
+<span class="text-label-md font-label-md text-setrika">Setrika</span>
+</div>
+<button class="flex items-center gap-1 text-primary font-label-md text-label-md uppercase tracking-wider">
+                        Selesaikan <span class="material-symbols-outlined text-[18px]">done_all</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface dark:bg-dark-bg border-t border-outline-variant dark:border-outline flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-inverse-primary font-bold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</a>
+<div class="relative -top-5">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-sm text-label-sm">Finance</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple Micro-interaction for tabs
+        const tabs = document.querySelectorAll('button.font-label-md');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active-tab', 'text-primary'));
+                tabs.forEach(t => t.classList.add('text-on-surface-variant'));
+                tab.classList.add('active-tab');
+                tab.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>

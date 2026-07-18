@@ -66,21 +66,27 @@ export const actions = {
 		}
 
 		const o = order.rows[0];
+		const currentUniq = o.order_unique_code != null ? Number(o.order_unique_code) : 0;
+
+		const isManual = !uniqueCode || uniqueCode === 'null' || uniqueCode === '';
+		const finalTotal = isManual ? o.order_total_price - currentUniq : o.order_total_price;
+		const paidValue = paidAmount != null ? paidAmount : finalTotal;
+		const savedUniq = isManual ? null : uniqueCode;
 
 		if (o.order_payment_status !== 'paid') {
 			await db.execute({
-				sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ?, order_unique_code = ? WHERE order_id = ?',
-				args: ['paid', paidAmount ?? o.order_total_price, uniqueCode, params.id]
+				sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ?, order_unique_code = ?, order_total_price = ? WHERE order_id = ?',
+				args: ['paid', paidValue, savedUniq, finalTotal, params.id]
 			});
 
 			await db.execute({
 				sql: `INSERT INTO transactions (transaction_id, order_id, transaction_type, transaction_amount, transaction_category, transaction_description, transaction_date) 
-					VALUES (?, ?, ?, ?, ?, ?, ?)`,
+				VALUES (?, ?, ?, ?, ?, ?, ?)`,
 				args: [
 					crypto.randomUUID(),
 					params.id,
 					'income',
-					paidAmount ?? o.order_total_price,
+					paidValue,
 					'pembayaran order',
 					`Pembayaran order ${params.id}`,
 					new Date().toISOString()

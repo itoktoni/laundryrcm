@@ -38,7 +38,10 @@ export async function GET({ url }) {
 	const qris = env.QRIS || '';
 	const uniqStr = env.UNIQ || '0';
 	const amount = parseInt(url.searchParams.get('amount') || '0');
+	const orderId = url.searchParams.get('orderId') || '';
 	const uniq = parseInt(uniqStr);
+
+	const { db } = await import('$lib/server/db.js');
 
 	if (!qris) {
 		return json({ error: 'QRIS not configured' }, { status: 500 });
@@ -47,7 +50,18 @@ export async function GET({ url }) {
 	let finalAmount = amount;
 	let uniqValue = 0;
 
-	if (uniq < 0) {
+	if (orderId) {
+		const res = await db.execute({
+			sql: 'SELECT order_unique_code, order_total_price FROM orders WHERE order_id = ?',
+			args: [orderId]
+		});
+		if (res.rows.length > 0) {
+			const row = res.rows[0];
+			const orderUniq = row.order_unique_code != null ? Number(row.order_unique_code) : 0;
+			uniqValue = orderUniq;
+			finalAmount = amount + orderUniq;
+		}
+	} else if (uniq < 0) {
 		finalAmount = amount + uniq;
 		uniqValue = uniq;
 	} else if (uniq > 0) {

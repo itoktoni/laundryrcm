@@ -1,60 +1,163 @@
 import { db } from '$lib/server/db.js';
 import { json } from '@sveltejs/kit';
+import { appendFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const logDir = join(process.cwd(), 'logs');
+const logFile = join(logDir, 'webhook.log');
+
+let dirReady = false;
+async function log(...args) {
+	const line = `[webhook/payment] ${new Date().toISOString()} ${args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : a)).join(' ')}\n`;
+	console.log(line.trim());
+	try {
+		if (!dirReady) {
+			await mkdir(logDir, { recursive: true });
+			dirReady = true;
+		}
+		await appendFile(logFile, line);
+	} catch (err) {
+		console.error('[webhook/payment] log write failed', err);
+	}
+}
 
 export async function POST({ request }) {
-	const { env } = await import('$env/dynamic/private');
-	const token = env.WEBHOOK_TOKEN || '';
-
-	let body;
 	try {
-		body = await request.json();
-	} catch {
-		return json({ error: 'Invalid JSON' }, { status: 400 });
-	}
+		const { env } = await import('$env/dynamic/private');
+		const expectedUser = env.WEBHOOK_BASIC_USER || '';
+		const expectedPass = env.WEBHOOK_BASIC_PASS || '';
+		const debug = env.WEBHOOK_DEBUG === '1';
 
-	const { order_id, token: reqToken, paid_amount, unique_code } = body;
+		await log('received request', { debug, method: request.method, contentType: request.headers.get('content-type') });
 
-	if (!order_id || !reqToken) {
-		return json({ error: 'order_id and token required' }, { status: 400 });
-	}
+		const headers = {};
+		for (const [key, value] of request.headers) {
+			if (key.startsWith('x-')) headers[key] = value;
+		}
+		await log('x-headers', headers);
 
-	if (reqToken !== token) {
-		return json({ error: 'Invalid token' }, { status: 401 });
-	}
+		const authHeader = request.headers.get('authorization') || '';
+		let authUser = '';
+		let authPass = '';
+		let authMethod = 'none';
 
-	const result = await db.execute({
-		sql: 'SELECT * FROM orders WHERE order_id = ?',
-		args: [order_id]
-	});
+		if (authHeader.startsWith('Basic ')) {
+			try {
+				const decoded = atob(authHeader.slice(6));
+				[authUser, authPass] = decoded.split(':');
+				authMethod = 'basic';
+			} catch { /* ignore */ }
+		} else if (authHeader.startsWith('Bearer ')) {
+			authPass = authHeader.slice(7);
+			authMethod = 'bearer';
+		}
 
-	if (result.rows.length === 0) {
-		return json({ error: 'Order not found' }, { status: 404 });
-	}
+		const xApiKey = request.headers.get('x-api-key') || '';
+		if (xApiKey) {
+			authPass = xApiKey;
+			authMethod = 'x-api-key';
+		}
 
-	const order = result.rows[0];
+		await log('auth', { method: authMethod, user: authUser });
 
-	if (order.order_payment_status === 'paid') {
-		return json({ success: true, message: 'Already paid' });
-	}
+		let authorized = debug;
 
-	await db.execute({
-		sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ?, order_unique_code = ? WHERE order_id = ?',
-		args: ['paid', paid_amount ?? order.order_total_price, unique_code ?? null, order_id]
-	});
+		if (!authorized && authMethod === 'basic' && expectedUser && expectedPass) {
+			authorized = authUser === expectedUser && authPass === expectedPass;
+		}
+		if (!authorized && authMethod === 'bearer' && expectedPass) {
+			authorized = authPass === expectedPass;
+		}
+		if (!authorized && authMethod === 'x-api-key' && expectedPass) {
+			authorized = authPass === expectedPass;
+		}
 
-	await db.execute({
-		sql: `INSERT INTO transactions (transaction_id, order_id, transaction_type, transaction_amount, transaction_category, transaction_description, transaction_date)
+		if (!authorized) {
+			await log('unauthorized', { method: authMethod });
+			return json({ error: 'Unauthorized' }, { status: 401 });
+		}
+
+		let rawText;
+		try {
+			rawText = await request.text();
+		} catch {
+			await log('cannot read body');
+			return json({ error: 'Cannot read body' }, { status: 400 });
+		}
+
+		await log('raw body text', rawText);
+
+		let body;
+		try {
+			body = rawText ? JSON.parse(rawText) : {};
+		} catch {
+			await log('invalid JSON');
+			return json({ error: 'Invalid JSON' }, { status: 400 });
+		}
+
+		await log('raw body', body);
+
+		const reference = body.reference || body.order_id || body.orderId || null;
+		const notifText = body.notification_text || '';
+		const extractedAmount = notifText ? Number(String(notifText).replace(/[^0-9.,]/g, '').replace(/\./g, '').replace(',', '.')) : NaN;
+		const paid_amount = body.paid_amount ?? body.amount ?? body.paidAmount ?? extractedAmount;
+		const unique_code = body.unique_code ?? body.uniqueCode ?? (body.source ? String(body.source).replace(/\s+/g, '_').toLowerCase() : null);
+
+		await log('payload', { reference, paid_amount, extractedAmount, notifText, unique_code });
+
+		if (!paid_amount || Number.isNaN(Number(paid_amount))) {
+			await log('missing amount');
+			return json({ error: 'amount required' }, { status: 400 });
+		}
+
+		const amountNum = Number(paid_amount);
+
+		const result = await db.execute({
+			sql: `SELECT * FROM orders
+				WHERE order_payment_status != 'paid'
+				AND CAST(order_total_price AS REAL) = ?
+				ORDER BY order_created_at DESC LIMIT 1`,
+			args: [amountNum]
+		});
+
+		if (result.rows.length === 0) {
+			await log('no pending order matched amount', { amount: amountNum, reference });
+			return json({ error: 'No matching order' }, { status: 404 });
+		}
+
+		const order = result.rows[0];
+		const order_id = order.order_id;
+
+		if (order.order_payment_status === 'paid') {
+			await log('already paid', order_id);
+			return json({ success: true, message: 'Already paid' });
+		}
+
+		await log('marking paid', { order_id, amount: amountNum });
+
+		await db.execute({
+			sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ? WHERE order_id = ?',
+			args: ['paid', amountNum, order_id]
+		});
+
+		await db.execute({
+			sql: `INSERT INTO transactions (transaction_id, order_id, transaction_type, transaction_amount, transaction_category, transaction_description, transaction_date)
 			VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		args: [
-			crypto.randomUUID(),
-			order_id,
-			'income',
-			paid_amount ?? order.order_total_price,
-			'pembayaran order',
-			`Pembayaran webhook order ${order_id}`,
-			new Date().toISOString()
-		]
-	});
+			args: [
+				crypto.randomUUID(),
+				order_id,
+				'income',
+				amountNum,
+				'pembayaran order',
+				`Pembayaran webhook ${reference || ''}`.trim(),
+				new Date().toISOString()
+			]
+		});
 
-	return json({ success: true });
+		await log('done', { order_id, reference });
+		return json({ success: true, order_id });
+	} catch (err) {
+		await log('ERROR', err?.stack || String(err));
+		return json({ error: 'Internal error' }, { status: 500 });
+	}
 }

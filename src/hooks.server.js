@@ -1,6 +1,6 @@
 import { validateSession, getSessionId } from '$lib/server/auth.js';
 
-const publicRoutes = ['/login', '/register', '/api/wa/webhook', '/api/qris'];
+const publicRoutes = ['/login', '/register', '/api/wa/webhook', '/api/qris', '/api/webhook'];
 
 export async function handle({ event, resolve }) {
 	const sessionId = getSessionId(event.cookies);

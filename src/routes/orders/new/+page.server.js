@@ -51,13 +51,18 @@ export const actions = {
 	},
 
 	createPending: async ({ request, locals }) => {
-		const result = await createOrderCore({ request, locals, forceUnpaid: true });
-		if (result.error) return result.error;
-		return { orderId: result.orderId };
+		try {
+			const result = await createOrderCore({ request, locals, forceUnpaid: true, withUniqueCode: true });
+			if (result.error) return result.error;
+			return { orderId: result.orderId };
+		} catch (err) {
+			console.error('[createPending] ERROR', err?.stack || String(err));
+			return fail(500, { error: err?.message || 'Internal error' });
+		}
 	}
 };
 
-async function createOrderCore({ request, locals, forceUnpaid = false }) {
+async function createOrderCore({ request, locals, forceUnpaid = false, withUniqueCode = false }) {
 	const formData = await request.formData();
 	const customerId = formData.get('customer_id')?.toString();
 	const promoId = formData.get('promo_id')?.toString() || null;
@@ -147,11 +152,42 @@ async function createOrderCore({ request, locals, forceUnpaid = false }) {
 	const total = subtotal - discount;
 	const paymentStatus = forceUnpaid ? 'unpaid' : formData.get('payment_status')?.toString() || 'unpaid';
 
+	let uniqueCode = 0;
+	if (withUniqueCode) {
+		const { env } = await import('$env/dynamic/private');
+		const uniqConfig = parseInt(env.UNIQ || '0');
+		if (uniqConfig < 0) {
+			uniqueCode = uniqConfig;
+		} else if (uniqConfig > 0) {
+			const max = Math.pow(10, uniqConfig);
+			const used = await db.execute({
+				sql: `SELECT CAST(order_unique_code AS INTEGER) as uc FROM orders
+					WHERE order_payment_status != 'paid'
+					AND order_unique_code IS NOT NULL
+					AND order_created_at >= datetime('now', '-5 minutes')`,
+				args: []
+			});
+			const taken = new Set(used.rows.map((r) => r.uc).filter((n) => n != null && n > 0 && n < max));
+			let pick = null;
+			for (let i = 1; i < max; i++) {
+				if (!taken.has(i)) { pick = i; break; }
+			}
+			if (pick === null) {
+				for (let i = 1; i < max; i++) {
+					if (!taken.has(i)) { pick = i; break; }
+				}
+			}
+			uniqueCode = pick ?? Math.floor(Math.random() * (max - 1)) + 1;
+		}
+	}
+	const finalTotal = total + uniqueCode;
+
 	const orderId = generateId();
+	const uniqueCodeValue = uniqueCode !== 0 ? String(Math.trunc(uniqueCode)) : null;
 	await db.execute({
-		sql: `INSERT INTO orders (order_id, customer_id, promo_id, order_subtotal, order_discount_amount, order_total_price, order_payment_status, order_notes, order_created_by) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		args: [orderId, customerId, appliedPromoId, subtotal, discount, total, paymentStatus, notes, locals.user.id]
+		sql: `INSERT INTO orders (order_id, customer_id, promo_id, order_subtotal, order_discount_amount, order_total_price, order_unique_code, order_payment_status, order_notes, order_created_by) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		args: [orderId, customerId, appliedPromoId, subtotal, discount, finalTotal, uniqueCodeValue, paymentStatus, notes, locals.user.id]
 	});
 
 	// If paid, create income transaction

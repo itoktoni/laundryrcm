@@ -63,7 +63,7 @@
 		loading = true;
 		qrisData = null;
 		try {
-			const resp = await fetch(`/api/qris?amount=${amount}`);
+			const resp = await fetch(`/api/qris?amount=${amount}${orderId ? `&orderId=${orderId}` : ''}`);
 			const data = await resp.json();
 			qrisData = data;
 			loading = false;
@@ -187,25 +187,42 @@
 				<button type="button" onclick={() => open = false} class="flex-1 h-12 bg-surface-container-high text-on-surface rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform">
 					Batal
 				</button>
-				{#if orderId}
-					<form
-						method="POST"
-						action={`/orders/${orderId}?/markPaid`}
-						use:enhance={() => {
-							return async ({ result }) => {
-								if (result.type === 'success') handlePaid();
-							};
-						}}
-						class="flex-1"
-					>
-						<input type="hidden" name="paid_amount" value={qrisData?.finalAmount ?? amount} />
-						<input type="hidden" name="unique_code" value={qrisData?.uniq ?? ''} />
-						<button type="submit" class="w-full h-12 bg-success text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-							<span class="material-symbols-outlined text-[18px]">check_circle</span>
-							Sudah Bayar
-						</button>
-					</form>
-				{:else}
+			{#if orderId}
+				<form
+					method="POST"
+					action={`/orders/${orderId}?/markPaid`}
+					use:enhance={() => {
+						return async ({ result }) => {
+							if (result.type === 'success') handlePaid();
+						};
+					}}
+					class="flex-1"
+				>
+					<input type="hidden" name="paid_amount" value={qrisData?.finalAmount ?? amount} />
+					<input type="hidden" name="unique_code" value={qrisData?.uniq ?? ''} />
+					<button type="submit" class="w-full h-12 bg-success text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+						<span class="material-symbols-outlined text-[18px]">check_circle</span>
+						Sudah Bayar (Transfer)
+					</button>
+				</form>
+				<form
+					method="POST"
+					action={`/orders/${orderId}?/markPaid`}
+					use:enhance={() => {
+						return async ({ result }) => {
+							if (result.type === 'success') handlePaid();
+						};
+					}}
+					class="flex-1"
+				>
+					<input type="hidden" name="paid_amount" value={amount} />
+					<input type="hidden" name="unique_code" value="" />
+					<button type="submit" class="w-full h-12 bg-primary text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+						<span class="material-symbols-outlined text-[18px]">payments</span>
+						Bayar Cash
+					</button>
+				</form>
+			{:else}
 					<button type="button" onclick={() => { open = false; if (onConfirm) onConfirm(); }} class="flex-1 h-12 bg-success text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 						<span class="material-symbols-outlined text-[18px]">check_circle</span>
 						Sudah Bayar

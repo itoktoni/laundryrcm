@@ -202,7 +202,7 @@
 					<input type="hidden" name="unique_code" value={qrisData?.uniq ?? ''} />
 					<button type="submit" class="w-full h-12 bg-success text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 						<span class="material-symbols-outlined text-[18px]">check_circle</span>
-						Sudah Bayar (Transfer)
+						Sudah Bayar
 					</button>
 				</form>
 				<form

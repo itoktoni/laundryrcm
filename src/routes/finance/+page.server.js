@@ -3,9 +3,16 @@ import { db } from '$lib/server/db.js';
 export async function load({ url }) {
 	const period = url.searchParams.get('period') || 'month';
 	const type = url.searchParams.get('type') || '';
+	const startDate = url.searchParams.get('start_date') || '';
+	const endDate = url.searchParams.get('end_date') || '';
 
 	let dateFilter = '';
-	if (period === 'today') {
+	const args = [];
+
+	if (startDate && endDate) {
+		dateFilter = "AND DATE(transaction_date) >= ? AND DATE(transaction_date) <= ?";
+		args.push(startDate, endDate);
+	} else if (period === 'today') {
 		dateFilter = "AND DATE(transaction_date) = DATE('now')";
 	} else if (period === 'week') {
 		dateFilter = "AND DATE(transaction_date) >= DATE('now', 'weekday 0', '-7 days')";
@@ -14,21 +21,25 @@ export async function load({ url }) {
 	}
 
 	let typeFilter = '';
+	const typeArgs = [];
 	if (type) {
 		typeFilter = 'AND transaction_type = ?';
+		typeArgs.push(type);
 	}
+
+	const allArgs = [...args, ...typeArgs];
 
 	const [transactions, summary] = await Promise.all([
 		db.execute({
 			sql: `SELECT * FROM transactions WHERE 1=1 ${dateFilter} ${typeFilter} ORDER BY transaction_date DESC LIMIT 100`,
-			args: type ? [type] : []
+			args: allArgs
 		}),
 		db.execute({
-			sql: `SELECT 
+			sql: `SELECT
 				COALESCE(SUM(CASE WHEN transaction_type = 'income' THEN transaction_amount ELSE 0 END), 0) as income,
 				COALESCE(SUM(CASE WHEN transaction_type = 'expense' THEN transaction_amount ELSE 0 END), 0) as expense
 				FROM transactions WHERE 1=1 ${dateFilter}`,
-			args: []
+			args: args
 		})
 	]);
 
@@ -38,7 +49,7 @@ export async function load({ url }) {
 	return {
 		transactions: transactions.rows,
 		summary: { income, expense, profit: income - expense },
-		filters: { period, type }
+		filters: { period, type, startDate, endDate }
 	};
 }
 

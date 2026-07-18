@@ -4,6 +4,7 @@
 
 	let { data } = $props();
 	let showAddForm = $state(false);
+	let showAdvanced = $state(false);
 	let newType = $state('expense');
 	let newAmount = $state('');
 	let newCategory = $state('');
@@ -25,6 +26,25 @@
 		url.searchParams.set('type', type);
 		window.location.href = url.toString();
 	}
+
+	function applyDateFilter() {
+		const url = new URL(window.location.href);
+		url.searchParams.delete('period');
+		url.searchParams.set('start_date', startDateValue);
+		url.searchParams.set('end_date', endDateValue);
+		window.location.href = url.toString();
+	}
+
+	function clearDateFilter() {
+		const url = new URL(window.location.href);
+		url.searchParams.delete('start_date');
+		url.searchParams.delete('end_date');
+		url.searchParams.set('period', 'month');
+		window.location.href = url.toString();
+	}
+
+	let startDateValue = $state(data.filters.startDate || '');
+	let endDateValue = $state(data.filters.endDate || '');
 </script>
 
 <svelte:head>
@@ -55,12 +75,39 @@
 	</div>
 
 	<!-- Period Filter -->
-	<div class="flex gap-2 overflow-x-auto hide-scrollbar">
-		{#each [{id: 'today', label: 'Hari Ini'}, {id: 'week', label: 'Minggu Ini'}, {id: 'month', label: 'Bulan Ini'}] as period}
-			<button onclick={() => filterPeriod(period.id)} class="flex-shrink-0 px-4 py-2 {data.filters.period === period.id ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'} rounded-full font-label-md text-label-md active:scale-95 transition-transform">
-				{period.label}
+	<div class="space-y-2">
+		<div class="flex gap-2 overflow-x-auto hide-scrollbar">
+			{#each [{id: 'today', label: 'Hari Ini'}, {id: 'week', label: 'Minggu Ini'}, {id: 'month', label: 'Bulan Ini'}] as period}
+				<button onclick={() => filterPeriod(period.id)} class="flex-shrink-0 px-4 py-2 {!data.filters.startDate && data.filters.period === period.id ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'} rounded-full font-label-md text-label-md active:scale-95 transition-transform">
+					{period.label}
+				</button>
+			{/each}
+			<button onclick={() => showAdvanced = !showAdvanced} class="flex-shrink-0 px-4 py-2 {data.filters.startDate || showAdvanced ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'} rounded-full font-label-md text-label-md active:scale-95 transition-transform flex items-center gap-1">
+				<span class="material-symbols-outlined text-[16px]">tune</span>
+				Filter
 			</button>
-		{/each}
+		</div>
+		{#if showAdvanced || data.filters.startDate}
+			<div class="p-3 bg-surface-container-low rounded-xl border border-outline-variant space-y-3">
+				<p class="font-label-md text-label-md text-on-surface-variant uppercase">Filter Tanggal</p>
+				<div class="grid grid-cols-2 gap-2">
+					<div>
+						<label class="text-label-sm text-on-surface-variant">Dari Tanggal</label>
+						<input type="date" bind:value={startDateValue} class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm mt-1" />
+					</div>
+					<div>
+						<label class="text-label-sm text-on-surface-variant">Sampai Tanggal</label>
+						<input type="date" bind:value={endDateValue} class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm mt-1" />
+					</div>
+				</div>
+				<div class="flex gap-2">
+					<button onclick={applyDateFilter} disabled={!startDateValue || !endDateValue} class="flex-1 h-10 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-[0.98] transition-transform disabled:opacity-50">Terapkan</button>
+					{#if data.filters.startDate}
+						<button onclick={clearDateFilter} class="px-4 h-10 bg-surface-container-high text-on-surface rounded-lg font-bold text-label-md active:scale-[0.98] transition-transform">Reset</button>
+					{/if}
+				</div>
+			</div>
+		{/if}
 	</div>
 
 	<!-- Add Transaction -->

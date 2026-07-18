@@ -37,7 +37,7 @@ export async function validateSession(sessionId) {
 	if (!sessionId) return null;
 
 	const result = await db.execute({
-		sql: 'SELECT s.*, u.user_id, u.user_name, u.user_email, u.user_role FROM sessions s JOIN users u ON s.user_id = u.user_id WHERE s.session_id = ? AND s.expires_at > datetime("now")',
+		sql: `SELECT s.*, u.user_id, u.user_name, u.user_email, u.user_role FROM sessions s JOIN users u ON s.user_id = u.user_id WHERE s.session_id = ? AND s.expires_at > datetime('now')`,
 		args: [sessionId]
 	});
 

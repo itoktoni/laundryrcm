@@ -9,7 +9,10 @@ function hashPassword(password) {
 	});
 }
 
-const db = createClient({ url: 'file:local.db' });
+const db = createClient({
+	url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+	authToken: process.env.TURSO_AUTH_TOKEN || undefined
+});
 
 // Seed default walk-in customer
 await db.execute(`INSERT OR IGNORE INTO customers (customer_id, customer_name, customer_phone, customer_address, customer_vip, customer_total_orders) VALUES

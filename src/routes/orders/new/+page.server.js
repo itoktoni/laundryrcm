@@ -154,8 +154,8 @@ async function createOrderCore({ request, locals, forceUnpaid = false, withUniqu
 
 	let uniqueCode = 0;
 	if (withUniqueCode) {
-		const { env } = await import('$env/dynamic/private');
-		const uniqConfig = parseInt(env.UNIQ || '0');
+		const { getSetting } = await import('$lib/server/settings.js');
+		const uniqConfig = parseInt(await getSetting('uniq', '0'));
 		if (uniqConfig < 0) {
 			uniqueCode = uniqConfig;
 		} else if (uniqConfig > 0) {

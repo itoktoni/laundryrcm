@@ -33,10 +33,18 @@ function convertStaticToDynamic(staticQris, amount) {
 	return dynamicStr + newCrc;
 }
 
-export async function GET({ url }) {
-	const { env } = await import('$env/dynamic/private');
-	const qris = env.QRIS || '';
-	const uniqStr = env.UNIQ || '0';
+export async function GET({ url, request }) {
+	const { getSettings } = await import('$lib/server/settings.js');
+	const settings = await getSettings();
+	const expectedKey = settings.qris_api_key || '';
+	const authHeader = request.headers.get('authorization') || '';
+
+	if (!expectedKey || !authHeader.startsWith('Bearer ') || authHeader.slice(7) !== expectedKey) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	const qris = settings.qris || '';
+	const uniqStr = settings.uniq || '0';
 	const amount = parseInt(url.searchParams.get('amount') || '0');
 	const orderId = url.searchParams.get('orderId') || '';
 	const uniq = parseInt(uniqStr);

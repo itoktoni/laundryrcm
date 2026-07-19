@@ -23,10 +23,11 @@ async function log(...args) {
 
 export async function POST({ request }) {
 	try {
-		const { env } = await import('$env/dynamic/private');
-		const expectedUser = env.WEBHOOK_BASIC_USER || '';
-		const expectedPass = env.WEBHOOK_BASIC_PASS || '';
-		const debug = env.WEBHOOK_DEBUG === '1';
+		const { getSettings } = await import('$lib/server/settings.js');
+		const settings = await getSettings();
+		const expectedUser = settings.webhook_basic_user || '';
+		const expectedPass = settings.webhook_basic_pass || '';
+		const debug = settings.webhook_debug === '1';
 
 		await log('received request', { debug, method: request.method, contentType: request.headers.get('content-type') });
 

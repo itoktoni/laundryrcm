@@ -6,6 +6,7 @@
 	import Navbar from '$lib/components/layout/Navbar.svelte';
 	import BottomNav from '$lib/components/layout/BottomNav.svelte';
 	import Drawer from '$lib/components/layout/Drawer.svelte';
+	import Toaster from '$lib/components/Toaster.svelte';
 
 	let { data, children } = $props();
 	let drawerOpen = $state(false);
@@ -36,4 +37,6 @@
 			<BottomNav user={data.user} />
 		{/if}
 	</div>
+
+	<Toaster />
 </div>

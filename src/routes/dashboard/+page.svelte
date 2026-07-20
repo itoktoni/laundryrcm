@@ -104,6 +104,34 @@
 	</div>
 </section>
 
+<!-- Low Stock Alert -->
+{#if data.lowStock.length > 0}
+	<section class="mb-stack-lg">
+		<div class="bg-warning-container border border-warning rounded-xl p-4">
+			<div class="flex items-center gap-2 mb-3">
+				<span class="material-symbols-outlined text-warning">warning</span>
+				<h3 class="font-label-md text-label-md text-on-warning-container font-bold uppercase tracking-wider">Stok Menipis</h3>
+			</div>
+			<div class="space-y-2">
+				{#each data.lowStock as item}
+					<a href="/inventory" class="block bg-surface-container-lowest rounded-lg p-3 active:scale-[0.98] transition-transform">
+						<div class="flex justify-between items-center">
+							<div>
+								<p class="font-body-md text-on-surface font-semibold">{item.inventory_name}</p>
+								<p class="text-label-sm text-on-surface-variant">Min: {item.inventory_min_stock} {item.inventory_unit}</p>
+							</div>
+							<div class="text-right">
+								<p class="font-headline-md text-error">{item.inventory_quantity}</p>
+								<p class="text-label-sm text-on-surface-variant">{item.inventory_unit}</p>
+							</div>
+						</div>
+					</a>
+				{/each}
+			</div>
+		</div>
+	</section>
+{/if}
+
 <!-- Quick Actions -->
 <section class="mb-stack-lg">
 	<h3 class="font-label-md text-label-md mb-stack-sm text-on-surface font-bold uppercase tracking-wider">Aksi Cepat</h3>

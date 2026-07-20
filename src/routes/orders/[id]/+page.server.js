@@ -95,5 +95,43 @@ export const actions = {
 		}
 
 		return { success: true };
+	},
+
+	deleteOrder: async ({ params, locals }) => {
+		const user = locals.user;
+		if (!user || (user.role !== 'owner' && user.role !== 'admin')) {
+			return fail(403, { error: 'Hanya owner dan admin yang bisa menghapus order' });
+		}
+
+		const orderId = params.id;
+
+		const order = await db.execute({
+			sql: 'SELECT * FROM orders WHERE order_id = ?',
+			args: [orderId]
+		});
+
+		if (order.rows.length === 0) {
+			return fail(404, { error: 'Order tidak ditemukan' });
+		}
+
+		// Delete related transactions first
+		await db.execute({
+			sql: 'DELETE FROM transactions WHERE order_id = ?',
+			args: [orderId]
+		});
+
+		// Delete order items
+		await db.execute({
+			sql: 'DELETE FROM order_items WHERE order_id = ?',
+			args: [orderId]
+		});
+
+		// Finally delete the order
+		await db.execute({
+			sql: 'DELETE FROM orders WHERE order_id = ?',
+			args: [orderId]
+		});
+
+		throw redirect(302, '/orders');
 	}
 };

@@ -53,24 +53,42 @@
 
 <div class="space-y-stack-lg">
 	<!-- Summary Cards -->
-	<div class="grid grid-cols-2 gap-stack-sm">
-		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
-			<div class="flex items-center gap-2 mb-1">
-				<span class="material-symbols-outlined text-success text-sm">arrow_downward</span>
+	<div class="grid grid-cols-2 gap-3">
+		<div class="bg-white dark:bg-gray-800 p-4 rounded-xl border-2 border-green-200 dark:border-green-800 shadow-sm">
+			<div class="flex items-center gap-2 mb-2">
+				<div class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+					<span class="material-symbols-outlined text-success text-lg">arrow_downward</span>
+				</div>
 				<p class="font-label-md text-label-md text-on-surface-variant">Pemasukan</p>
 			</div>
-			<p class="font-headline-lg text-headline-lg text-success">{formatCurrency(data.summary.income)}</p>
+			<p class="font-headline-lg text-headline-lg text-success font-bold">{formatCurrency(data.summary.income)}</p>
 		</div>
-		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
-			<div class="flex items-center gap-2 mb-1">
-				<span class="material-symbols-outlined text-error text-sm">arrow_upward</span>
+		<div class="bg-white dark:bg-gray-800 p-4 rounded-xl border-2 border-red-200 dark:border-red-800 shadow-sm">
+			<div class="flex items-center gap-2 mb-2">
+				<div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+					<span class="material-symbols-outlined text-error text-lg">arrow_upward</span>
+				</div>
 				<p class="font-label-md text-label-md text-on-surface-variant">Pengeluaran</p>
 			</div>
-			<p class="font-headline-lg text-headline-lg text-error">{formatCurrency(data.summary.expense)}</p>
+			<p class="font-headline-lg text-headline-lg text-error font-bold">{formatCurrency(data.summary.expense)}</p>
 		</div>
-		<div class="col-span-2 bg-primary-container p-4 rounded-xl text-on-primary-container">
-			<p class="font-label-md text-label-md opacity-90">Laba Bersih</p>
-			<p class="font-display text-display font-bold">{formatCurrency(data.summary.profit)}</p>
+		<div class="col-span-2 bg-white dark:bg-gray-800 p-4 rounded-xl border-2 border-amber-200 dark:border-amber-800 shadow-sm">
+			<div class="flex items-center gap-2 mb-2">
+				<div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+					<span class="material-symbols-outlined text-amber-600 text-lg">schedule</span>
+				</div>
+				<p class="font-label-md text-label-md text-on-surface-variant">Piutang (Belum Dibayar)</p>
+			</div>
+			<p class="font-headline-lg text-headline-lg text-amber-600 dark:text-amber-400 font-bold">{formatCurrency(data.summary.unpaid)}</p>
+		</div>
+		<div class="col-span-2 bg-white dark:bg-gray-800 p-4 rounded-xl border-2 border-blue-200 dark:border-blue-800 shadow-sm">
+			<div class="flex items-center gap-2 mb-2">
+				<div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+					<span class="material-symbols-outlined text-blue-600 text-lg">trending_up</span>
+				</div>
+				<p class="font-label-md text-label-md text-on-surface-variant">Laba Bersih</p>
+			</div>
+			<p class="font-headline-lg text-headline-lg text-blue-600 dark:text-blue-400 font-bold">{formatCurrency(data.summary.profit)}</p>
 		</div>
 	</div>
 
@@ -110,11 +128,17 @@
 		{/if}
 	</div>
 
-	<!-- Add Transaction -->
-	<button onclick={() => showAddForm = !showAddForm} class="w-full h-12 {showAddForm ? 'bg-surface-container-highest text-on-surface border border-outline-variant' : 'bg-primary text-on-primary'} rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-		<span class="material-symbols-outlined">{showAddForm ? 'close' : 'add'}</span>
-		{showAddForm ? 'Tutup' : 'Catat Transaksi'}
-	</button>
+	<!-- Action Buttons -->
+	<div class="flex gap-2">
+		<button onclick={() => showAddForm = !showAddForm} class="flex-1 h-12 {showAddForm ? 'bg-surface-container-highest text-on-surface border border-outline-variant' : 'bg-primary text-on-primary'} rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+			<span class="material-symbols-outlined">{showAddForm ? 'close' : 'add'}</span>
+			{showAddForm ? 'Tutup' : 'Catat Transaksi'}
+		</button>
+		<a href="/api/finance/export?period={data.filters.period}&type={data.filters.type}&start_date={data.filters.startDate}&end_date={data.filters.endDate}" class="inline-flex h-12 items-center gap-1 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-sm font-medium text-white transition-colors" download>
+			<span class="material-symbols-outlined text-[18px]">download</span>
+			CSV
+		</a>
+	</div>
 
 	{#if showAddForm}
 		<form method="POST" action="?/addTransaction" use:enhance class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-3">

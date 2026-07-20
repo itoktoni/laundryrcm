@@ -2,7 +2,22 @@ import { db } from '$lib/server/db.js';
 
 export async function load() {
 	const inventory = await db.execute('SELECT * FROM inventory ORDER BY inventory_name');
-	return { inventory: inventory.rows };
+	const lowStock = inventory.rows.filter((i) => i.inventory_quantity < i.inventory_min_stock);
+	
+	// Get stock movements for each inventory item
+	const movements = await db.execute(`
+		SELECT sm.*, i.inventory_name, i.inventory_unit
+		FROM stock_movements sm
+		JOIN inventory i ON sm.inventory_id = i.inventory_id
+		ORDER BY sm.movement_date DESC, sm.movement_created_at DESC
+		LIMIT 100
+	`);
+	
+	return {
+		inventory: inventory.rows,
+		lowStockCount: lowStock.length,
+		movements: movements.rows
+	};
 }
 
 export const actions = {
@@ -18,8 +33,96 @@ export const actions = {
 		}
 
 		await db.execute({
-			sql: 'INSERT INTO inventory (inventory_id, inventory_name, inventory_quantity, inventory_unit, inventory_min_stock, inventory_last_restocked) VALUES (?, ?, ?, ?, ?, ?)',
+			sql: 'INSERT INTO inventory (inventory_id, inventory_name, inventory_quantity, inventory_unit, inventory_min_stock, inventory_last_restocked, inventory_avg_cost) VALUES (?, ?, ?, ?, ?, ?, 0)',
 			args: [crypto.randomUUID(), name, quantity, unit, minStock, new Date().toISOString()]
+		});
+
+		return { success: true };
+	},
+
+	stockIn: async ({ request }) => {
+		const formData = await request.formData();
+		const id = formData.get('id')?.toString();
+		const qty = parseFloat(formData.get('qty'));
+		const cost = parseFloat(formData.get('cost') || '0');
+		const description = formData.get('description')?.toString().trim() || null;
+
+		if (!id || isNaN(qty) || qty <= 0) {
+			return { error: 'Data tidak valid' };
+		}
+
+		// Get current inventory
+		const current = await db.execute({
+			sql: 'SELECT inventory_quantity, inventory_avg_cost FROM inventory WHERE inventory_id = ?',
+			args: [id]
+		});
+
+		if (current.rows.length === 0) {
+			return { error: 'Item tidak ditemukan' };
+		}
+
+		const currentQty = current.rows[0].inventory_quantity || 0;
+		const currentAvgCost = current.rows[0].inventory_avg_cost || 0;
+		const currentValue = currentQty * currentAvgCost;
+		const newValue = currentValue + cost;
+		const newQty = currentQty + qty;
+		const newAvgCost = newQty > 0 ? newValue / newQty : 0;
+
+		// Insert stock movement
+		await db.execute({
+			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
+			args: [crypto.randomUUID(), id, 'in', new Date().toISOString(), description, qty, cost]
+		});
+
+		// Update inventory
+		await db.execute({
+			sql: 'UPDATE inventory SET inventory_quantity = ?, inventory_avg_cost = ?, inventory_last_restocked = ? WHERE inventory_id = ?',
+			args: [newQty, newAvgCost, new Date().toISOString(), id]
+		});
+
+		return { success: true };
+	},
+
+	stockOut: async ({ request }) => {
+		const formData = await request.formData();
+		const id = formData.get('id')?.toString();
+		const qty = parseFloat(formData.get('qty'));
+		const description = formData.get('description')?.toString().trim() || null;
+
+		if (!id || isNaN(qty) || qty <= 0) {
+			return { error: 'Data tidak valid' };
+		}
+
+		// Get current inventory
+		const current = await db.execute({
+			sql: 'SELECT inventory_quantity, inventory_avg_cost FROM inventory WHERE inventory_id = ?',
+			args: [id]
+		});
+
+		if (current.rows.length === 0) {
+			return { error: 'Item tidak ditemukan' };
+		}
+
+		const currentQty = current.rows[0].inventory_quantity || 0;
+		const currentAvgCost = current.rows[0].inventory_avg_cost || 0;
+
+		if (qty > currentQty) {
+			return { error: 'Stok tidak mencukupi' };
+		}
+
+		const newQty = currentQty - qty;
+		const costOut = qty * currentAvgCost;
+
+		// Insert stock movement
+		await db.execute({
+			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
+			args: [crypto.randomUUID(), id, 'out', new Date().toISOString(), description, qty, costOut]
+		});
+
+		// Update inventory
+		await db.execute({
+			sql: 'UPDATE inventory SET inventory_quantity = ? WHERE inventory_id = ?',
+			args: [newQty, id]
 		});
 
 		return { success: true };
@@ -29,15 +132,23 @@ export const actions = {
 		const formData = await request.formData();
 		const id = formData.get('id')?.toString();
 		const quantity = parseFloat(formData.get('quantity'));
+		const minStock = formData.has('min_stock') ? parseFloat(formData.get('min_stock')) : null;
 
 		if (!id || isNaN(quantity)) {
 			return { error: 'Data tidak valid' };
 		}
 
-		await db.execute({
-			sql: 'UPDATE inventory SET inventory_quantity = ?, inventory_last_restocked = ? WHERE inventory_id = ?',
-			args: [quantity, new Date().toISOString(), id]
-		});
+		if (minStock !== null && !isNaN(minStock)) {
+			await db.execute({
+				sql: 'UPDATE inventory SET inventory_quantity = ?, inventory_min_stock = ?, inventory_last_restocked = ? WHERE inventory_id = ?',
+				args: [quantity, minStock, new Date().toISOString(), id]
+			});
+		} else {
+			await db.execute({
+				sql: 'UPDATE inventory SET inventory_quantity = ?, inventory_last_restocked = ? WHERE inventory_id = ?',
+				args: [quantity, new Date().toISOString(), id]
+			});
+		}
 
 		return { success: true };
 	},
@@ -69,6 +180,8 @@ export const actions = {
 			return { error: 'ID tidak valid' };
 		}
 
+		// Delete related stock movements first
+		await db.execute({ sql: 'DELETE FROM stock_movements WHERE inventory_id = ?', args: [id] });
 		await db.execute({ sql: 'DELETE FROM inventory WHERE inventory_id = ?', args: [id] });
 		return { success: true };
 	}

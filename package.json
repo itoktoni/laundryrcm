@@ -31,6 +31,7 @@
 		"@oslojs/encoding": "^1.1.0",
 		"chart.js": "^4.5.1",
 		"jspdf": "^4.2.1",
+		"jspdf-autotable": "^5.0.8",
 		"lucia": "^3.2.2",
 		"qrcode": "^1.5.4",
 		"xlsx": "^0.18.5"

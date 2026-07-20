@@ -2,10 +2,10 @@ import { createClient } from '@libsql/client';
 import { readFileSync } from 'fs';
 
 const db = createClient({
-	url: 'file:local.db'
+	url: 'file:laundry-app.db'
 });
 
-const schema = readFileSync('./schema.sql', 'utf8');
+const schema = readFileSync(new URL('./schema.sql', import.meta.url).pathname, 'utf8');
 const statements = schema.split(';').filter(s => s.trim());
 
 for (const statement of statements) {
@@ -21,5 +21,4 @@ for (const statement of statements) {
 }
 
 console.log('Database initialized successfully!');
-console.log('Tables created: sessions, users, customers, item_types, services, pricing, promotions, orders, order_items, transactions, inventory, machines');
-console.log('Seed data: 7 item types, 5 services, 18 pricing entries');
+console.log('Tables created: sessions, users, customers, categories, products, promotions, orders, order_items, transactions, inventory, machines, machine_services, templates, faqs, app_settings');

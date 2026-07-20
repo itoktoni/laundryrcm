@@ -36,6 +36,7 @@
 		csv += `Total Order,${data.orders.count}\n`;
 		csv += `Omset,${data.orders.total}\n`;
 		csv += `Terkumpul,${data.orders.paid}\n`;
+		csv += `Belum Terbayar,${data.orders.total - data.orders.paid}\n`;
 		csv += `Pemasukan,${data.finance.income}\n`;
 		csv += `Pengeluaran,${data.finance.expense}\n`;
 		csv += `Laba Bersih,${data.finance.income - data.finance.expense}\n`;
@@ -58,7 +59,10 @@
 <div class="space-y-4">
 	<div class="flex items-center justify-between">
 		<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Laporan</h1>
-		<Button variant="secondary" onclick={exportCSV}>Export CSV</Button>
+		<button onclick={exportCSV} class="inline-flex h-10 items-center gap-1 px-3 rounded-full bg-green-600 hover:bg-green-700 text-sm font-medium text-white transition-colors">
+			<span class="material-symbols-outlined text-[18px]">download</span>
+			CSV
+		</button>
 	</div>
 
 	<div class="flex gap-2 overflow-x-auto pb-2">
@@ -92,7 +96,7 @@
 		</div>
 	{/if}
 
-	<Card>
+	<Card class="border border-outline-variant">
 		<h2 class="mb-3 font-semibold text-gray-900 dark:text-white">Ringkasan Order</h2>
 		<div class="space-y-2">
 			<div class="flex justify-between text-sm">
@@ -107,10 +111,14 @@
 				<span class="text-gray-500 dark:text-gray-400">Sudah Terbayar</span>
 				<span class="font-medium text-green-600">{formatCurrency(data.orders.paid)}</span>
 			</div>
+			<div class="flex justify-between border-t border-gray-200 pt-2 text-sm dark:border-gray-700">
+				<span class="text-gray-500 dark:text-gray-400">Belum Terbayar</span>
+				<span class="font-semibold text-red-600">{formatCurrency(data.orders.total - data.orders.paid)}</span>
+			</div>
 		</div>
 	</Card>
 
-	<Card>
+	<Card class="border border-outline-variant">
 		<h2 class="mb-3 font-semibold text-gray-900 dark:text-white">Ringkasan Keuangan</h2>
 		<div class="space-y-2">
 			<div class="flex justify-between text-sm">
@@ -130,7 +138,7 @@
 		</div>
 	</Card>
 
-	<Card>
+	<Card class="border border-outline-variant">
 		<h2 class="mb-3 font-semibold text-gray-900 dark:text-white">Pelanggan</h2>
 		<div class="flex justify-between text-sm">
 			<span class="text-gray-500 dark:text-gray-400">Pelanggan Baru</span>

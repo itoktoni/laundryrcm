@@ -8,6 +8,8 @@
 	let { data } = $props();
 	let order = $derived(data.order);
 	let items = $derived(data.items);
+	let user = $derived(data.user);
+	let canDelete = $derived(user && (user.role === 'owner' || user.role === 'admin'));
 	let showQris = $state(false);
 
 	let timer;
@@ -148,11 +150,18 @@
 
 	<!-- Actions -->
 	<div class="flex gap-3">
+		{#if canDelete}
+			<form method="POST" action="?/deleteOrder" use:enhance class="flex-1" onsubmit={() => confirm(`Yakin ingin menghapus order #${order.order_id.slice(0, 8).toUpperCase()}? Data yang sudah dihapus tidak bisa dikembalikan.`)}>
+				<button type="submit" class="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+					<span class="material-symbols-outlined text-[18px]">delete</span>
+					Hapus
+				</button>
+			</form>
+		{/if}
 		{#if nextStatus}
 			<form method="POST" action="?/updateStatus" use:enhance class="flex-1">
 				<input type="hidden" name="status" value={nextStatus} />
 				<button type="submit" class="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-					<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
 					Move to {nextStatus}
 				</button>
 			</form>

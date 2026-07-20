@@ -152,42 +152,42 @@ async function createOrderCore({ request, locals, forceUnpaid = false, withUniqu
 	const total = subtotal - discount;
 	const paymentStatus = forceUnpaid ? 'unpaid' : formData.get('payment_status')?.toString() || 'unpaid';
 
-	let uniqueCode = 0;
-	if (withUniqueCode) {
-		const { getSetting } = await import('$lib/server/settings.js');
-		const uniqConfig = parseInt(await getSetting('uniq', '0'));
-		if (uniqConfig < 0) {
-			uniqueCode = uniqConfig;
-		} else if (uniqConfig > 0) {
-			const max = Math.pow(10, uniqConfig);
-			const used = await db.execute({
-				sql: `SELECT CAST(order_unique_code AS INTEGER) as uc FROM orders
-					WHERE order_payment_status != 'paid'
-					AND order_unique_code IS NOT NULL
-					AND order_created_at >= datetime('now', '-5 minutes')`,
-				args: []
-			});
-			const taken = new Set(used.rows.map((r) => r.uc).filter((n) => n != null && n > 0 && n < max));
-			let pick = null;
-			for (let i = 1; i < max; i++) {
-				if (!taken.has(i)) { pick = i; break; }
-			}
-			if (pick === null) {
-				for (let i = 1; i < max; i++) {
-					if (!taken.has(i)) { pick = i; break; }
-				}
-			}
-			uniqueCode = pick ?? Math.floor(Math.random() * (max - 1)) + 1;
+	// Generate 4-character alphanumeric code
+	function generateOrderCode() {
+		const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+		let code = '';
+		for (let i = 0; i < 4; i++) {
+			code += chars.charAt(Math.floor(Math.random() * chars.length));
 		}
+		return code;
 	}
-	const finalTotal = total + uniqueCode;
+
+	let orderCode = null;
+	if (withUniqueCode) {
+		// Check for existing codes to avoid duplicates
+		const used = await db.execute({
+			sql: `SELECT order_unique_code FROM orders
+				WHERE order_payment_status != 'paid'
+				AND order_unique_code IS NOT NULL
+				AND order_created_at >= datetime('now', '-1 day')`,
+			args: []
+		});
+		const taken = new Set(used.rows.map((r) => r.order_unique_code));
+		
+		// Generate unique code
+		let attempts = 0;
+		do {
+			orderCode = generateOrderCode();
+			attempts++;
+		} while (taken.has(orderCode) && attempts < 100);
+	}
 
 	const orderId = generateId();
-	const uniqueCodeValue = uniqueCode !== 0 ? String(Math.trunc(uniqueCode)) : null;
+	const uniqueCodeValue = orderCode;
 	await db.execute({
 		sql: `INSERT INTO orders (order_id, customer_id, promo_id, order_subtotal, order_discount_amount, order_total_price, order_unique_code, order_payment_status, order_notes, order_created_by) 
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		args: [orderId, customerId, appliedPromoId, subtotal, discount, finalTotal, uniqueCodeValue, paymentStatus, notes, locals.user.id]
+		args: [orderId, customerId, appliedPromoId, subtotal, discount, total, uniqueCodeValue, paymentStatus, notes, locals.user.id]
 	});
 
 	// If paid, create income transaction

@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db.js';
+import { toCsv, csvResponse } from '$lib/server/csv.js';
 
-export async function load({ url }) {
+export async function GET({ url }) {
 	const period = url.searchParams.get('period') || 'month';
 	const type = url.searchParams.get('type') || '';
 	const startDate = url.searchParams.get('start_date') || '';
@@ -31,7 +32,7 @@ export async function load({ url }) {
 
 	const [transactions, summary, unpaid] = await Promise.all([
 		db.execute({
-			sql: `SELECT * FROM transactions WHERE 1=1 ${dateFilter} ${typeFilter} ORDER BY transaction_date DESC LIMIT 100`,
+			sql: `SELECT * FROM transactions WHERE 1=1 ${dateFilter} ${typeFilter} ORDER BY transaction_date DESC`,
 			args: allArgs
 		}),
 		db.execute({
@@ -48,35 +49,30 @@ export async function load({ url }) {
 		})
 	]);
 
-	const income = summary.rows[0]?.income || 0;
-	const expense = summary.rows[0]?.expense || 0;
-	const totalUnpaid = unpaid.rows[0]?.total_unpaid || 0;
+	const income = Number(summary.rows[0]?.income || 0);
+	const expense = Number(summary.rows[0]?.expense || 0);
+	const profit = income - expense;
+	const totalUnpaid = Number(unpaid.rows[0]?.total_unpaid || 0);
 
-	return {
-		transactions: transactions.rows,
-		summary: { income, expense, profit: income - expense, unpaid: totalUnpaid },
-		filters: { period, type, startDate, endDate }
-	};
+	return generateCsv(transactions.rows, { income, expense, profit, unpaid: totalUnpaid });
 }
 
-export const actions = {
-	addTransaction: async ({ request }) => {
-		const formData = await request.formData();
-		const type = formData.get('type')?.toString();
-		const category = formData.get('category')?.toString();
-		const amount = parseFloat(formData.get('amount'));
-		const description = formData.get('description')?.toString() || '';
+function generateCsv(rows, summary) {
+	const columns = ['Tanggal', 'Tipe', 'Kategori', 'Jumlah', 'Keterangan'];
+	const data = rows.map((r) => ({
+		Tanggal: r.transaction_date?.slice(0, 10) || '',
+		Tipe: r.transaction_type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+		Kategori: r.transaction_category || '',
+		Jumlah: r.transaction_amount || 0,
+		Keterangan: r.transaction_description || ''
+	}));
 
-		if (!type || !category || isNaN(amount) || amount <= 0) {
-			return { error: 'Data tidak valid' };
-		}
+	// Add summary rows
+	data.push({ Tanggal: '', Tipe: '', Kategori: 'TOTAL PEMASUKAN', Jumlah: summary.income, Keterangan: '' });
+	data.push({ Tanggal: '', Tipe: '', Kategori: 'TOTAL PENGELUARAN', Jumlah: summary.expense, Keterangan: '' });
+	data.push({ Tanggal: '', Tipe: '', Kategori: 'LABA BERSIH', Jumlah: summary.profit, Keterangan: '' });
+	data.push({ Tanggal: '', Tipe: '', Kategori: 'PIUTANG (BELUM DIBAYAR)', Jumlah: summary.unpaid, Keterangan: '' });
 
-		await db.execute({
-			sql: `INSERT INTO transactions (transaction_id, transaction_type, transaction_amount, transaction_category, transaction_description, transaction_date) 
-				VALUES (?, ?, ?, ?, ?, ?)`,
-			args: [crypto.randomUUID(), type, amount, category, description, new Date().toISOString()]
-		});
-
-		return { success: true };
-	}
-};
+	const csv = toCsv(columns, data);
+	return csvResponse('laporan-keuangan.csv', csv);
+}

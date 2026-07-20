@@ -132,6 +132,16 @@ CREATE TABLE IF NOT EXISTS machines (
 	machine_created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS machine_services (
+	service_id TEXT PRIMARY KEY,
+	machine_id TEXT NOT NULL REFERENCES machines(machine_id),
+	service_date TEXT NOT NULL,
+	service_description TEXT NOT NULL,
+	service_cost REAL NOT NULL DEFAULT 0,
+	service_notes TEXT,
+	service_created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 -- Seed data: default categories
 INSERT OR IGNORE INTO categories (category_id, category_name) VALUES
 	('cat-kiloan', 'Kiloan'),

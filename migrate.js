@@ -25,7 +25,9 @@ const migrations = [
 
 	`CREATE TABLE IF NOT EXISTS inventory (inventory_id TEXT PRIMARY KEY, inventory_name TEXT NOT NULL, inventory_quantity REAL NOT NULL, inventory_unit TEXT NOT NULL, inventory_min_stock REAL NOT NULL, inventory_last_restocked TEXT, inventory_created_at TEXT NOT NULL DEFAULT (datetime('now')))`,
 
-	`CREATE TABLE IF NOT EXISTS machines (machine_id TEXT PRIMARY KEY, machine_name TEXT NOT NULL, machine_type TEXT NOT NULL, machine_status TEXT NOT NULL DEFAULT 'active' CHECK(machine_status IN ('active', 'broken', 'maintenance')), machine_last_service TEXT, machine_next_service TEXT, machine_created_at TEXT NOT NULL DEFAULT (datetime('now')))`
+	`CREATE TABLE IF NOT EXISTS machines (machine_id TEXT PRIMARY KEY, machine_name TEXT NOT NULL, machine_type TEXT NOT NULL, machine_status TEXT NOT NULL DEFAULT 'active' CHECK(machine_status IN ('active', 'broken', 'maintenance')), machine_last_service TEXT, machine_next_service TEXT, machine_created_at TEXT NOT NULL DEFAULT (datetime('now')))`,
+
+	`CREATE TABLE IF NOT EXISTS machine_services (service_id TEXT PRIMARY KEY, machine_id TEXT NOT NULL REFERENCES machines(machine_id), service_date TEXT NOT NULL, service_description TEXT NOT NULL, service_cost REAL NOT NULL DEFAULT 0, service_notes TEXT, service_created_at TEXT NOT NULL DEFAULT (datetime('now')))`
 ];
 
 const seeds = [
@@ -54,7 +56,7 @@ for (const sql of seeds) {
 	}
 }
 
-const tables = ['sessions','users','customers','item_types','services','pricing','promotions','orders','order_items','transactions','inventory','machines'];
+const tables = ['sessions','users','customers','item_types','services','pricing','promotions','orders','order_items','transactions','inventory','machines','machine_services'];
 for (const t of tables) {
 	const r = await db.execute(`SELECT COUNT(*) as count FROM ${t}`);
 	console.log(`  ${t}: ${r.rows[0].count} rows`);

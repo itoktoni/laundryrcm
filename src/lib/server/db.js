@@ -1,7 +1,8 @@
 import { createClient } from '@libsql/client';
+import { env } from '$env/dynamic/private';
 
-const url = process.env.TURSO_DATABASE_URL || 'file:local.db';
-const authToken = process.env.TURSO_AUTH_TOKEN || undefined;
+const url = env.TURSO_DATABASE_URL || 'file:local.db';
+const authToken = env.TURSO_AUTH_TOKEN || undefined;
 
 export const db = createClient({
 	url,

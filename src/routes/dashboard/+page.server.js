@@ -4,7 +4,7 @@ export async function load({ locals }) {
 	const userId = locals.user.id;
 	const today = new Date().toISOString().split('T')[0];
 
-	const [ordersToday, activeOrders, revenue, newCustomers, recentOrders, weekly] = await Promise.all([
+	const [ordersToday, activeOrders, revenue, newCustomers, recentOrders, weekly, lowStock] = await Promise.all([
 		db.execute({
 			sql: `SELECT COUNT(*) as count, COALESCE(SUM(order_total_price), 0) as total 
 				FROM orders WHERE DATE(order_created_at) = DATE(?) AND order_created_by = ?`,
@@ -41,6 +41,12 @@ export async function load({ locals }) {
 				GROUP BY DATE(t.transaction_date)
 				ORDER BY day ASC`,
 			args: []
+		}),
+		db.execute({
+			sql: `SELECT inventory_id, inventory_name, inventory_quantity, inventory_unit, inventory_min_stock
+				FROM inventory WHERE inventory_quantity < inventory_min_stock
+				ORDER BY inventory_name ASC`,
+			args: []
 		})
 	]);
 
@@ -65,6 +71,7 @@ export async function load({ locals }) {
 			newCustomers: newCustomers.rows[0]?.count || 0
 		},
 		recentOrders: recentOrders.rows,
-		weekly: { labels: weeklyLabels, data: weeklyData }
+		weekly: { labels: weeklyLabels, data: weeklyData },
+		lowStock: lowStock.rows
 	};
 }

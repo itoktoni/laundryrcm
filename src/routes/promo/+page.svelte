@@ -11,19 +11,19 @@
 </script>
 
 <svelte:head>
-	<title>Promo & Diskon - LaundryKu</title>
+	<title>Promo - LaundryKu</title>
 </svelte:head>
 
 <div class="space-y-4">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Promo & Diskon</h1>
+		<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Promo</h1>
 		<div class="flex gap-2">
 			<a href="/promo/export" class="inline-flex h-9 items-center gap-1 px-3 rounded-lg bg-green-600 hover:bg-green-700 text-sm font-medium text-white transition-colors" download>
 				<span class="material-symbols-outlined text-[18px]">download</span>
-				Download CSV
+				CSV
 			</a>
 			<Button onclick={() => showAddForm = !showAddForm}>
-				{showAddForm ? 'Tutup' : '+ Buat Promo'}
+				{showAddForm ? 'Tutup' : 'Promo'}
 			</Button>
 		</div>
 	</div>

@@ -9,6 +9,7 @@
 	let showAddForm = $state(false);
 	let editId = $state(null);
 	let activeFilter = $state('all');
+	let searchValue = $state(data.filters.search);
 
 	$effect(() => {
 		if (form?.success) {
@@ -40,99 +41,86 @@
 	<title>Produk - LaundryKu</title>
 </svelte:head>
 
-<div class="space-y-4">
+<div class="space-y-stack-lg">
+	<!-- Header -->
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Produk</h1>
-		<Button onclick={() => (showAddForm = !showAddForm)}>
-			{showAddForm ? 'Tutup' : '+ Tambah Produk'}
-		</Button>
+		<h1 class="font-headline-lg text-headline-lg text-on-surface">Produk</h1>
+		<button onclick={() => { showAddForm = !showAddForm; editId = null; }} class="w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center active:scale-95 transition-transform">
+			<span class="material-symbols-outlined">{showAddForm ? 'close' : 'add'}</span>
+		</button>
 	</div>
 
+	<!-- Stats -->
+	<div class="grid grid-cols-3 gap-stack-sm">
+		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+			<p class="font-display text-display text-primary font-bold">{stats.total}</p>
+			<p class="text-label-md text-on-surface-variant">Total</p>
+		</div>
+		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+			<p class="font-display text-display text-success font-bold">{stats.active}</p>
+			<p class="text-label-md text-on-surface-variant">Aktif</p>
+		</div>
+		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+			<p class="font-display text-display text-secondary font-bold">{stats.categories}</p>
+			<p class="text-label-md text-on-surface-variant">Kategori</p>
+		</div>
+	</div>
+
+	<!-- Add Form -->
 	{#if showAddForm}
-		<Card class="border-blue-200 dark:border-blue-800">
-			<h2 class="mb-3 font-semibold text-gray-900 dark:text-white">Tambah Produk Baru</h2>
+		<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-3">
+			<p class="font-label-md text-label-md text-on-surface-variant uppercase">Tambah Produk Baru</p>
 			<form method="POST" action="?/add" use:enhance class="space-y-3">
-				<div>
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Produk</label>
-					<input type="text" name="name" required class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" placeholder="Contoh: Cuci Lipat" />
+				<input type="text" name="name" placeholder="Nama Produk" required class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+				<div class="grid grid-cols-2 gap-2">
+					<input type="number" name="price" step="0.01" placeholder="Harga (Rp)" required class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+					<select name="unit" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
+						<option value="kg">Kg</option>
+						<option value="pcs">Pcs</option>
+						<option value="liter">Liter</option>
+						<option value="unit">Unit</option>
+					</select>
 				</div>
 				<div class="grid grid-cols-2 gap-2">
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Harga (Rp)</label>
-						<input type="number" name="price" step="0.01" required class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" placeholder="7000" />
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Satuan</label>
-						<select name="unit" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-							<option value="kg">Kg</option>
-							<option value="pcs">Pcs</option>
-							<option value="liter">Liter</option>
-							<option value="unit">Unit</option>
-						</select>
-					</div>
+					<select name="category_id" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
+						<option value="">Pilih kategori</option>
+						{#each data.categories as cat}
+							<option value={cat.category_id}>{cat.category_name}</option>
+						{/each}
+					</select>
+					<select name="is_active" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
+						<option value="1">Aktif</option>
+						<option value="0">Nonaktif</option>
+					</select>
 				</div>
-				<div class="grid grid-cols-2 gap-2">
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kategori</label>
-						<select name="category_id" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-							<option value="">Pilih kategori</option>
-							{#each data.categories as cat}
-								<option value={cat.category_id}>{cat.category_name}</option>
-							{/each}
-						</select>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-						<select name="is_active" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-							<option value="1">Aktif</option>
-							<option value="0">Nonaktif</option>
-						</select>
-					</div>
-				</div>
-				<div>
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi</label>
-					<input type="text" name="description" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" placeholder="Opsional" />
-				</div>
-				<Button type="submit" class="w-full">Simpan Produk</Button>
+				<input type="text" name="description" placeholder="Deskripsi (opsional)" class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+				<button type="submit" class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md">Simpan Produk</button>
 			</form>
-		</Card>
+		</div>
 	{/if}
 
-	<div class="grid grid-cols-3 gap-3">
-		<Card>
-			<p class="font-display text-display text-primary font-bold">{stats.total}</p>
-			<p class="text-label-sm text-gray-500 dark:text-gray-400">Total Produk</p>
-		</Card>
-		<Card>
-			<p class="font-display text-display text-success font-bold">{stats.active}</p>
-			<p class="text-label-sm text-gray-500 dark:text-gray-400">Aktif</p>
-		</Card>
-		<Card>
-			<p class="font-display text-display text-secondary font-bold">{stats.categories}</p>
-			<p class="text-label-sm text-gray-500 dark:text-gray-400">Kategori</p>
-		</Card>
-	</div>
-
+	<!-- Search -->
 	<div class="relative w-full">
-		<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant dark:text-gray-500">search</span>
+		<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
 		<form method="GET">
 			<input
 				name="search"
-				value={data.filters.search}
-				class="w-full h-12 pl-10 pr-4 bg-surface-container-low dark:bg-gray-800 border border-outline-variant dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-body-md placeholder-outline-variant dark:text-white dark:placeholder-gray-500 transition-all"
+				value={searchValue}
+				class="w-full h-12 pl-10 pr-4 bg-surface-container-low border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-body-md placeholder-outline-variant transition-all"
 				placeholder="Cari nama, kategori, atau deskripsi..."
 				type="text"
 			/>
 		</form>
 	</div>
 
-	<div class="flex gap-2 overflow-x-auto no-scrollbar">
+	<!-- Category Filter -->
+	<div class="flex gap-2 overflow-x-auto hide-scrollbar">
 		{#each categoryFilters as f}
 			<button
 				onclick={() => (activeFilter = f.id)}
-				class="px-5 py-2 rounded-full font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all {activeFilter === f.id
+				class="flex-shrink-0 px-5 py-2 rounded-full font-label-md text-label-md active:scale-95 transition-all {activeFilter === f.id
 					? 'bg-primary text-on-primary'
-					: 'bg-surface-container-high text-on-surface-variant dark:bg-gray-800 dark:text-gray-300'}"
+					: 'bg-surface-container-high text-on-surface-variant'}"
 			>
 				{f.label}
 			</button>
@@ -143,28 +131,29 @@
 		<p class="text-body-sm text-error">{form.error}</p>
 	{/if}
 
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+	<!-- Products -->
+	<div class="space-y-3">
 		{#if filtered.length === 0}
-			<div class="col-span-full flex flex-col items-center py-16 text-center">
-				<div class="w-16 h-16 rounded-full bg-surface-container-high dark:bg-gray-800 flex items-center justify-center">
-					<span class="material-symbols-outlined text-[32px] text-outline-variant dark:text-gray-600">inventory_2</span>
+			<div class="flex flex-col items-center py-16 text-center">
+				<div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center">
+					<span class="material-symbols-outlined text-[32px] text-outline-variant">inventory_2</span>
 				</div>
-				<p class="mt-3 text-body-sm text-on-surface-variant dark:text-gray-400">Tidak ada produk</p>
+				<p class="mt-3 text-body-sm text-on-surface-variant">Tidak ada produk</p>
 			</div>
 		{:else}
 			{#each filtered as product}
-				<Card class={!product.product_is_active ? 'opacity-60 dark:border-gray-700' : 'dark:border-gray-700'}>
+				<div class="bg-surface-container-lowest p-4 rounded-xl border {!product.product_is_active ? 'border-outline-variant opacity-60' : 'border-outline-variant'}">
 					<div class="flex items-start justify-between">
 						<div class="flex-1 min-w-0">
 							<div class="flex items-center gap-2 flex-wrap">
-								<span class="font-medium text-gray-900 dark:text-white truncate">{product.product_name}</span>
-								<Badge variant={product.product_is_active ? 'success' : 'default'}>
+								<span class="font-body-md text-on-surface font-semibold truncate">{product.product_name}</span>
+								<span class="px-2 py-0.5 rounded-full text-[10px] font-bold {product.product_is_active ? 'bg-success/10 text-success' : 'bg-surface-container-high text-on-surface-variant'}">
 									{product.product_is_active ? 'Aktif' : 'Nonaktif'}
-								</Badge>
+								</span>
 							</div>
-							<div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-								<span class="font-semibold text-primary dark:text-primary-fixed">{formatCurrency(product.product_price)}</span>
-								<span class="text-gray-400 dark:text-gray-500">/ {product.product_unit}</span>
+							<div class="text-body-sm mt-1">
+								<span class="font-headline-md text-primary">{formatCurrency(product.product_price)}</span>
+								<span class="text-on-surface-variant">/ {product.product_unit}</span>
 							</div>
 							{#if product.category_name}
 								<span class="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
@@ -172,34 +161,36 @@
 								</span>
 							{/if}
 							{#if product.product_description}
-								<p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{product.product_description}</p>
+								<p class="text-label-sm text-on-surface-variant mt-1 line-clamp-2">{product.product_description}</p>
 							{/if}
 						</div>
 					</div>
 
-					<div class="mt-3 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700 pt-3">
+					<!-- Actions -->
+					<div class="mt-3 flex items-center gap-2 border-t border-outline-variant pt-3">
 						<form method="POST" action="?/toggle" use:enhance>
 							<input type="hidden" name="id" value={product.product_id} />
-							<Button type="submit" size="sm" variant="ghost">
+							<button type="submit" class="h-9 px-3 rounded-lg text-label-md font-bold {product.product_is_active ? 'bg-error-container text-error' : 'bg-success/10 text-success'} active:scale-95 transition-transform">
 								{product.product_is_active ? 'Nonaktifkan' : 'Aktifkan'}
-							</Button>
+							</button>
 						</form>
-						<Button size="sm" variant="secondary" onclick={() => (editId = editId === product.product_id ? null : product.product_id)}>
+						<button onclick={() => { editId = editId === product.product_id ? null : product.product_id; showAddForm = false; }} class="h-9 px-3 rounded-lg bg-surface-container-high text-on-surface-variant text-label-md font-bold active:scale-95 transition-transform">
 							{editId === product.product_id ? 'Batal' : 'Edit'}
-						</Button>
+						</button>
 						<form method="POST" action="?/delete" use:enhance={({ cancel }) => { if (!confirm(`Hapus produk ${product.product_name}?`)) cancel(); }}>
 							<input type="hidden" name="id" value={product.product_id} />
-							<Button type="submit" size="sm" variant="danger">Hapus</Button>
+							<button type="submit" class="h-9 px-3 rounded-lg bg-red-600 text-white text-label-md font-bold active:scale-95 transition-transform">Hapus</button>
 						</form>
 					</div>
 
+					<!-- Edit Form -->
 					{#if editId === product.product_id}
-						<form method="POST" action="?/edit" use:enhance={() => ({ update }) => update().then(() => (editId = null))} class="mt-3 space-y-2 border-t border-gray-200 dark:border-gray-700 pt-3">
+						<form method="POST" action="?/edit" use:enhance={() => ({ update }) => update().then(() => (editId = null))} class="mt-3 space-y-2 border-t border-outline-variant pt-3">
 							<input type="hidden" name="id" value={product.product_id} />
-							<input type="text" name="name" value={product.product_name} required placeholder="Nama Produk" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+							<input type="text" name="name" value={product.product_name} required placeholder="Nama Produk" class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
 							<div class="grid grid-cols-2 gap-2">
-								<input type="number" name="price" step="0.01" value={product.product_price} required placeholder="Harga" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
-								<select name="unit" value={product.product_unit} class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+								<input type="number" name="price" step="0.01" value={product.product_price} required placeholder="Harga" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+								<select name="unit" value={product.product_unit} class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
 									<option value="kg">Kg</option>
 									<option value="pcs">Pcs</option>
 									<option value="liter">Liter</option>
@@ -207,30 +198,30 @@
 								</select>
 							</div>
 							<div class="grid grid-cols-2 gap-2">
-								<select name="category_id" value={product.category_id || ''} class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+								<select name="category_id" value={product.category_id || ''} class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
 									<option value="">Pilih kategori</option>
 									{#each data.categories as cat}
 										<option value={cat.category_id}>{cat.category_name}</option>
 									{/each}
 								</select>
-								<select name="is_active" value={String(product.product_is_active)} class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+								<select name="is_active" value={String(product.product_is_active)} class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
 									<option value="1">Aktif</option>
 									<option value="0">Nonaktif</option>
 								</select>
 							</div>
-							<input type="text" name="description" value={product.product_description ?? ''} placeholder="Deskripsi" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
-							<Button type="submit" class="w-full">Simpan Perubahan</Button>
+							<input type="text" name="description" value={product.product_description ?? ''} placeholder="Deskripsi" class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+							<button type="submit" class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md">Simpan Perubahan</button>
 						</form>
 					{/if}
-				</Card>
+				</div>
 			{/each}
 		{/if}
 	</div>
 </div>
 
 <style>
-	.no-scrollbar::-webkit-scrollbar { display: none; }
-	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+	.hide-scrollbar::-webkit-scrollbar { display: none; }
+	.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 	.line-clamp-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;

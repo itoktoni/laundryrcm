@@ -113,16 +113,33 @@ export async function POST({ request }) {
 
 		const amountNum = Number(paid_amount);
 
-		const result = await db.execute({
-			sql: `SELECT * FROM orders
-				WHERE order_payment_status != 'paid'
-				AND CAST(order_total_price AS REAL) = ?
-				ORDER BY order_created_at DESC LIMIT 1`,
-			args: [amountNum]
-		});
+		// 1) Explicit order id match (most reliable when PSP echoes it back)
+		// ponytail: project has no TS types for db ResultSet; keep loose to match existing code style
+		/** @type {any} */
+		let result = { rows: [] };
+		if (reference) {
+			result = await db.execute({
+				sql: `SELECT * FROM orders
+					WHERE order_id = ?
+					AND order_payment_status != 'paid'
+					LIMIT 1`,
+				args: [reference]
+			});
+		}
+
+		// 2) Amount match. OPS A: order_total_price stores final (base + uniq), paid amount matches it directly.
+		if (result.rows.length === 0) {
+			result = await db.execute({
+				sql: `SELECT * FROM orders
+					WHERE order_payment_status != 'paid'
+					AND CAST(order_total_price AS REAL) = ?
+					ORDER BY order_created_at DESC LIMIT 1`,
+				args: [amountNum]
+			});
+		}
 
 		if (result.rows.length === 0) {
-			await log('no pending order matched amount', { amount: amountNum, reference });
+			await log('no pending order matched', { amount: amountNum, reference });
 			return json({ error: 'No matching order' }, { status: 404 });
 		}
 

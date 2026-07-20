@@ -70,17 +70,16 @@ export async function GET({ url, request }) {
 				} else {
 					orderUniq = 0;
 				}
-				// Persist generated code so subsequent requests are stable
-				if (orderUniq !== 0) {
-					await db.execute({
-						sql: 'UPDATE orders SET order_unique_code = ? WHERE order_id = ?',
-						args: [orderUniq, orderId]
-					});
-				}
 			}
 
 			uniqValue = orderUniq;
 			finalAmount = amount + (isNaN(orderUniq) ? 0 : orderUniq);
+
+			// Persist unique code AND final total (base + uniq) so webhook matches order_total_price directly
+			await db.execute({
+				sql: 'UPDATE orders SET order_unique_code = ?, order_total_price = ? WHERE order_id = ?',
+				args: [orderUniq, finalAmount, orderId]
+			});
 		}
 	} else if (uniq < 0) {
 		finalAmount = amount + uniq;

@@ -36,12 +36,6 @@ function convertStaticToDynamic(staticQris, amount) {
 export async function GET({ url, request }) {
 	const { getSettings } = await import('$lib/server/settings.js');
 	const settings = await getSettings();
-	const expectedKey = settings.qris_api_key || '';
-	const authHeader = request.headers.get('authorization') || '';
-
-	if (!expectedKey || !authHeader.startsWith('Bearer ') || authHeader.slice(7) !== expectedKey) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
-	}
 
 	const qris = settings.qris || '';
 	const uniqStr = settings.uniq || '0';

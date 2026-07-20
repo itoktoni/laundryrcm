@@ -200,6 +200,7 @@
 				>
 					<input type="hidden" name="paid_amount" value={qrisData?.finalAmount ?? amount} />
 					<input type="hidden" name="unique_code" value={qrisData?.uniq ?? ''} />
+					<input type="hidden" name="payment_method" value="qris" />
 					<button type="submit" class="w-full h-12 bg-success text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 						<span class="material-symbols-outlined text-[18px]">check_circle</span>
 						Sudah Bayar
@@ -217,6 +218,7 @@
 				>
 					<input type="hidden" name="paid_amount" value={amount} />
 					<input type="hidden" name="unique_code" value="" />
+					<input type="hidden" name="payment_method" value="cash" />
 					<button type="submit" class="w-full h-12 bg-primary text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 						<span class="material-symbols-outlined text-[18px]">payments</span>
 						Bayar Cash

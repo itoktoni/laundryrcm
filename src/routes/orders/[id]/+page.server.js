@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db.js';
+import { generatePaymentCode } from '$lib/server/payment-code.js';
 import { fail, redirect } from '@sveltejs/kit';
 
 export async function load({ params }) {
@@ -57,6 +58,7 @@ export const actions = {
 		const paidAmount = paidAmountRaw != null && paidAmountRaw !== '' ? parseFloat(paidAmountRaw) : null;
 		const uniqueCodeRaw = formData.get('unique_code')?.toString() || '';
 		const uniqueCode = uniqueCodeRaw === 'null' ? '' : uniqueCodeRaw;
+		const method = formData.get('payment_method')?.toString() === 'cash' ? 'cash' : 'qris';
 
 		const order = await db.execute({
 			sql: 'SELECT * FROM orders WHERE order_id = ?',
@@ -83,9 +85,17 @@ export const actions = {
 		const paidValue = paidAmount != null && !isNaN(paidAmount) ? paidAmount : (baseTotal + savedUniq);
 
 		if (o.order_payment_status !== 'paid') {
+			// Ensure payment code prefix matches the method used (C = cash, Q = QRIS)
+			const wantPrefix = method === 'cash' ? 'C' : 'Q';
+			const codePrefix = o.order_payment_code ? String(o.order_payment_code).charAt(0) : '';
+			const savedCode = codePrefix === wantPrefix ? o.order_payment_code : generatePaymentCode(wantPrefix);
+
+			const category = method === 'cash' ? 'pembayaran cash' : 'pembayaran qris';
+			const desc = `Pembayaran ${method === 'cash' ? 'cash' : 'qris'} ${savedCode}`;
+
 			await db.execute({
-				sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ?, order_unique_code = ? WHERE order_id = ?',
-				args: ['paid', paidValue, savedUniq, params.id]
+				sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ?, order_unique_code = ?, order_payment_code = ? WHERE order_id = ?',
+				args: ['paid', paidValue, savedUniq, savedCode, params.id]
 			});
 
 			await db.execute({
@@ -96,8 +106,8 @@ export const actions = {
 					params.id,
 					'income',
 					paidValue,
-					'pembayaran order',
-					`Pembayaran order ${o.order_payment_code ? 'kode ' + o.order_payment_code : params.id}`,
+					category,
+					desc,
 					new Date().toISOString()
 				]
 			});

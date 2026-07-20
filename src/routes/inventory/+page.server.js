@@ -33,18 +33,20 @@ export const actions = {
 		const quantity = parseFloat(formData.get('quantity'));
 		const unit = formData.get('unit')?.toString();
 		const minStock = parseFloat(formData.get('min_stock'));
+		const price = parseFloat(formData.get('price') || '0');
 
-		if (!name || isNaN(quantity) || !unit || isNaN(minStock)) {
+		if (!name || isNaN(quantity) || !unit || isNaN(minStock) || isNaN(price) || price < 0) {
 			return { error: 'Semua field wajib diisi' };
 		}
 
 		const id = crypto.randomUUID();
 		await db.execute({
-			sql: 'INSERT INTO inventory (inventory_id, inventory_name, inventory_quantity, inventory_unit, inventory_min_stock, inventory_last_restocked, inventory_avg_cost) VALUES (?, ?, ?, ?, ?, ?, 0)',
-			args: [id, name, quantity, unit, minStock, new Date().toISOString()]
+			sql: 'INSERT INTO inventory (inventory_id, inventory_name, inventory_quantity, inventory_unit, inventory_min_stock, inventory_last_restocked, inventory_avg_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
+			args: [id, name, quantity, unit, minStock, new Date().toISOString(), price]
 		});
 
-		// Record initial stock as a movement so history is not empty
+		// Record initial stock as a movement so history is not empty.
+		// Cost left 0: avg cost already set to price, stockIn movements carry real cost separately.
 		await db.execute({
 			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
 			args: [crypto.randomUUID(), id, 'in', new Date().toISOString(), 'Stok awal', quantity, 0]

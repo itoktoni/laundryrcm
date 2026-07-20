@@ -4,10 +4,8 @@
 
 	let { data } = $props();
 	let showAddForm = $state(false);
-	let editId = $state(null);
-	let editQty = $state(0);
+	let addUnit = $state('liter');
 	let editDetailId = $state(null);
-	let editPriceId = $state(null);
 	let stockInId = $state(null);
 	let stockOutId = $state(null);
 	let showMovements = $state(false);
@@ -23,7 +21,7 @@
 		<h1 class="font-headline-lg text-headline-lg text-on-surface">Inventory</h1>
 		<div class="flex items-center gap-2">
 			<button onclick={() => showMovements = !showMovements} class="h-10 px-3 rounded-full bg-blue-600 hover:bg-blue-700 text-sm font-medium text-white transition-colors">
-				{showMovements ? 'Tutup Riwayat' : 'Riwayat'}
+				{showMovements ? 'Tutup' : 'Riwayat'}
 			</button>
 			<a href="/inventory/export" class="inline-flex h-10 items-center gap-1 px-3 rounded-full bg-green-600 hover:bg-green-700 text-sm font-medium text-white transition-colors" download>
 				<span class="material-symbols-outlined text-[18px]">download</span>
@@ -37,9 +35,15 @@
 
 	{#if showAddForm}
 		<form method="POST" action="?/add" use:enhance class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-3">
-			<div>
-				<p class="text-label-sm text-on-surface-variant mb-1">Nama Item</p>
-				<input type="text" name="name" placeholder="Nama Item" required class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+			<div class="grid grid-cols-2 gap-2">
+				<div>
+					<p class="text-label-sm text-on-surface-variant mb-1">Nama Item</p>
+					<input type="text" name="name" placeholder="Nama Item" required class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+				</div>
+				<div>
+					<p class="text-label-sm text-on-surface-variant mb-1">Harga per {addUnit} (Rp)</p>
+					<input type="number" name="price" step="1" min="0" placeholder="Harga" required class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
+				</div>
 			</div>
 			<div class="grid grid-cols-3 gap-2">
 				<div>
@@ -48,7 +52,7 @@
 				</div>
 				<div>
 					<p class="text-label-sm text-on-surface-variant mb-1">Satuan</p>
-					<select name="unit" class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
+					<select name="unit" bind:value={addUnit} class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
 						<option value="liter">Liter</option>
 						<option value="kg">Kg</option>
 						<option value="pcs">Pcs</option>
@@ -133,20 +137,14 @@
 
 					<!-- Actions -->
 					<div class="mt-3 flex items-center gap-2 border-t border-outline-variant pt-3 flex-wrap">
-						<button onclick={() => { stockInId = stockInId === item.inventory_id ? null : item.inventory_id; stockOutId = null; editId = null; editDetailId = null; }} class="h-9 px-3 rounded-lg bg-green-600 text-white text-label-md font-bold active:scale-95 transition-transform">
+						<button onclick={() => { stockInId = stockInId === item.inventory_id ? null : item.inventory_id; stockOutId = null; editDetailId = null; }} class="h-9 px-3 rounded-lg bg-green-600 text-white text-label-md font-bold active:scale-95 transition-transform">
 							{stockInId === item.inventory_id ? 'Batal' : 'Masuk'}
 						</button>
-						<button onclick={() => { stockOutId = stockOutId === item.inventory_id ? null : item.inventory_id; stockInId = null; editId = null; editDetailId = null; }} class="h-9 px-3 rounded-lg bg-red-600 text-white text-label-md font-bold active:scale-95 transition-transform">
+						<button onclick={() => { stockOutId = stockOutId === item.inventory_id ? null : item.inventory_id; stockInId = null; editDetailId = null; }} class="h-9 px-3 rounded-lg bg-red-600 text-white text-label-md font-bold active:scale-95 transition-transform">
 							{stockOutId === item.inventory_id ? 'Batal' : 'Keluar'}
 						</button>
-						<button onclick={() => { editId = editId === item.inventory_id ? null : item.inventory_id; editDetailId = null; stockInId = null; stockOutId = null; editQty = item.inventory_quantity; }} class="h-9 px-3 rounded-lg bg-blue-600 text-white text-label-md font-bold active:scale-95 transition-transform">
-							{editId === item.inventory_id ? 'Batal' : 'Stok'}
-						</button>
-						<button onclick={() => { editDetailId = editDetailId === item.inventory_id ? null : item.inventory_id; editId = null; stockInId = null; stockOutId = null; }} class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center active:scale-95 transition-transform" title="Edit">
+						<button onclick={() => { editDetailId = editDetailId === item.inventory_id ? null : item.inventory_id; stockInId = null; stockOutId = null; }} class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center active:scale-95 transition-transform" title="Edit">
 							<span class="material-symbols-outlined text-[20px]">edit</span>
-						</button>
-						<button onclick={() => { editPriceId = editPriceId === item.inventory_id ? null : item.inventory_id; editDetailId = null; editId = null; stockInId = null; stockOutId = null; }} class="h-9 px-3 rounded-lg bg-amber-600 text-white text-label-md font-bold active:scale-95 transition-transform">
-							{editPriceId === item.inventory_id ? 'Batal' : 'Harga'}
 						</button>
 						<form method="POST" action="?/delete" use:enhance={({ cancel }) => { if (!confirm(`Hapus ${item.inventory_name}?`)) cancel(); }}>
 							<input type="hidden" name="id" value={item.inventory_id} />
@@ -194,37 +192,6 @@
 								<input type="text" name="description" placeholder="Contoh: Digunakan untuk produksi" class="w-full h-10 px-4 bg-white border border-outline-variant rounded-lg text-body-sm" />
 							</div>
 							<button type="submit" class="w-full h-10 bg-red-600 text-white rounded-lg font-bold text-label-md">Simpan Stock Out</button>
-						</form>
-					{/if}
-
-					<!-- Update Stock Form -->
-					{#if editId === item.inventory_id}
-						<form method="POST" action="?/updateStock" use:enhance class="mt-3 space-y-2">
-							<input type="hidden" name="id" value={item.inventory_id} />
-							<div class="grid grid-cols-2 gap-2">
-								<div>
-									<p class="text-label-sm text-on-surface-variant mb-1">Jumlah Stok</p>
-									<input type="number" name="quantity" step="0.1" bind:value={editQty} class="w-full h-10 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
-								</div>
-								<div>
-									<p class="text-label-sm text-on-surface-variant mb-1">Minimum Stok</p>
-									<input type="number" name="min_stock" step="0.1" value={item.inventory_min_stock} class="w-full h-10 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
-								</div>
-							</div>
-							<button type="submit" class="w-full h-10 bg-primary text-on-primary rounded-lg font-bold text-label-md">Simpan</button>
-						</form>
-					{/if}
-
-					<!-- Edit Price Form -->
-					{#if editPriceId === item.inventory_id}
-						<form method="POST" action="?/editPrice" use:enhance class="mt-3 space-y-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
-							<input type="hidden" name="id" value={item.inventory_id} />
-							<p class="text-label-md font-bold text-amber-700">Edit Harga ({item.inventory_unit})</p>
-							<div>
-								<p class="text-label-sm text-on-surface-variant mb-1">Harga per {item.inventory_unit} (Rp)</p>
-								<input type="number" name="price" step="1" min="0" value={item.inventory_avg_cost || 0} required class="w-full h-10 px-4 bg-white border border-outline-variant rounded-lg text-body-sm" />
-							</div>
-							<button type="submit" class="w-full h-10 bg-amber-600 text-white rounded-lg font-bold text-label-md">Simpan Harga</button>
 						</form>
 					{/if}
 

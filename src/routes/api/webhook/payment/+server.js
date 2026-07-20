@@ -175,6 +175,10 @@ export async function POST({ request }) {
 			args: ['paid', orderPaidAmount, order_id]
 		});
 
+		// Description uses the PSP reference (e.g. PH-xxxxxxxx) so finance records show the
+		// webhook source, not the internal payment code. Fall back to order_id if PSP sends none.
+		const webhookRef = reference || paymentCode || order_id;
+
 		await db.execute({
 			sql: `INSERT INTO transactions (transaction_id, order_id, transaction_type, transaction_amount, transaction_category, transaction_description, transaction_date)
 			VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -183,8 +187,8 @@ export async function POST({ request }) {
 				order_id,
 				'income',
 				orderPaidAmount,
-				'pembayaran order',
-				`Pembayaran order ${paymentCode || order_id}`,
+				'pembayaran webhook',
+				`Pembayaran webhook ${webhookRef}`,
 				new Date().toISOString()
 			]
 		});

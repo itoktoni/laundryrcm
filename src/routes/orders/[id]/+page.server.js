@@ -53,8 +53,10 @@ export const actions = {
 
 	markPaid: async ({ request, params }) => {
 		const formData = await request.formData();
-		const paidAmount = formData.has('paid_amount') ? parseFloat(formData.get('paid_amount')) : null;
-		const uniqueCode = formData.get('unique_code')?.toString() || null;
+		const paidAmountRaw = formData.get('paid_amount');
+		const paidAmount = paidAmountRaw != null && paidAmountRaw !== '' ? parseFloat(paidAmountRaw) : null;
+		const uniqueCodeRaw = formData.get('unique_code')?.toString() || '';
+		const uniqueCode = uniqueCodeRaw === 'null' ? '' : uniqueCodeRaw;
 
 		const order = await db.execute({
 			sql: 'SELECT * FROM orders WHERE order_id = ?',
@@ -66,17 +68,24 @@ export const actions = {
 		}
 
 		const o = order.rows[0];
-		const currentUniq = o.order_unique_code != null ? Number(o.order_unique_code) : 0;
+		const baseTotal = Number(o.order_total_price) || 0;
+		const existingUniq = o.order_unique_code != null ? Number(o.order_unique_code) : 0;
 
-		const isManual = !uniqueCode || uniqueCode === 'null' || uniqueCode === '';
-		const finalTotal = isManual ? o.order_total_price - currentUniq : o.order_total_price;
-		const paidValue = paidAmount != null ? paidAmount : finalTotal;
-		const savedUniq = isManual ? null : uniqueCode;
+		// Determine unique code: use form value, else keep existing, else 0
+		let savedUniq = 0;
+		if (uniqueCode && uniqueCode !== '') {
+			savedUniq = parseInt(uniqueCode) || 0;
+		} else if (existingUniq) {
+			savedUniq = existingUniq;
+		}
+
+		// paid_amount: use form value if valid, else base + uniq
+		const paidValue = paidAmount != null && !isNaN(paidAmount) ? paidAmount : (baseTotal + savedUniq);
 
 		if (o.order_payment_status !== 'paid') {
 			await db.execute({
-				sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ?, order_unique_code = ?, order_total_price = ? WHERE order_id = ?',
-				args: ['paid', paidValue, savedUniq, finalTotal, params.id]
+				sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ?, order_unique_code = ? WHERE order_id = ?',
+				args: ['paid', paidValue, savedUniq, params.id]
 			});
 
 			await db.execute({

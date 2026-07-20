@@ -162,28 +162,9 @@ async function createOrderCore({ request, locals, forceUnpaid = false, withUniqu
 		return code;
 	}
 
-	let orderCode = null;
-	if (withUniqueCode) {
-		// Check for existing codes to avoid duplicates
-		const used = await db.execute({
-			sql: `SELECT order_unique_code FROM orders
-				WHERE order_payment_status != 'paid'
-				AND order_unique_code IS NOT NULL
-				AND order_created_at >= datetime('now', '-1 day')`,
-			args: []
-		});
-		const taken = new Set(used.rows.map((r) => r.order_unique_code));
-		
-		// Generate unique code
-		let attempts = 0;
-		do {
-			orderCode = generateOrderCode();
-			attempts++;
-		} while (taken.has(orderCode) && attempts < 100);
-	}
-
+	// Unique code generated lazily by QRIS API (numeric) to avoid legacy string codes
 	const orderId = generateId();
-	const uniqueCodeValue = orderCode;
+	const uniqueCodeValue = null;
 	await db.execute({
 		sql: `INSERT INTO orders (order_id, customer_id, promo_id, order_subtotal, order_discount_amount, order_total_price, order_unique_code, order_payment_status, order_notes, order_created_by) 
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

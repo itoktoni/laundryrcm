@@ -26,7 +26,7 @@
 						invalidateAll();
 					}
 				} catch {}
-			}, 5000);
+			}, 1000);
 		}
 	});
 	onDestroy(() => clearInterval(timer));

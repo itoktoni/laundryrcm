@@ -59,9 +59,28 @@ export async function GET({ url, request }) {
 		});
 		if (res.rows.length > 0) {
 			const row = res.rows[0];
-			const orderUniq = row.order_unique_code != null ? Number(row.order_unique_code) : 0;
+			let orderUniq = row.order_unique_code != null ? Number(row.order_unique_code) : 0;
+
+			// If stored value is non-numeric (legacy string) or zero, generate numeric unique code
+			if (isNaN(orderUniq) || orderUniq === 0) {
+				if (uniq > 0) {
+					orderUniq = Math.floor(Math.random() * Math.pow(10, uniq));
+				} else if (uniq < 0) {
+					orderUniq = uniq;
+				} else {
+					orderUniq = 0;
+				}
+				// Persist generated code so subsequent requests are stable
+				if (orderUniq !== 0) {
+					await db.execute({
+						sql: 'UPDATE orders SET order_unique_code = ? WHERE order_id = ?',
+						args: [orderUniq, orderId]
+					});
+				}
+			}
+
 			uniqValue = orderUniq;
-			finalAmount = amount + orderUniq;
+			finalAmount = amount + (isNaN(orderUniq) ? 0 : orderUniq);
 		}
 	} else if (uniq < 0) {
 		finalAmount = amount + uniq;

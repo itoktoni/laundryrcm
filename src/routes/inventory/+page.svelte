@@ -7,10 +7,11 @@
 	let editId = $state(null);
 	let editQty = $state(0);
 	let editDetailId = $state(null);
+	let editPriceId = $state(null);
 	let stockInId = $state(null);
 	let stockOutId = $state(null);
 	let showMovements = $state(false);
-	let lowStockItems = $derived(data.inventory.filter((i) => i.inventory_quantity < i.inventory_min_stock));
+	let lowStockItems = $derived(data.inventory.filter((i) => (i.total_qty ?? 0) < i.inventory_min_stock));
 </script>
 
 <svelte:head>
@@ -107,12 +108,12 @@
 			<p class="text-body-sm text-on-surface-variant text-center py-8">Belum ada inventory</p>
 		{:else}
 			{#each data.inventory as item}
-				<div class="bg-surface-container-lowest p-4 rounded-xl border {item.inventory_quantity < item.inventory_min_stock ? 'border-error' : 'border-outline-variant'}">
+				<div class="bg-surface-container-lowest p-4 rounded-xl border {(item.total_qty ?? 0) < item.inventory_min_stock ? 'border-error' : 'border-outline-variant'}">
 					<div class="flex justify-between items-start">
 						<div>
 							<div class="flex items-center gap-2">
 								<p class="font-body-md text-on-surface font-semibold">{item.inventory_name}</p>
-								{#if item.inventory_quantity < item.inventory_min_stock}
+								{#if (item.total_qty ?? 0) < item.inventory_min_stock}
 									<span class="px-2 py-0.5 bg-error-container text-error text-[10px] font-bold rounded">Stok Rendah</span>
 								{/if}
 							</div>
@@ -122,10 +123,10 @@
 							{/if}
 						</div>
 						<div class="text-right">
-							<p class="font-headline-lg text-on-surface">{item.inventory_quantity}</p>
+							<p class="font-headline-lg text-on-surface">{item.total_qty ?? 0}</p>
 							<p class="text-label-md text-on-surface-variant">{item.inventory_unit}</p>
 							{#if item.inventory_avg_cost > 0}
-								<p class="text-label-sm text-on-surface-variant">{formatCurrency(item.inventory_quantity * item.inventory_avg_cost)}</p>
+								<p class="text-label-sm text-on-surface-variant">{formatCurrency((item.total_qty ?? 0) * item.inventory_avg_cost)}</p>
 							{/if}
 						</div>
 					</div>
@@ -143,6 +144,9 @@
 						</button>
 						<button onclick={() => { editDetailId = editDetailId === item.inventory_id ? null : item.inventory_id; editId = null; stockInId = null; stockOutId = null; }} class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center active:scale-95 transition-transform" title="Edit">
 							<span class="material-symbols-outlined text-[20px]">edit</span>
+						</button>
+						<button onclick={() => { editPriceId = editPriceId === item.inventory_id ? null : item.inventory_id; editDetailId = null; editId = null; stockInId = null; stockOutId = null; }} class="h-9 px-3 rounded-lg bg-amber-600 text-white text-label-md font-bold active:scale-95 transition-transform">
+							{editPriceId === item.inventory_id ? 'Batal' : 'Harga'}
 						</button>
 						<form method="POST" action="?/delete" use:enhance={({ cancel }) => { if (!confirm(`Hapus ${item.inventory_name}?`)) cancel(); }}>
 							<input type="hidden" name="id" value={item.inventory_id} />
@@ -208,6 +212,19 @@
 								</div>
 							</div>
 							<button type="submit" class="w-full h-10 bg-primary text-on-primary rounded-lg font-bold text-label-md">Simpan</button>
+						</form>
+					{/if}
+
+					<!-- Edit Price Form -->
+					{#if editPriceId === item.inventory_id}
+						<form method="POST" action="?/editPrice" use:enhance class="mt-3 space-y-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
+							<input type="hidden" name="id" value={item.inventory_id} />
+							<p class="text-label-md font-bold text-amber-700">Edit Harga ({item.inventory_unit})</p>
+							<div>
+								<p class="text-label-sm text-on-surface-variant mb-1">Harga per {item.inventory_unit} (Rp)</p>
+								<input type="number" name="price" step="1" min="0" value={item.inventory_avg_cost || 0} required class="w-full h-10 px-4 bg-white border border-outline-variant rounded-lg text-body-sm" />
+							</div>
+							<button type="submit" class="w-full h-10 bg-amber-600 text-white rounded-lg font-bold text-label-md">Simpan Harga</button>
 						</form>
 					{/if}
 

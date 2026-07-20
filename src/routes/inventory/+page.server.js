@@ -1,8 +1,14 @@
 import { db } from '$lib/server/db.js';
 
 export async function load() {
-	const inventory = await db.execute('SELECT * FROM inventory ORDER BY inventory_name');
-	const lowStock = inventory.rows.filter((i) => i.inventory_quantity < i.inventory_min_stock);
+	const inventory = await db.execute(`
+		SELECT i.*, COALESCE(SUM(CASE WHEN sm.movement_type = 'in' THEN sm.movement_qty ELSE -sm.movement_qty END), 0) AS total_qty
+		FROM inventory i
+		LEFT JOIN stock_movements sm ON sm.inventory_id = i.inventory_id
+		GROUP BY i.inventory_id
+		ORDER BY i.inventory_name
+	`);
+	const lowStock = inventory.rows.filter((i) => i.total_qty < i.inventory_min_stock);
 	
 	// Get stock movements for each inventory item
 	const movements = await db.execute(`
@@ -32,9 +38,16 @@ export const actions = {
 			return { error: 'Semua field wajib diisi' };
 		}
 
+		const id = crypto.randomUUID();
 		await db.execute({
 			sql: 'INSERT INTO inventory (inventory_id, inventory_name, inventory_quantity, inventory_unit, inventory_min_stock, inventory_last_restocked, inventory_avg_cost) VALUES (?, ?, ?, ?, ?, ?, 0)',
-			args: [crypto.randomUUID(), name, quantity, unit, minStock, new Date().toISOString()]
+			args: [id, name, quantity, unit, minStock, new Date().toISOString()]
+		});
+
+		// Record initial stock as a movement so history is not empty
+		await db.execute({
+			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
+			args: [crypto.randomUUID(), id, 'in', new Date().toISOString(), 'Stok awal', quantity, 0]
 		});
 
 		return { success: true };
@@ -149,6 +162,23 @@ export const actions = {
 				args: [quantity, new Date().toISOString(), id]
 			});
 		}
+
+		return { success: true };
+	},
+
+	editPrice: async ({ request }) => {
+		const formData = await request.formData();
+		const id = formData.get('id')?.toString();
+		const price = parseFloat(formData.get('price'));
+
+		if (!id || isNaN(price) || price < 0) {
+			return { error: 'Harga tidak valid' };
+		}
+
+		await db.execute({
+			sql: 'UPDATE inventory SET inventory_avg_cost = ? WHERE inventory_id = ?',
+			args: [price, id]
+		});
 
 		return { success: true };
 	},

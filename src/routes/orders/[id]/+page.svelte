@@ -41,6 +41,15 @@
 	}
 
 	let nextStatus = $derived(getNextStatus(order.order_status));
+
+	async function setStatus(status) {
+		if (status === order.order_status) return;
+		await fetch('?/updateStatus', {
+			method: 'POST',
+			body: new URLSearchParams({ status })
+		});
+		invalidateAll();
+	}
 </script>
 
 <svelte:head>
@@ -140,7 +149,7 @@
 		<p class="font-label-md text-label-md text-on-surface-variant uppercase mb-4">Status Order</p>
 		<div class="flex justify-between">
 			{#each statusFlow as status, i}
-				<div class="flex flex-col items-center gap-1">
+				<button type="button" onclick={() => setStatus(status)} class="flex flex-col items-center gap-1 cursor-pointer" title="Set status ke {status}">
 					<div class="w-8 h-8 rounded-full flex items-center justify-center {order.order_status === status ? 'bg-primary text-on-primary' : statusFlow.indexOf(status) < statusFlow.indexOf(order.order_status) ? 'bg-success text-on-primary' : 'bg-outline-variant text-on-surface-variant'}">
 						{#if statusFlow.indexOf(status) < statusFlow.indexOf(order.order_status)}
 							<span class="material-symbols-outlined text-[16px]">check</span>
@@ -149,7 +158,7 @@
 						{/if}
 					</div>
 					<span class="text-[9px] {order.order_status === status ? 'text-primary font-bold' : 'text-on-surface-variant'}">{status}</span>
-				</div>
+				</button>
 			{/each}
 		</div>
 	</div>

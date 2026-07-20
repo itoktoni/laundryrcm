@@ -113,15 +113,16 @@ export async function POST({ request }) {
 
 		const amountNum = Number(paid_amount);
 
-		// 1) Explicit order id match (most reliable when PSP echoes it back)
+		// 1) Explicit order id match (most reliable when PSP echoes it back).
 		// ponytail: project has no TS types for db ResultSet; keep loose to match existing code style
+		// Query WITHOUT the != 'paid' filter so a replayed webhook for an already-settled
+		// order is treated as success (idempotent) instead of a false 404.
 		/** @type {any} */
 		let result = { rows: [] };
 		if (reference) {
 			result = await db.execute({
 				sql: `SELECT * FROM orders
 					WHERE order_id = ?
-					AND order_payment_status != 'paid'
 					LIMIT 1`,
 				args: [reference]
 			});
@@ -129,27 +130,40 @@ export async function POST({ request }) {
 
 		// 2) Amount match (fallback when PSP does not echo order id).
 		// Tolerance ±0.5 to survive float/string drift; unique-code amounts are integers so no clash.
+		// Includes already-paid orders so a duplicate notification returns success, not 404.
 		if (result.rows.length === 0) {
 			result = await db.execute({
 				sql: `SELECT * FROM orders
-					WHERE order_payment_status != 'paid'
-					AND ABS(CAST(order_total_price AS REAL) - ?) <= 0.5
+					WHERE ABS(CAST(order_total_price AS REAL) - ?) <= 0.5
+					ORDER BY order_created_at DESC LIMIT 1`,
+				args: [amountNum]
+			});
+		}
+
+		// 3) Base-amount match: customer may have paid the raw static QRIS (no unique code),
+		// so the notified amount equals order_total_price - order_unique_code.
+		if (result.rows.length === 0) {
+			result = await db.execute({
+				sql: `SELECT * FROM orders
+					WHERE order_unique_code IS NOT NULL
+					AND ABS(CAST(order_total_price AS REAL) - CAST(order_unique_code AS REAL) - ?) <= 0.5
 					ORDER BY order_created_at DESC LIMIT 1`,
 				args: [amountNum]
 			});
 		}
 
 		if (result.rows.length === 0) {
-			await log('no pending order matched', { amount: amountNum, reference });
+			await log('no matching order at all', { amount: amountNum, reference });
 			return json({ error: 'No matching order' }, { status: 404 });
 		}
 
 		const order = result.rows[0];
 		const order_id = order.order_id;
 
+		// Idempotent: a re-delivered webhook for an already-settled order is success, not a failure.
 		if (order.order_payment_status === 'paid') {
-			await log('already paid', order_id);
-			return json({ success: true, message: 'Already paid' });
+			await log('already paid (idempotent replay)', order_id);
+			return json({ success: true, message: 'Already paid', order_id });
 		}
 
 		// Order paid amount = order's own total price (base + unique code), not raw PSP amount.

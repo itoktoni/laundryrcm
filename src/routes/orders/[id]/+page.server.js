@@ -97,7 +97,7 @@ export const actions = {
 					'income',
 					paidValue,
 					'pembayaran order',
-					`Pembayaran order ${params.id}`,
+					`Pembayaran order ${o.order_payment_code ? 'kode ' + o.order_payment_code : params.id}`,
 					new Date().toISOString()
 				]
 			});

@@ -117,6 +117,12 @@
 					<span class="text-on-surface-variant">Status</span>
 					<span class="text-success font-label-md">Lunas</span>
 				</div>
+				{#if order.order_payment_code}
+					<div class="flex justify-between text-body-sm pt-1">
+						<span class="text-on-surface-variant">Kode Pembayaran</span>
+						<span class="text-on-surface font-mono">{order.order_payment_code}</span>
+					</div>
+				{/if}
 			{/if}
 		</div>
 	</div>

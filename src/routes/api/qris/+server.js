@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { generatePaymentCode } from '$lib/server/payment-code.js';
 
 function calcCRC16(str) {
 	let crc = 0xFFFF;
@@ -75,10 +76,11 @@ export async function GET({ url, request }) {
 			uniqValue = orderUniq;
 			finalAmount = amount + (isNaN(orderUniq) ? 0 : orderUniq);
 
-			// Persist unique code AND final total (base + uniq) so webhook matches order_total_price directly
+			// Persist unique code, final total (base + uniq) and QRIS payment code (Q prefix)
+			const orderPaymentCode = generatePaymentCode('Q');
 			await db.execute({
-				sql: 'UPDATE orders SET order_unique_code = ?, order_total_price = ? WHERE order_id = ?',
-				args: [orderUniq, finalAmount, orderId]
+				sql: 'UPDATE orders SET order_unique_code = ?, order_total_price = ?, order_payment_code = ? WHERE order_id = ?',
+				args: [orderUniq, finalAmount, orderPaymentCode, orderId]
 			});
 		}
 	} else if (uniq < 0) {

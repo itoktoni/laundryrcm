@@ -1,5 +1,6 @@
 import { db } from '$lib/server/db.js';
 import { generateId } from '$lib/server/auth.js';
+import { generatePaymentCode } from '$lib/server/payment-code.js';
 import { fail, redirect } from '@sveltejs/kit';
 
 export async function load() {
@@ -165,10 +166,12 @@ async function createOrderCore({ request, locals, forceUnpaid = false, withUniqu
 	// Unique code generated lazily by QRIS API (numeric) to avoid legacy string codes
 	const orderId = generateId();
 	const uniqueCodeValue = null;
+	// Cash/unpaid default prefix; QRIS flow overwrites with Q-prefix when paid via QRIS
+	const orderPaymentCode = generatePaymentCode('C');
 	await db.execute({
-		sql: `INSERT INTO orders (order_id, customer_id, promo_id, order_subtotal, order_discount_amount, order_total_price, order_unique_code, order_payment_status, order_notes, order_created_by) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		args: [orderId, customerId, appliedPromoId, subtotal, discount, total, uniqueCodeValue, paymentStatus, notes, locals.user.id]
+		sql: `INSERT INTO orders (order_id, customer_id, promo_id, order_subtotal, order_discount_amount, order_total_price, order_unique_code, order_payment_code, order_payment_status, order_notes, order_created_by) 
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		args: [orderId, customerId, appliedPromoId, subtotal, discount, total, uniqueCodeValue, orderPaymentCode, paymentStatus, notes, locals.user.id]
 	});
 
 	// If paid, create income transaction

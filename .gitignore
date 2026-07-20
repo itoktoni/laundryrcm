@@ -5,6 +5,7 @@ node_modules
 .output
 .vercel
 .netlify
+/build-old
 .wrangler
 /.svelte-kit
 /build

@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS orders (
 	order_discount_amount REAL NOT NULL DEFAULT 0,
 	order_total_price REAL NOT NULL,
 	order_unique_code TEXT,
+	order_payment_code TEXT,
 	order_paid_amount REAL,
 	order_status TEXT NOT NULL DEFAULT 'pending' CHECK(order_status IN ('pending', 'cuci', 'kering', 'setrika', 'selesai', 'diambil')),
 	order_payment_status TEXT NOT NULL DEFAULT 'unpaid' CHECK(order_payment_status IN ('unpaid', 'paid')),

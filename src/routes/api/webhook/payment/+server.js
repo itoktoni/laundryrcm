@@ -127,12 +127,13 @@ export async function POST({ request }) {
 			});
 		}
 
-		// 2) Amount match. OPS A: order_total_price stores final (base + uniq), paid amount matches it directly.
+		// 2) Amount match (fallback when PSP does not echo order id).
+		// Tolerance ±0.5 to survive float/string drift; unique-code amounts are integers so no clash.
 		if (result.rows.length === 0) {
 			result = await db.execute({
 				sql: `SELECT * FROM orders
 					WHERE order_payment_status != 'paid'
-					AND CAST(order_total_price AS REAL) = ?
+					AND ABS(CAST(order_total_price AS REAL) - ?) <= 0.5
 					ORDER BY order_created_at DESC LIMIT 1`,
 				args: [amountNum]
 			});
@@ -151,11 +152,27 @@ export async function POST({ request }) {
 			return json({ success: true, message: 'Already paid' });
 		}
 
-		await log('marking paid', { order_id, amount: amountNum });
+		// Order paid amount = order's own total price (base + unique code), not raw PSP amount.
+		// Booking the order total guarantees settlement even when PSP amount differs (rounding, fees, no unique code).
+		const orderPaidAmount = Math.round((Number(order.order_total_price) + Number.EPSILON) * 100) / 100;
+
+		// Fetch payment_code (short human code) to use in finance description instead of internal id
+		let paymentCode = null;
+		try {
+			const pcRes = await db.execute({
+				sql: 'SELECT order_payment_code FROM orders WHERE order_id = ?',
+				args: [order_id]
+			});
+			if (pcRes.rows.length > 0) paymentCode = pcRes.rows[0].order_payment_code || null;
+		} catch (e) {
+			await log('payment_code lookup error', e?.stack || e);
+		}
+
+		await log('marking paid', { order_id, payment_code: paymentCode, amount: orderPaidAmount, psp_amount: amountNum });
 
 		await db.execute({
 			sql: 'UPDATE orders SET order_payment_status = ?, order_paid_amount = ? WHERE order_id = ?',
-			args: ['paid', amountNum, order_id]
+			args: ['paid', orderPaidAmount, order_id]
 		});
 
 		await db.execute({
@@ -165,9 +182,9 @@ export async function POST({ request }) {
 				crypto.randomUUID(),
 				order_id,
 				'income',
-				amountNum,
+				orderPaidAmount,
 				'pembayaran order',
-				`Pembayaran webhook ${reference || ''}`.trim(),
+				`Pembayaran order ${paymentCode || order_id}`,
 				new Date().toISOString()
 			]
 		});

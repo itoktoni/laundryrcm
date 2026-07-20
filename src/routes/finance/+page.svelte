@@ -172,16 +172,16 @@
 		{:else}
 			{#each data.transactions as trx}
 				<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl border border-outline-variant">
-					<div class="flex items-center gap-3">
-						<div class="w-10 h-10 rounded-full {trx.transaction_type === 'income' ? 'bg-success/10' : 'bg-error-container'} flex items-center justify-center">
+					<div class="flex items-center gap-3 min-w-0 flex-1">
+						<div class="w-10 h-10 rounded-full {trx.transaction_type === 'income' ? 'bg-success/10' : 'bg-error-container'} flex items-center justify-center shrink-0">
 							<span class="material-symbols-outlined {trx.transaction_type === 'income' ? 'text-success' : 'text-error'}">{trx.transaction_type === 'income' ? 'arrow_downward' : 'arrow_upward'}</span>
 						</div>
-						<div>
-							<p class="font-body-md text-on-surface font-semibold">{trx.transaction_category}</p>
-							<p class="text-label-md text-on-surface-variant">{formatDate(trx.transaction_date)} {trx.transaction_description ? `· ${trx.transaction_description}` : ''}</p>
+						<div class="min-w-0">
+							<p class="font-body-md text-on-surface font-semibold truncate">{trx.transaction_category}</p>
+							<p class="text-label-md text-on-surface-variant truncate">{formatDate(trx.transaction_date)} {trx.transaction_description ? `· ${trx.transaction_description}` : ''}</p>
 						</div>
 					</div>
-					<span class="font-headline-md {trx.transaction_type === 'income' ? 'text-success' : 'text-error'}">{trx.transaction_type === 'income' ? '+' : '-'}{formatCurrency(trx.transaction_amount)}</span>
+					<span class="font-headline-md {trx.transaction_type === 'income' ? 'text-success' : 'text-error'} shrink-0 whitespace-nowrap ml-2">{trx.transaction_type === 'income' ? '+' : '-'}{formatCurrency(trx.transaction_amount)}</span>
 				</div>
 			{/each}
 		{/if}

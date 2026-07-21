@@ -1,14 +1,13 @@
-<script>
+<script lang="ts">
 	import { enhance } from '$app/forms';
 
-	export let data;
-	export let form;
+	let { data, form }: { data: any, form: any } = $props();
 
 	let selectedSchedule = null;
 	let testResult = null;
 	let loading = false;
 
-	$: settings = data.schedules.find((s) => s.schedule_id === selectedSchedule) || null;
+	$derived settings = data.schedules.find((s) => s.schedule_id === selectedSchedule) || null;
 
 	const typeColors = {
 		pending_pickup: 'bg-blue-50 border-blue-200',
@@ -71,7 +70,7 @@
 									type="checkbox"
 									name="enabled"
 									checked={schedule.schedule_enabled === 1}
-									on:change={(e) => e.target.form?.submit()}
+									on:change={(e) => e.target?.form?.submit()}
 									class="w-4 h-4 rounded"
 								/>
 								<span class="text-sm text-gray-600">{schedule.schedule_enabled ? 'Aktif' : 'Nonaktif'}</span>

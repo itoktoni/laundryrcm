@@ -23,7 +23,8 @@ export async function load({ params }) {
 			args: [orderId]
 		}),
 		db.execute({
-			sql: `SELECT setting_key, setting_value FROM app_settings WHERE setting_key IN ('store_name', 'store_address', 'store_phone')`
+			sql: `SELECT setting_key, setting_value FROM app_settings WHERE setting_key IN ('store_name', 'store_address', 'store_phone')`,
+			args: []
 		})
 	]);
 

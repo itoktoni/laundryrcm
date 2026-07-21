@@ -169,7 +169,7 @@ export class BluetoothPrinter {
 			throw new Error('Printer tidak terhubung. Silakan sambungkan printer terlebih dahulu.');
 		}
 
-		const MTU = 512; // Max bytes per write
+		const MTU = 200; // Smaller chunk size for better compatibility
 		for (let i = 0; i < data.length; i += MTU) {
 			const chunk = data.slice(i, Math.min(i + MTU, data.length));
 			try {
@@ -179,15 +179,21 @@ export class BluetoothPrinter {
 					await this.characteristic.writeValue(chunk);
 				}
 			} catch (err) {
-				// Small delay between chunks
-				await new Promise(r => setTimeout(r, 50));
-				// Retry once
-				if (this.characteristic.properties.writeWithoutResponse) {
-					await this.characteristic.writeValueWithoutResponse(chunk);
-				} else {
-					await this.characteristic.writeValue(chunk);
+				console.warn('Chunk write failed, retrying...', err.message);
+				await new Promise(r => setTimeout(r, 100));
+				try {
+					if (this.characteristic.properties.writeWithoutResponse) {
+						await this.characteristic.writeValueWithoutResponse(chunk);
+					} else {
+						await this.characteristic.writeValue(chunk);
+					}
+				} catch (retryErr) {
+					console.error('Chunk write failed after retry:', retryErr.message);
+					throw new Error('Gagal mengirim data ke printer: ' + retryErr.message);
 				}
 			}
+			// Small delay between chunks to prevent buffer overflow
+			await new Promise(r => setTimeout(r, 30));
 		}
 	}
 
@@ -233,212 +239,79 @@ export class BluetoothPrinter {
 	 * @param {boolean} options.copies - number of copies (default 1)
 	 */
 	async printReceipt(order, items, options = {}) {
-		const encoder = new EscPosEncoder();
 		const storeName = options.storeName || 'LaundryKu';
 		const storeAddress = options.storeAddress || '';
 		const storePhone = options.storePhone || '';
-		const copies = options.copies || 1;
-		const orderDate = new Date(order.order_created_at).toLocaleString('id-ID', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit'
-		});
+		const orderId = String(order.order_id || '').slice(0, 8).toUpperCase();
+		const orderDate = order.order_created_at
+			? new Date(order.order_created_at).toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+			: '-';
+		const customerName = String(order.customer_name || '-');
+		const customerPhone = String(order.customer_phone || '-');
+		const subtotal = Math.round(Number(order.order_subtotal) || 0);
+		const discount = Math.round(Number(order.order_discount_amount) || 0);
+		const total = Math.round(Number(order.order_paid_amount) || Number(order.order_total_price) || 0);
+		const paymentStatus = order.order_payment_status === 'paid' ? 'LUNAS' : 'BELUM BAYAR';
+		const statusLabels = { pending: 'Antre', cuci: 'Cuci', kering: 'Kering', setrika: 'Setrika', selesai: 'Selesai', diambil: 'Diambil' };
+		const currentStatus = statusLabels[order.order_status] || String(order.order_status || '-');
 
-		// Build receipt data
-		const receiptData = encoder
+		const encoder = new EscPosEncoder();
+		const receipt = encoder
 			.initialize()
-			// Header
 			.align('center')
-			.size(2, 2)
-			.text(storeName)
-			.size(1, 1)
-			.text(storeAddress)
-			.text(`Telp: ${storePhone}`)
-			.text('==============================')
-			.newline()
-			.size(1, 1)
-			.text('NOTA LAUNDRY')
-			.text('==============================')
-			.newline()
+			.line(storeName)
+			.line(storeAddress || ' ')
+			.line(storePhone ? `Telp: ${storePhone}` : ' ')
+			.line('================================')
+			.line('NOTA LAUNDRY')
+			.line('================================')
 			.align('left')
-			.text(`No. Order  : #${order.order_id.slice(0, 8).toUpperCase()}`)
-			.text(`Tanggal    : ${orderDate}`)
-			.text(`Pelanggan  : ${order.customer_name}`)
-			.text(`No. Telp   : ${order.customer_phone || '-'}`)
-			.text('------------------------------')
-			.newline();
-
-		// Items table header
-		receiptData
-			.bold(true)
-			.text(`${'Item'.padEnd(20)} ${'Qty'.padStart(4)} ${'Harga'.padStart(8)}`)
-			.bold(false)
-			.text('-'.repeat(36));
+			.line(`No: #${orderId}`)
+			.line(`Tgl: ${orderDate}`)
+			.line(`Pelanggan: ${customerName}`)
+			.line(`Telp: ${customerPhone}`)
+			.line('--------------------------------');
 
 		// Items
 		for (const item of items) {
-			const name = item.product_name.length > 18
-				? item.product_name.substring(0, 17) + '.'
-				: item.product_name;
-			const qty = item.item_quantity;
-			const price = Math.round(item.item_price);
-			receiptData.text(
-				`${name.padEnd(20)} ${qty.toString().padStart(4)} ${price.toLocaleString('id-ID').padStart(8)}`
-			);
+			const name = String(item.product_name || '').substring(0, 18);
+			const qty = Number(item.item_quantity) || 0;
+			const price = Math.round(Number(item.item_price) || 0);
+			receipt.line(`${name}`);
+			receipt.line(`  ${qty} x Rp${price.toLocaleString('id-ID')}`);
 		}
 
-		// Totals
-		receiptData
-			.text('-'.repeat(36))
-			.bold(true)
-			.text(`Subtotal     : Rp ${Math.round(order.order_subtotal).toLocaleString('id-ID')}`)
-			.bold(false);
+		receipt
+			.line('--------------------------------')
+			.line(`Subtotal : Rp${subtotal.toLocaleString('id-ID')}`);
 
-		if (order.order_discount_amount > 0) {
-			receiptData
-				.text(`Diskon       : -Rp ${Math.round(order.order_discount_amount).toLocaleString('id-ID')}`);
+		if (discount > 0) {
+			receipt.line(`Diskon   : -Rp${discount.toLocaleString('id-ID')}`);
 		}
 
-		if (order.order_unique_code && Number(order.order_unique_code) > 0) {
-			receiptData
-				.text(`Kode Unik    : +${Number(order.order_unique_code).toLocaleString('id-ID')}`);
-		}
-
-		receiptData
-			.text('==============================')
-			.bold(true)
-			.size(1, 1)
+		receipt
+			.line('================================')
 			.align('center')
-			.text(`TOTAL: Rp ${Math.round(order.order_paid_amount || order.order_total_price).toLocaleString('id-ID')}`)
-			.bold(false)
-			.size(1, 1)
-			.newline();
+			.line(`TOTAL: Rp${total.toLocaleString('id-ID')}`)
+			.line(`Status: ${paymentStatus}`)
+			.line('================================')
+			.line(`Order: ${currentStatus}`)
+			.line(' ');
 
-		// Payment status
-		const paymentStatus = order.order_payment_status === 'paid' ? 'LUNAS' : 'BELUM BAYAR';
-		receiptData
-			.align('center')
-			.text(`Status: ${paymentStatus}`)
-			.text('==============================')
-			.newline();
-
-		// Order status timeline
-		const statusLabels = {
-			pending: 'Antre',
-			cuci: 'Cuci',
-			kering: 'Kering',
-			setrika: 'Setrika',
-			selesai: 'Selesai',
-			diambil: 'Diambil'
-		};
-		const currentStatus = statusLabels[order.order_status] || order.order_status;
-		receiptData
-			.text(`Status Order: ${currentStatus}`)
-			.newline();
-
-		// Notes
 		if (order.order_notes) {
-			receiptData
-				.text(`Catatan: ${order.order_notes}`)
-				.newline();
+			receipt.line(`Catatan: ${String(order.order_notes)}`);
+			receipt.line(' ');
 		}
 
-		// Footer
-		receiptData
-			.text('==============================')
-			.align('center')
-			.text('Terima kasih telah menggunakan')
-			.text('jasa laundry kami')
-			.newline()
-			.text('Barang yang sudah dicuci')
-			.text('tidak dapat dikembalikan')
-			.newline()
-			.text('==============================')
-			.newline()
-			.newline()
-			.text('Dicetak: ' + new Date().toLocaleString('id-ID'))
+		receipt
+			.line('Terima kasih')
+			.line(' ')
+			.line(new Date().toLocaleString('id-ID'))
 			.newline()
 			.cut()
 			.encode();
 
-		// Print copies
-		for (let i = 0; i < copies; i++) {
-			if (copies > 1) {
-				// For multiple copies, re-encode
-				const copyData = encoder
-					.initialize()
-					.align('center')
-					.size(2, 2)
-					.text(storeName)
-					.size(1, 1)
-					.text(storeAddress)
-					.text(`Telp: ${storePhone}`)
-					.text('==============================')
-					.newline()
-					.size(1, 1)
-					.text('NOTA LAUNDRY')
-					.text('==============================')
-					.newline()
-					.align('left')
-					.text(`No. Order  : #${order.order_id.slice(0, 8).toUpperCase()}`)
-					.text(`Tanggal    : ${orderDate}`)
-					.text(`Pelanggan  : ${order.customer_name}`)
-					.text(`No. Telp   : ${order.customer_phone || '-'}`)
-					.text('------------------------------')
-					.newline()
-					.bold(true)
-					.text(`${'Item'.padEnd(20)} ${'Qty'.padStart(4)} ${'Harga'.padStart(8)}`)
-					.bold(false)
-					.text('-'.repeat(36));
-
-				for (const item of items) {
-					const name = item.product_name.length > 18
-						? item.product_name.substring(0, 17) + '.'
-						: item.product_name;
-					copyData.text(
-						`${name.padEnd(20)} ${item.item_quantity.toString().padStart(4)} ${Math.round(item.item_price).toLocaleString('id-ID').padStart(8)}`
-					);
-				}
-
-				copyData
-					.text('-'.repeat(36))
-					.bold(true)
-					.text(`Subtotal     : Rp ${Math.round(order.order_subtotal).toLocaleString('id-ID')}`)
-					.bold(false);
-
-				if (order.order_discount_amount > 0) {
-					copyData.text(`Diskon       : -Rp ${Math.round(order.order_discount_amount).toLocaleString('id-ID')}`);
-				}
-
-				copyData
-					.text('==============================')
-					.bold(true)
-					.align('center')
-					.text(`TOTAL: Rp ${Math.round(order.order_paid_amount || order.order_total_price).toLocaleString('id-ID')}`)
-					.bold(false)
-					.size(1, 1)
-					.newline()
-					.align('center')
-					.text(`Status: ${paymentStatus}`)
-					.text('==============================')
-					.newline()
-					.text(`Status Order: ${currentStatus}`)
-					.newline()
-					.text('==============================')
-					.align('center')
-					.text('Terima kasih')
-					.newline()
-					.newline()
-					.cut()
-					.encode();
-				await this.sendData(copyData);
-			}
-		}
-
-		// Send first copy
-		await this.sendData(receiptData);
+		await this.sendData(receipt);
 	}
 
 	/**
@@ -447,64 +320,45 @@ export class BluetoothPrinter {
 	 * @param {Array} items
 	 */
 	async printWorkOrder(order, items) {
-		const encoder = new EscPosEncoder();
-		const orderDate = new Date(order.order_created_at).toLocaleString('id-ID', {
-			day: 'numeric',
-			month: 'short',
-			hour: '2-digit',
-			minute: '2-digit'
-		});
+		const orderId = String(order.order_id || '').slice(0, 8).toUpperCase();
+		const orderDate = order.order_created_at
+			? new Date(order.order_created_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+			: '-';
+		const customerName = String(order.customer_name || '-');
+		const statusLabels = { pending: 'Antre', cuci: 'Cuci', kering: 'Kering', setrika: 'Setrika', selesai: 'Selesai', diambil: 'Diambil' };
+		const currentStatus = statusLabels[order.order_status] || String(order.order_status || '-');
 
+		const encoder = new EscPosEncoder();
 		const data = encoder
 			.initialize()
 			.align('center')
-			.size(1, 1)
-			.text('=== ORDER KERJA ===')
-			.text('==============================')
-			.newline()
+			.line('=== ORDER KERJA ===')
+			.line('================================')
 			.align('left')
-			.size(1, 1)
-			.text(`Order: #${order.order_id.slice(0, 8).toUpperCase()}`)
-			.text(`Tgl: ${orderDate}`)
-			.text(`Pelanggan: ${order.customer_name}`)
-			.text('------------------------------')
-			.newline()
-			.bold(true)
-			.text(`${'Item'.padEnd(20)} ${'Qty'.padStart(4)}`)
-			.bold(false)
-			.text('-'.repeat(26));
+			.line(`Order: #${orderId}`)
+			.line(`Tgl: ${orderDate}`)
+			.line(`Pelanggan: ${customerName}`)
+			.line('--------------------------------');
 
+		// Items
 		for (const item of items) {
-			const name = item.product_name.length > 18
-				? item.product_name.substring(0, 17) + '.'
-				: item.product_name;
-			data.text(
-				`${name.padEnd(20)} ${item.item_quantity.toString().padStart(4)}`
-			);
+			const name = String(item.product_name || '').substring(0, 20);
+			const qty = Number(item.item_quantity) || 0;
+			data.line(`${name}  x${qty}`);
 		}
 
-		const statusLabels = {
-			pending: 'Antre',
-			cuci: 'Cuci',
-			kering: 'Kering',
-			setrika: 'Setrika',
-			selesai: 'Selesai',
-			diambil: 'Diambil'
-		};
-
 		data
-			.text('-'.repeat(26))
-			.text(`Status: ${statusLabels[order.order_status] || order.order_status}`)
-			.newline();
+			.line('--------------------------------')
+			.line(`Status: ${currentStatus}`);
 
 		if (order.order_notes) {
-			data.text(`Catatan: ${order.order_notes}`);
+			data.line(`Catatan: ${String(order.order_notes)}`);
 		}
 
 		data
-			.newline()
+			.line(' ')
 			.align('center')
-			.text('==============================')
+			.line('================================')
 			.newline()
 			.cut()
 			.encode();

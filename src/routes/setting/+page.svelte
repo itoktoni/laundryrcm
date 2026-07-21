@@ -17,6 +17,7 @@
 		if (key.startsWith('laundry_') || key.startsWith('store_') || key === 'open_hours' || key.startsWith('pickup_')) return 'toko';
 		if (key.startsWith('ai_') || key.startsWith('qris') || key.startsWith('fonnte') || key.startsWith('telegram_') || key.startsWith('wa_') || key === 'provider') return 'integrasi';
 		if (key.startsWith('webhook_')) return 'webhook';
+		if (key.startsWith('printer_')) return 'printer';
 		return 'lainnya';
 	}
 
@@ -24,6 +25,7 @@
 		{ id: 'toko', label: 'Toko' },
 		{ id: 'integrasi', label: 'Integrasi' },
 		{ id: 'webhook', label: 'Webhook' },
+		{ id: 'printer', label: 'Printer' },
 		{ id: 'lainnya', label: 'Lainnya' }
 	];
 

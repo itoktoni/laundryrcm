@@ -5,11 +5,11 @@ import { fail, redirect } from '@sveltejs/kit';
 export async function load({ params }) {
 	const orderId = params.id;
 
-	const [order, items] = await Promise.all([
+	const [order, items, settingsResult] = await Promise.all([
 		db.execute({
 			sql: `SELECT o.*, c.customer_name, c.customer_phone, c.customer_address, c.customer_vip,
 				p.promo_name, p.promo_type, p.promo_value
-				FROM orders o 
+				FROM orders o
 				JOIN customers c ON o.customer_id = c.customer_id
 				LEFT JOIN promotions p ON o.promo_id = p.promo_id
 				WHERE o.order_id = ?`,
@@ -21,6 +21,9 @@ export async function load({ params }) {
 				JOIN products p ON oi.product_id = p.product_id
 				WHERE oi.order_id = ?`,
 			args: [orderId]
+		}),
+		db.execute({
+			sql: `SELECT setting_key, setting_value FROM app_settings WHERE setting_key IN ('store_name', 'store_address', 'store_phone')`
 		})
 	]);
 
@@ -28,9 +31,15 @@ export async function load({ params }) {
 		throw redirect(302, '/orders');
 	}
 
+	const storeSettings = {};
+	for (const row of settingsResult.rows) {
+		storeSettings[row.setting_key] = row.setting_value;
+	}
+
 	return {
 		order: order.rows[0],
-		items: items.rows
+		items: items.rows,
+		store: storeSettings
 	};
 }
 
@@ -99,7 +108,7 @@ export const actions = {
 			});
 
 			await db.execute({
-				sql: `INSERT INTO transactions (transaction_id, order_id, transaction_type, transaction_amount, transaction_category, transaction_description, transaction_date) 
+				sql: `INSERT INTO transactions (transaction_id, order_id, transaction_type, transaction_amount, transaction_category, transaction_description, transaction_date)
 				VALUES (?, ?, ?, ?, ?, ?, ?)`,
 				args: [
 					crypto.randomUUID(),

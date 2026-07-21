@@ -37,7 +37,10 @@ const rows = [
 	['telegram_user_id', '', 'private', 1, 22],
 	['webhook_basic_user', '', 'private', 1, 26],
 	['webhook_basic_pass', '', 'private', 1, 25],
-	['webhook_debug', '0', 'private', 1, 19]
+	['webhook_debug', '0', 'private', 1, 19],
+	['printer_enabled', '1', 'public', 0, 30],
+	['printer_auto_print', '0', 'public', 0, 31],
+	['printer_copies', '1', 'public', 0, 32]
 ];
 
 for (const [key, value, status, mandatory, urutan] of rows) {

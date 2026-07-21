@@ -4,10 +4,12 @@
 	import { invalidateAll } from '$app/navigation';
 	import { onDestroy } from 'svelte';
 	import QrisModal from '$lib/components/ui/QrisModal.svelte';
+	import PrintButton from '$lib/components/ui/PrintButton.svelte';
 
 	let { data } = $props();
 	let order = $derived(data.order);
 	let items = $derived(data.items);
+	let store = $derived(data.store || {});
 	let user = $derived(data.user);
 	let canDelete = $derived(user && (user.role === 'owner' || user.role === 'admin'));
 	let showQris = $state(false);
@@ -63,7 +65,8 @@
 			<h1 class="font-headline-lg text-headline-lg text-on-surface">#{order.order_id.slice(0, 8).toUpperCase()}</h1>
 			<p class="text-label-md text-on-surface-variant">{formatDate(order.order_created_at)}</p>
 		</div>
-		<div class="flex gap-2">
+		<div class="flex items-center gap-2">
+			<PrintButton {order} {items} storeName={store.store_name || 'LaundryKu'} storeAddress={store.store_address || ''} storePhone={store.store_phone || ''} />
 			<span class="px-3 py-1 {statusColors[order.order_status]} text-on-primary rounded-full text-label-md font-label-md">{statusLabels[order.order_status]}</span>
 			<span class="px-3 py-1 {order.order_payment_status === 'paid' ? 'bg-success' : 'bg-error'} text-on-primary rounded-full text-label-md font-label-md">{order.order_payment_status === 'paid' ? 'Lunas' : 'Belum Bayar'}</span>
 		</div>

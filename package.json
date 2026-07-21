@@ -30,6 +30,7 @@
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"chart.js": "^4.5.1",
+		"esc-pos-encoder": "^3.0.0",
 		"jspdf": "^4.2.1",
 		"jspdf-autotable": "^5.0.8",
 		"lucia": "^3.2.2",

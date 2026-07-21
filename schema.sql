@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS inventory (
 	inventory_unit TEXT NOT NULL,
 	inventory_min_stock REAL NOT NULL,
 	inventory_last_restocked TEXT,
+	inventory_avg_cost REAL NOT NULL DEFAULT 0,
 	inventory_created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -160,3 +161,54 @@ INSERT OR IGNORE INTO products (product_id, product_name, product_price, product
 	('prod-karpet', 'Karpet', 15000, 'kg', 'Cuci karpet', 'cat-kiloan'),
 	('prod-jas', 'Jas/Blazer', 25000, 'pcs', 'Cuci jas/blazer per pcs', 'cat-satuan'),
 	('prod-dryclean', 'Dry Clean', 30000, 'kg', 'Cuci kering khusus', 'cat-kiloan');
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+	movement_id TEXT PRIMARY KEY,
+	inventory_id TEXT NOT NULL REFERENCES inventory(inventory_id),
+	movement_type TEXT NOT NULL CHECK(movement_type IN ('in', 'out')),
+	movement_date TEXT NOT NULL,
+	movement_description TEXT,
+	movement_qty REAL NOT NULL,
+	movement_cost REAL NOT NULL DEFAULT 0,
+	movement_avg_cost REAL NOT NULL DEFAULT 0,
+	movement_created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS whatsapp_schedules (
+	schedule_id TEXT PRIMARY KEY,
+	schedule_type TEXT NOT NULL CHECK(schedule_type IN ('pending_pickup', 'inactive_customer', 'low_stock', 'machine_service', 'ready_delivery')),
+	schedule_name TEXT NOT NULL,
+	schedule_description TEXT,
+	schedule_enabled INTEGER NOT NULL DEFAULT 1,
+	schedule_cron_expression TEXT,
+	schedule_days_threshold INTEGER,
+	schedule_template TEXT,
+	schedule_last_run TEXT,
+	schedule_last_success TEXT,
+	schedule_last_error TEXT,
+	schedule_created_at TEXT NOT NULL DEFAULT (datetime('now')),
+	schedule_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS whatsapp_schedule_logs (
+	log_id TEXT PRIMARY KEY,
+	schedule_id TEXT NOT NULL REFERENCES whatsapp_schedules(schedule_id),
+	log_status TEXT NOT NULL CHECK(log_status IN ('success', 'failed', 'partial')),
+	log_message_count INTEGER NOT NULL DEFAULT 0,
+	log_error TEXT,
+	log_created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS whatsapp_pending_messages (
+	pending_id TEXT PRIMARY KEY,
+	schedule_id TEXT NOT NULL REFERENCES whatsapp_schedules(schedule_id),
+	schedule_type TEXT NOT NULL,
+	phone TEXT NOT NULL,
+	message TEXT NOT NULL,
+	ref_type TEXT,
+	ref_id TEXT,
+	status TEXT NOT NULL DEFAULT 'queued' CHECK(status IN ('queued', 'sent', 'failed')),
+	sent_at TEXT,
+	error TEXT,
+	created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);

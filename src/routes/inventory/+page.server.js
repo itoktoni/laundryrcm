@@ -45,11 +45,10 @@ export const actions = {
 			args: [id, name, quantity, unit, minStock, new Date().toISOString(), price]
 		});
 
-		// Record initial stock as a movement so history is not empty.
-		// Cost left 0: avg cost already set to price, stockIn movements carry real cost separately.
+		// Record initial stock with correct cost
 		await db.execute({
-			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
-			args: [crypto.randomUUID(), id, 'in', new Date().toISOString(), 'Stok awal', quantity, 0]
+			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost, movement_avg_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+			args: [crypto.randomUUID(), id, 'in', new Date().toISOString(), 'Stok awal', quantity, price * quantity, price]
 		});
 
 		return { success: true };
@@ -81,12 +80,12 @@ export const actions = {
 		const currentValue = currentQty * currentAvgCost;
 		const newValue = currentValue + cost;
 		const newQty = currentQty + qty;
-		const newAvgCost = newQty > 0 ? newValue / newQty : 0;
+		const newAvgCost = newQty > 0 ? Math.round(newValue / newQty) : 0;
 
-		// Insert stock movement
+		// Insert stock movement (save avg cost snapshot)
 		await db.execute({
-			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
-			args: [crypto.randomUUID(), id, 'in', new Date().toISOString(), description, qty, cost]
+			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost, movement_avg_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+			args: [crypto.randomUUID(), id, 'in', new Date().toISOString(), description, qty, cost, currentAvgCost]
 		});
 
 		// Update inventory
@@ -128,10 +127,10 @@ export const actions = {
 		const newQty = currentQty - qty;
 		const costOut = qty * currentAvgCost;
 
-		// Insert stock movement
+		// Insert stock movement (out uses current avg cost)
 		await db.execute({
-			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost) VALUES (?, ?, ?, ?, ?, ?, ?)',
-			args: [crypto.randomUUID(), id, 'out', new Date().toISOString(), description, qty, costOut]
+			sql: 'INSERT INTO stock_movements (movement_id, inventory_id, movement_type, movement_date, movement_description, movement_qty, movement_cost, movement_avg_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+			args: [crypto.randomUUID(), id, 'out', new Date().toISOString(), description, qty, costOut, currentAvgCost]
 		});
 
 		// Update inventory

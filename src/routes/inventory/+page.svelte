@@ -146,6 +146,9 @@
 						<button onclick={() => { editDetailId = editDetailId === item.inventory_id ? null : item.inventory_id; stockInId = null; stockOutId = null; }} class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center active:scale-95 transition-transform" title="Edit">
 							<span class="material-symbols-outlined text-[20px]">edit</span>
 						</button>
+						<a href="/inventory/{item.inventory_id}" class="w-9 h-9 rounded-lg bg-tertiary/10 text-tertiary flex items-center justify-center active:scale-95 transition-transform" title="Kartu Stok">
+							<span class="material-symbols-outlined text-[20px]">list_alt</span>
+						</a>
 						<form method="POST" action="?/delete" use:enhance={({ cancel }) => { if (!confirm(`Hapus ${item.inventory_name}?`)) cancel(); }}>
 							<input type="hidden" name="id" value={item.inventory_id} />
 							<button type="submit" class="w-9 h-9 rounded-lg bg-red-600 text-white flex items-center justify-center active:scale-95 transition-transform" title="Hapus">

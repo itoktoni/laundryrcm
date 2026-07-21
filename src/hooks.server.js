@@ -1,6 +1,6 @@
 import { validateSession, getSessionId } from '$lib/server/auth.js';
 
-const publicRoutes = ['/login', '/register', '/api/wa/webhook', '/api/telegram/webhook', '/api/telegram/setwebhook', '/api/webhook', '/api/ai'];
+const publicRoutes = ['/login', '/register', '/api/wa/webhook', '/api/telegram/webhook', '/api/telegram/setwebhook', '/api/webhook', '/api/webhook/schedule', '/api/ai'];
 
 export async function handle({ event, resolve }) {
 	const sessionId = getSessionId(event.cookies);

@@ -1,6 +1,10 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+import os from 'os';
+import path from 'path';
+
+const tmpCacheDir = path.join(os.tmpdir(), 'laundry-vite-cache');
 
 export default defineConfig({
 	server: {
@@ -10,5 +14,6 @@ export default defineConfig({
 			? process.env.WEBHOOK.split(',').map((h) => h.trim()).filter(Boolean)
 			: true
 	},
-	plugins: [tailwindcss(), sveltekit()]
+	plugins: [tailwindcss(), sveltekit()],
+	cacheDir: tmpCacheDir
 });

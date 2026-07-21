@@ -1,10 +1,16 @@
 import { createClient } from '@libsql/client';
 import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const envPath = join(__dirname, '.env');
 
 const TURSO_URL = 'libsql://laundry-app-itoktoni.aws-ap-northeast-1.turso.io';
 
 // Read token from .env
-const envContent = readFileSync('./.env', 'utf8');
+const envContent = readFileSync(envPath, 'utf8');
 const tokenMatch = envContent.match(/TURSO_AUTH_TOKEN=(.+)/);
 const TURSO_AUTH_TOKEN = tokenMatch ? tokenMatch[1].trim() : null;
 
@@ -13,7 +19,8 @@ if (!TURSO_AUTH_TOKEN) {
 	process.exit(1);
 }
 
-const local = createClient({ url: 'file:local.db' });
+const localDbPath = join(__dirname, 'laundry-app.db');
+const local = createClient({ url: 'file:' + localDbPath });
 const remote = createClient({ url: TURSO_URL, authToken: TURSO_AUTH_TOKEN });
 
 // Tables in dependency order (foreign keys respected)
@@ -31,7 +38,9 @@ const TABLES = [
 	'templates',
 	'faqs',
 	'app_settings',
-	'machines'
+	'machines',
+	'whatsapp_schedules',
+	'whatsapp_schedule_logs'
 ];
 
 console.log('=== Sync Local DB -> Turso ===\n');
@@ -70,36 +79,46 @@ console.log('2. Syncing data...');
 let totalRows = 0;
 
 for (const table of TABLES) {
-	// Get column names from local DB
-	const pragma = await local.execute(`PRAGMA table_info(${table})`);
-	const cols = pragma.rows.map(r => r.name);
+	try {
+		// Get column names from local DB
+		const pragma = await local.execute(`PRAGMA table_info(${table})`);
+		const cols = pragma.rows.map(r => r.name);
 
-	const colList = cols.join(', ');
+		if (cols.length === 0) {
+			console.log(`   ${table}: table not found (skipped)`);
+			continue;
+		}
 
-	// Read all rows from local
-	const localRows = await local.execute(`SELECT * FROM ${table}`);
-	const rows = localRows.rows;
+		const colList = cols.join(', ');
 
-	if (rows.length === 0) {
-		console.log(`   ${table}: 0 rows (skipped)`);
+		// Read all rows from local
+		const localRows = await local.execute(`SELECT * FROM ${table}`);
+		const rows = localRows.rows;
+
+		if (rows.length === 0) {
+			console.log(`   ${table}: 0 rows (skipped)`);
+			continue;
+		}
+
+		// Batch insert (50 rows at a time)
+		const BATCH_SIZE = 50;
+		for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+			const batch = rows.slice(i, i + BATCH_SIZE);
+			const placeholders = batch.map(() => `(${cols.map(() => '?').join(', ')})`).join(', ');
+			const values = batch.flatMap(row => cols.map(c => row[c] ?? null));
+
+			await remote.execute({
+				sql: `INSERT OR REPLACE INTO ${table} (${colList}) VALUES ${placeholders}`,
+				args: values
+			});
+		}
+
+		console.log(`   ${table}: ${rows.length} rows synced`);
+		totalRows += rows.length;
+	} catch (e) {
+		console.log(`   ${table}: table not found (skipped)`);
 		continue;
 	}
-
-	// Batch insert (50 rows at a time)
-	const BATCH_SIZE = 50;
-	for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-		const batch = rows.slice(i, i + BATCH_SIZE);
-		const placeholders = batch.map(() => `(${cols.map(() => '?').join(', ')})`).join(', ');
-		const values = batch.flatMap(row => cols.map(c => row[c] ?? null));
-
-		await remote.execute({
-			sql: `INSERT OR REPLACE INTO ${table} (${colList}) VALUES ${placeholders}`,
-			args: values
-		});
-	}
-
-	console.log(`   ${table}: ${rows.length} rows synced`);
-	totalRows += rows.length;
 }
 
 // Re-enable foreign keys

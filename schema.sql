@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 	user_email TEXT NOT NULL UNIQUE,
 	user_password TEXT NOT NULL,
 	user_role TEXT NOT NULL CHECK(user_role IN ('owner', 'admin', 'staff')),
+	user_status TEXT NOT NULL DEFAULT 'approved' CHECK(user_status IN ('pending', 'approved', 'rejected')),
 	user_created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

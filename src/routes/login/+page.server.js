@@ -28,6 +28,14 @@ export const actions = {
 			return fail(400, { error: 'Email atau password salah' });
 		}
 
+		if (user.user_status === 'pending') {
+			return fail(400, { error: 'Akun Anda menunggu persetujuan Owner' });
+		}
+
+		if (user.user_status === 'rejected') {
+			return fail(400, { error: 'Akun Anda ditolak. Hubungi Owner.' });
+		}
+
 		const session = await createSession(user.user_id);
 		setSessionCookie(cookies, session.id, session.expiresAt);
 

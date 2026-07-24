@@ -162,14 +162,16 @@
 <section class="mb-stack-lg">
 	<h3 class="font-label-md text-label-md mb-stack-sm text-on-surface font-bold uppercase tracking-wider">Aksi Cepat</h3>
 	<div class="grid grid-cols-2 gap-stack-sm">
-		<a href="/orders/new" class="flex items-center justify-center gap-2 py-4 bg-primary text-on-primary rounded-xl font-bold active:scale-95 transition-transform">
+		<a href="/orders/new" class="flex items-center justify-center gap-2 py-4 bg-primary text-on-primary rounded-xl font-bold active:scale-95 transition-transform {data.user?.role !== 'owner' ? 'col-span-2' : ''}">
 			<span class="material-symbols-outlined">add_circle</span>
 			Order Baru
 		</a>
+		{#if data.user?.role === 'owner'}
 		<a href="/finance" class="flex items-center justify-center gap-2 py-4 bg-surface-container-highest text-on-surface border border-outline-variant rounded-xl font-bold active:scale-95 transition-transform">
 			<span class="material-symbols-outlined">outbox</span>
 			Pengeluaran
 		</a>
+		{/if}
 	</div>
 </section>
 

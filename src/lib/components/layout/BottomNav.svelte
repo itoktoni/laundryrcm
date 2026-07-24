@@ -3,12 +3,11 @@
 
 	const items = [
 		{ href: '/dashboard', label: 'Home', icon: 'dashboard' },
-		{ href: '/attendance', label: 'Absensi', icon: 'how_to_reg' },
 		{ href: '/orders', label: 'Orders', icon: 'receipt_long' },
 		{ href: '/orders/new', label: '', icon: 'add_circle', primary: true },
-		{ href: '/tools', label: 'Tools', icon: 'build' },
+		{ href: '/tools', label: 'Tools', icon: 'build', ownerOnly: true },
 		{ href: '/settings', label: 'Profile', icon: 'person' }
-	];
+	].filter((item) => !item.ownerOnly || user?.role === 'owner');
 </script>
 
 <nav class="fixed bottom-0 w-full z-50 bg-surface dark:bg-dark-bg border-t border-outline-variant dark:border-outline flex justify-around items-center h-16 px-2 md:hidden">

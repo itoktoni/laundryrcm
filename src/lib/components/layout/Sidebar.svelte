@@ -14,10 +14,11 @@
 		{ href: '/inventory', label: 'Inventory', icon: 'inventory_2' },
 		{ href: '/machines', label: 'Mesin', icon: 'local_laundry_service' },
 		{ href: '/promo', label: 'Promo', icon: 'sell' },
+		{ href: '/users', label: 'User', icon: 'group' },
 		{ href: '/tools/sop', label: 'Template SOP', icon: 'description' },
 		{ href: '/tools/faq', label: 'FAQ', icon: 'quiz' },
 		{ href: '/reports', label: 'Laporan', icon: 'assessment' },
-		{ href: '/reports/attendance', label: 'Laporan Absensi', icon: 'how_to_reg' },
+		{ href: '/reports_attendance', label: 'Laporan Absensi', icon: 'how_to_reg' },
 		{ href: '/setting', label: 'Pengaturan', icon: 'settings' },
 		{ href: '/settings', label: 'Profil', icon: 'person' }
 	];
@@ -27,13 +28,23 @@
 		{ href: '/attendance', label: 'Absensi', icon: 'how_to_reg' },
 		{ href: '/orders', label: 'Order', icon: 'receipt_long' },
 		{ href: '/customers', label: 'Pelanggan', icon: 'people' },
-		{ href: '/tools', label: 'Tools', icon: 'build' },
 		{ href: '/tools/sop', label: 'Template SOP', icon: 'description' },
 		{ href: '/tools/faq', label: 'FAQ', icon: 'quiz' },
 		{ href: '/settings', label: 'Profil', icon: 'person' }
 	];
 
 	let menu = $derived(user?.role === 'owner' ? ownerMenu : karyawanMenu);
+
+	let activeHref = $derived.by(() => {
+		const path = $page.url.pathname;
+		let best = '';
+		for (const item of menu) {
+			if (path === item.href || path.startsWith(item.href + '/')) {
+				if (item.href.length > best.length) best = item.href;
+			}
+		}
+		return best;
+	});
 </script>
 
 <aside class="hidden h-screen w-64 flex-col bg-surface-container-lowest dark:bg-dark-bg border-r border-outline-variant dark:border-outline md:flex">
@@ -45,7 +56,7 @@
 		{#each menu as item}
 			<a
 				href={item.href}
-				class="flex items-center gap-3 px-4 py-3 text-body-sm transition-colors {$page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')
+				class="flex items-center gap-3 px-4 py-3 text-body-sm transition-colors {activeHref === item.href
 					? 'bg-primary text-on-primary hover:bg-primary'
 					: 'text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-gray-800'}"
 			>

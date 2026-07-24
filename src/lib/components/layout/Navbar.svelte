@@ -5,7 +5,7 @@
 	let showMenu = $state(false);
 </script>
 
-<header class="fixed top-0 w-full z-50 bg-surface dark:bg-dark-bg border-b border-outline-variant dark:border-outline flex justify-between items-center px-container-margin h-14">
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-dark-bg border-b border-outline-variant dark:border-outline flex justify-between items-center px-container-margin h-14 relative">
 	<div class="flex items-center gap-2">
 		<button onclick={onMenu} class="active:opacity-70 mt-1 md:hidden" aria-label="Buka menu">
 			<span class="material-symbols-outlined text-primary">menu_open</span>

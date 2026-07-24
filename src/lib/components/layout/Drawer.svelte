@@ -12,9 +12,11 @@
 		{ href: '/inventory', label: 'Inventory', icon: 'inventory_2' },
 		{ href: '/machines', label: 'Mesin', icon: 'settings' },
 		{ href: '/promo', label: 'Promo', icon: 'sell' },
+		{ href: '/users', label: 'User', icon: 'group' },
 		{ href: '/tools/sop', label: 'Template SOP', icon: 'description' },
 		{ href: '/tools/faq', label: 'FAQ', icon: 'quiz' },
 		{ href: '/reports', label: 'Laporan', icon: 'assessment' },
+		{ href: '/reports_attendance', label: 'Laporan Absensi', icon: 'how_to_reg' },
 		{ href: '/setting', label: 'Pengaturan', icon: 'settings' },
 		{ href: '/settings', label: 'Profil', icon: 'person' }
 	];
@@ -22,13 +24,23 @@
 	const karyawanMenu = [
 		{ href: '/orders', label: 'Order', icon: 'receipt_long' },
 		{ href: '/customers', label: 'Pelanggan', icon: 'people' },
-		{ href: '/tools', label: 'Tools', icon: 'build' },
 		{ href: '/tools/sop', label: 'Template SOP', icon: 'description' },
 		{ href: '/tools/faq', label: 'FAQ', icon: 'quiz' },
 		{ href: '/settings', label: 'Profil', icon: 'person' }
 	];
 
 	let menu = $derived(user?.role === 'owner' ? ownerMenu : karyawanMenu);
+
+	let activeHref = $derived.by(() => {
+		const path = $page.url.pathname;
+		let best = '';
+		for (const item of menu) {
+			if (path === item.href || path.startsWith(item.href + '/')) {
+				if (item.href.length > best.length) best = item.href;
+			}
+		}
+		return best;
+	});
 </script>
 
 {#if open}

@@ -37,20 +37,23 @@ export async function validateSession(sessionId) {
 	if (!sessionId) return null;
 
 	const result = await db.execute({
-		sql: `SELECT s.*, u.user_id, u.user_name, u.user_email, u.user_role FROM sessions s JOIN users u ON s.user_id = u.user_id WHERE s.session_id = ? AND s.expires_at > datetime('now')`,
+		sql: `SELECT s.*, u.user_id, u.user_name, u.user_email, u.user_role, u.user_status FROM sessions s JOIN users u ON s.user_id = u.user_id WHERE s.session_id = ? AND s.expires_at > datetime('now')`,
 		args: [sessionId]
 	});
 
 	if (result.rows.length === 0) return null;
 
 	const row = result.rows[0];
+	if (row.user_status !== 'approved') return null;
+
 	return {
 		sessionId: row.session_id,
 		user: {
 			id: row.user_id,
 			name: row.user_name,
 			email: row.user_email,
-			role: row.user_role
+			role: row.user_role,
+			status: row.user_status
 		}
 	};
 }

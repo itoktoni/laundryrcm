@@ -1,9 +1,9 @@
 import { db } from '$lib/server/db.js';
-import { generateId, hashPassword, createSession, setSessionCookie } from '$lib/server/auth.js';
-import { fail, redirect } from '@sveltejs/kit';
+import { generateId, hashPassword } from '$lib/server/auth.js';
+import { fail } from '@sveltejs/kit';
 
 export const actions = {
-	default: async ({ request, cookies }) => {
+	default: async ({ request }) => {
 		const formData = await request.formData();
 		const name = formData.get('name')?.toString().trim();
 		const email = formData.get('email')?.toString().trim();
@@ -30,13 +30,10 @@ export const actions = {
 		const hashed = await hashPassword(password);
 
 		await db.execute({
-			sql: 'INSERT INTO users (user_id, user_name, user_email, user_password, user_role) VALUES (?, ?, ?, ?, ?)',
-			args: [userId, name, email, hashed, 'owner']
+			sql: 'INSERT INTO users (user_id, user_name, user_email, user_password, user_role, user_status) VALUES (?, ?, ?, ?, ?, ?)',
+			args: [userId, name, email, hashed, 'staff', 'pending']
 		});
 
-		const session = await createSession(userId);
-		setSessionCookie(cookies, session.id, session.expiresAt);
-
-		throw redirect(302, '/dashboard');
+		return { success: true };
 	}
 };

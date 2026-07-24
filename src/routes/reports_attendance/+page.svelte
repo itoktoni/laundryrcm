@@ -31,6 +31,16 @@
 		go(url);
 	}
 
+	function filterUser(userId) {
+		const url = new URL(window.location.href);
+		if (userId) {
+			url.searchParams.set('user_id', userId);
+		} else {
+			url.searchParams.delete('user_id');
+		}
+		go(url);
+	}
+
 	function exportCSV() {
 		let csv = 'Nama,Tipe,Tanggal,Jarak (m),Status,Lokasi\n';
 		for (const r of data.records) {
@@ -105,6 +115,19 @@
 				</button>
 			</div>
 		{/if}
+
+		<div class="mt-3 pt-3 border-t border-outline-variant">
+			<label class="mb-1 block text-label-sm text-on-surface-variant">Filter Staff</label>
+			<select
+				onchange={(e) => filterUser(e.target.value)}
+				class="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface"
+			>
+				<option value="">Semua Staff</option>
+				{#each data.users as u}
+					<option value={u.user_id} selected={data.filters.userId === u.user_id}>{u.user_name}</option>
+				{/each}
+			</select>
+		</div>
 	</div>
 
 	<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 form-card">

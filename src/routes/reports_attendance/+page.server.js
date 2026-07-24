@@ -4,6 +4,7 @@ export async function load({ url }) {
 	const period = url.searchParams.get('period') || 'month';
 	const start = url.searchParams.get('start') || '';
 	const end = url.searchParams.get('end') || '';
+	const userId = url.searchParams.get('user_id');
 
 	let clause = '';
 	let args = [];
@@ -19,7 +20,12 @@ export async function load({ url }) {
 		clause = "AND strftime('%Y-%m', a.created_at) = strftime('%Y-%m', 'now')";
 	}
 
-	const [records, summary, byUser] = await Promise.all([
+	if (userId) {
+		clause += ' AND a.user_id = ?';
+		args.push(userId);
+	}
+
+	const [records, summary, byUser, users] = await Promise.all([
 		db.execute({
 			sql: `SELECT a.attendance_id, a.user_id, u.user_name, a.type,
 					a.latitude, a.longitude, a.location_name, a.distance_meters,
@@ -53,6 +59,10 @@ export async function load({ url }) {
 				GROUP BY a.user_id
 				ORDER BY u.user_name ASC`,
 			args
+		}),
+		db.execute({
+			sql: `SELECT DISTINCT u.user_id, u.user_name FROM attendance a JOIN users u ON a.user_id = u.user_id ORDER BY u.user_name`,
+			args: []
 		})
 	]);
 
@@ -60,6 +70,7 @@ export async function load({ url }) {
 		records: records.rows,
 		summary: summary.rows[0],
 		byUser: byUser.rows,
-		filters: { period, start, end }
+		users: users.rows,
+		filters: { period, start, end, userId }
 	};
 }

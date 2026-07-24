@@ -21,4 +21,4 @@ for (const statement of statements) {
 }
 
 console.log('Database initialized successfully!');
-console.log('Tables created: sessions, users, customers, categories, products, promotions, orders, order_items, transactions, inventory, machines, machine_services, templates, faqs, app_settings');
+console.log('Tables created: sessions, users, customers, categories, products, promotions, orders, order_items, transactions, inventory, machines, machine_services, templates, faqs, app_settings, stock_movements, whatsapp_schedules, whatsapp_schedule_logs, whatsapp_pending_messages, attendance');

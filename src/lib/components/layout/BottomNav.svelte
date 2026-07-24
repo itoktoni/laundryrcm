@@ -3,6 +3,7 @@
 
 	const items = [
 		{ href: '/dashboard', label: 'Home', icon: 'dashboard' },
+		{ href: '/attendance', label: 'Absensi', icon: 'how_to_reg' },
 		{ href: '/orders', label: 'Orders', icon: 'receipt_long' },
 		{ href: '/orders/new', label: '', icon: 'add_circle', primary: true },
 		{ href: '/tools', label: 'Tools', icon: 'build' },

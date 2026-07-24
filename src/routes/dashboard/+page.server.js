@@ -4,7 +4,7 @@ export async function load({ locals }) {
 	const userId = locals.user.id;
 	const today = new Date().toISOString().split('T')[0];
 
-	const [ordersToday, activeOrders, revenue, newCustomers, recentOrders, weekly, lowStock] = await Promise.all([
+	const [ordersToday, activeOrders, revenue, newCustomers, recentOrders, weekly, lowStock, attendanceStatus] = await Promise.all([
 		db.execute({
 			sql: `SELECT COUNT(*) as count, COALESCE(SUM(order_total_price), 0) as total 
 				FROM orders WHERE DATE(order_created_at) = DATE(?) AND order_created_by = ?`,
@@ -47,6 +47,12 @@ export async function load({ locals }) {
 				FROM inventory WHERE inventory_quantity < inventory_min_stock
 				ORDER BY inventory_name ASC`,
 			args: []
+		}),
+		db.execute({
+			sql: `SELECT type, created_at FROM attendance 
+				WHERE user_id = ? AND DATE(created_at) = DATE('now') 
+				ORDER BY created_at ASC`,
+			args: [userId]
 		})
 	]);
 
@@ -62,6 +68,15 @@ export async function load({ locals }) {
 	const weeklyLabels = revenueByDay.map((d) => days[new Date(d).getDay()]);
 	const weeklyData = revenueByDay.map((d) => totalMap[d] || 0);
 
+	const masukRecord = attendanceStatus.rows.find((r) => r.type === 'masuk');
+	const keluarRecord = attendanceStatus.rows.find((r) => r.type === 'keluar');
+	let attendanceNeeded = 'none';
+	if (!masukRecord && !keluarRecord) {
+		attendanceNeeded = 'masuk';
+	} else if (masukRecord && !keluarRecord) {
+		attendanceNeeded = 'keluar';
+	}
+
 	return {
 		stats: {
 			ordersToday: ordersToday.rows[0]?.count || 0,
@@ -72,6 +87,7 @@ export async function load({ locals }) {
 		},
 		recentOrders: recentOrders.rows,
 		weekly: { labels: weeklyLabels, data: weeklyData },
-		lowStock: lowStock.rows
+		lowStock: lowStock.rows,
+		attendanceNeeded
 	};
 }

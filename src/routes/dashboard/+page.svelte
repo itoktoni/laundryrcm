@@ -67,6 +67,32 @@
 	<h2 class="font-headline-md text-headline-md text-on-surface">Statistik Toko Anda</h2>
 </section>
 
+{#if data.attendanceNeeded === 'masuk'}
+	<section class="mb-stack-lg">
+		<a href="/attendance" class="block bg-warning-container border border-warning rounded-xl p-4 active:scale-[0.98] transition-transform">
+			<div class="flex items-center gap-3">
+				<span class="material-symbols-outlined text-warning text-3xl">warning</span>
+				<div>
+					<p class="font-body-md text-warning font-semibold">Belum Absen Masuk</p>
+					<p class="text-label-sm text-warning">Klik di sini untuk absen sekarang</p>
+				</div>
+			</div>
+		</a>
+	</section>
+{:else if data.attendanceNeeded === 'keluar'}
+	<section class="mb-stack-lg">
+		<a href="/attendance" class="block bg-warning-container border border-warning rounded-xl p-4 active:scale-[0.98] transition-transform">
+			<div class="flex items-center gap-3">
+				<span class="material-symbols-outlined text-warning text-3xl">login</span>
+				<div>
+					<p class="font-body-md text-warning font-semibold">Belum Absen Keluar</p>
+					<p class="text-label-sm text-warning">Klik di sini untuk absen keluar</p>
+				</div>
+			</div>
+		</a>
+	</section>
+{/if}
+
 <!-- Summary Bento Grid -->
 <section class="grid grid-cols-2 gap-stack-sm mb-stack-lg">
 	<div class="col-span-2 bg-primary-container p-4 rounded-xl text-on-primary-container flex justify-between items-center overflow-hidden relative">

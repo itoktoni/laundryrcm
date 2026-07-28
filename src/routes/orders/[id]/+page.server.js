@@ -5,16 +5,21 @@ import { fail, redirect } from '@sveltejs/kit';
 export async function load({ params }) {
 	const orderId = params.id;
 
-	const [order, items, settingsResult] = await Promise.all([
-		db.execute({
-			sql: `SELECT o.*, c.customer_name, c.customer_phone, c.customer_address, c.customer_vip,
-				p.promo_name, p.promo_type, p.promo_value
-				FROM orders o
-				JOIN customers c ON o.customer_id = c.customer_id
-				LEFT JOIN promotions p ON o.promo_id = p.promo_id
-				WHERE o.order_id = ?`,
-			args: [orderId]
-		}),
+	// Ensure new columns exist (safe no-op if already added)
+	try { await db.execute(`ALTER TABLE customers ADD COLUMN customer_est_freq_days INTEGER DEFAULT 0`); } catch {}
+	try { await db.execute(`ALTER TABLE customers ADD COLUMN customer_est_weight REAL DEFAULT 0`); } catch {}
+
+		const [order, items, settingsResult] = await Promise.all([
+			db.execute({
+				sql: `SELECT o.*, c.customer_name, c.customer_phone, c.customer_address, c.customer_vip,
+					c.customer_notes, c.customer_est_freq_days, c.customer_est_weight,
+					p.promo_name, p.promo_type, p.promo_value
+					FROM orders o
+					JOIN customers c ON o.customer_id = c.customer_id
+					LEFT JOIN promotions p ON o.promo_id = p.promo_id
+					WHERE o.order_id = ?`,
+				args: [orderId]
+			}),
 		db.execute({
 			sql: `SELECT oi.*, p.product_name, p.product_unit
 				FROM order_items oi

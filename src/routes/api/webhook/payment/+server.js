@@ -128,25 +128,24 @@ export async function POST({ request }) {
 			});
 		}
 
-		// 2) Amount match (fallback when PSP does not echo order id).
-		// Tolerance ±0.5 to survive float/string drift; unique-code amounts are integers so no clash.
-		// Includes already-paid orders so a duplicate notification returns success, not 404.
+		// 2) Amount match on total+unique (fallback when PSP does not echo order id).
+		// order_total_price = base price, order_unique_code = unique code added to QRIS.
+		// Payment amount = base + uniq. Tolerance ±0.5 for float/string drift.
 		if (result.rows.length === 0) {
 			result = await db.execute({
 				sql: `SELECT * FROM orders
-					WHERE ABS(CAST(order_total_price AS REAL) - ?) <= 0.5
+					WHERE ABS((CAST(order_total_price AS REAL) + COALESCE(CAST(order_unique_code AS REAL), 0)) - ?) <= 0.5
 					ORDER BY order_created_at DESC LIMIT 1`,
 				args: [amountNum]
 			});
 		}
 
 		// 3) Base-amount match: customer may have paid the raw static QRIS (no unique code),
-		// so the notified amount equals order_total_price - order_unique_code.
+		// so the notified amount equals order_total_price only.
 		if (result.rows.length === 0) {
 			result = await db.execute({
 				sql: `SELECT * FROM orders
-					WHERE order_unique_code IS NOT NULL
-					AND ABS(CAST(order_total_price AS REAL) - CAST(order_unique_code AS REAL) - ?) <= 0.5
+					WHERE ABS(CAST(order_total_price AS REAL) - ?) <= 0.5
 					ORDER BY order_created_at DESC LIMIT 1`,
 				args: [amountNum]
 			});
@@ -166,9 +165,10 @@ export async function POST({ request }) {
 			return json({ success: true, message: 'Already paid', order_id });
 		}
 
-		// Order paid amount = order's own total price (base + unique code), not raw PSP amount.
-		// Booking the order total guarantees settlement even when PSP amount differs (rounding, fees, no unique code).
-		const orderPaidAmount = Math.round((Number(order.order_total_price) + Number.EPSILON) * 100) / 100;
+		// Order paid amount = base price + unique code, not raw PSP amount.
+		const basePrice = Number(order.order_total_price) || 0;
+		const uniqCode = Number(order.order_unique_code) || 0;
+		const orderPaidAmount = Math.round((basePrice + uniqCode + Number.EPSILON) * 100) / 100;
 
 		// Fetch payment_code (short human code) to use in finance description instead of internal id
 		let paymentCode = null;

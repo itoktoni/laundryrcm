@@ -40,9 +40,9 @@ export async function GET({ url, request }) {
 
 	const qris = settings.qris || '';
 	const uniqStr = settings.uniq || '0';
-	const amount = parseInt(url.searchParams.get('amount') || '0');
+	const amount = Math.max(0, parseInt(url.searchParams.get('amount') || '0') || 0);
 	const orderId = url.searchParams.get('orderId') || '';
-	const uniq = parseInt(uniqStr);
+	const uniq = parseInt(uniqStr) || 0;
 
 	const { db } = await import('$lib/server/db.js');
 
@@ -53,9 +53,12 @@ export async function GET({ url, request }) {
 	let finalAmount = amount;
 	let uniqValue = 0;
 
+	// Guard against NaN/Infinity
+	if (!isFinite(amount)) return json({ error: 'Invalid amount' }, { status: 400 });
+
 	if (orderId) {
 		const res = await db.execute({
-			sql: 'SELECT order_unique_code, order_total_price FROM orders WHERE order_id = ?',
+			sql: 'SELECT order_unique_code FROM orders WHERE order_id = ?',
 			args: [orderId]
 		});
 		if (res.rows.length > 0) {
@@ -73,14 +76,16 @@ export async function GET({ url, request }) {
 				}
 			}
 
-			uniqValue = orderUniq;
-			finalAmount = amount + (isNaN(orderUniq) ? 0 : orderUniq);
+			uniqValue = isFinite(orderUniq) ? orderUniq : 0;
+			// Use amount from URL param (client sends correct order total) — NOT order_total_price from DB (may be corrupted)
+			finalAmount = amount;
+			if (uniqValue > 0) finalAmount += uniqValue;
 
-			// Persist unique code, final total (base + uniq) and QRIS payment code (Q prefix)
+			// Persist unique code and payment code only
 			const orderPaymentCode = generatePaymentCode('Q');
 			await db.execute({
-				sql: 'UPDATE orders SET order_unique_code = ?, order_total_price = ?, order_payment_code = ? WHERE order_id = ?',
-				args: [orderUniq, finalAmount, orderPaymentCode, orderId]
+				sql: 'UPDATE orders SET order_unique_code = ?, order_payment_code = ? WHERE order_id = ?',
+				args: [uniqValue, orderPaymentCode, orderId]
 			});
 		}
 	} else if (uniq < 0) {

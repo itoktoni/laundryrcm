@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db.js';
 import { generateId } from '$lib/server/auth.js';
 import { generatePaymentCode } from '$lib/server/payment-code.js';
+import { recalculateCustomerProfile } from '$lib/server/customer-profile.js';
 import { fail, redirect } from '@sveltejs/kit';
 
 export async function load() {
@@ -203,6 +204,8 @@ async function createOrderCore({ request, locals, forceUnpaid = false, withUniqu
 		sql: 'UPDATE customers SET customer_total_orders = customer_total_orders + 1 WHERE customer_id = ?',
 		args: [customerId]
 	});
+
+	await recalculateCustomerProfile(customerId);
 
 	return { orderId, redirect: !forceUnpaid };
 }

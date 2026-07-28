@@ -22,11 +22,40 @@ const TEMPLATES = {
     `✅ Pesanan Siap!\n\nHalo ${data.customerName}! 👋\nPesanan *${data.orderId}* sudah selesai.\n\n${data.isDelivery ? 'Kurir akan segera menghubungi Anda.' : 'Silakan datang ke toko untuk ambil.'} Terima kasih! 🙏`
 };
 
+// ─── Get CRM settings from database ────────────────────────────────────────────
+async function getCRMSettings() {
+  try {
+    const { rows } = await db.execute(`
+      SELECT setting_key, setting_value
+      FROM app_settings
+      WHERE setting_key IN (
+        'crm_inactive_days', 'crm_pending_pickup_days', 'crm_auto_reminder',
+        'crm_reminder_template_inactive', 'crm_reminder_template_pending'
+      )
+    `);
+    const settings = {};
+    rows.forEach(r => settings[r.setting_key] = r.setting_value);
+    return settings;
+  } catch (e) {
+    console.error('[schedule] getCRMSettings error:', e.message);
+    return {
+      crm_inactive_days: '7',
+      crm_pending_pickup_days: '3',
+      crm_auto_reminder: '1',
+      crm_reminder_template_inactive: null,
+      crm_reminder_template_pending: null
+    };
+  }
+}
+
 // ─── Checkers (SQL matches actual schema) ────────────────────────────────────
 
 async function checkOverduePickup() {
   const results = [];
   try {
+    const crmSettings = await getCRMSettings();
+    const pendingDays = parseInt(crmSettings.crm_pending_pickup_days || '3');
+
     const { rows: orders } = await db.execute(`
       SELECT o.order_id,
              c.customer_name,
@@ -36,23 +65,21 @@ async function checkOverduePickup() {
       LEFT JOIN customers c ON o.customer_id = c.customer_id
       WHERE o.order_status = 'selesai'
         AND o.order_payment_status = 'paid'
-        AND julianday('now') - julianday(o.order_created_at) >= 3
+        AND julianday('now') - julianday(o.order_created_at) >= ?
         AND c.customer_phone IS NOT NULL
         AND c.customer_phone != ''
-    `);
+    `, [pendingDays]);
 
     for (const o of orders) {
       const diffMs = Date.now() - new Date(o.order_created_at).getTime();
       const days = Math.floor(diffMs / 86400000);
+      const template = crmSettings.crm_reminder_template_pending || TEMPLATES.overdue_pickup({ customerName: o.customer_name || 'Pelanggan', orderId: o.order_id.slice(-6), days });
       results.push({
         phone: o.customer_phone,
-        message: TEMPLATES.overdue_pickup({
-          customerName: o.customer_name || 'Pelanggan',
-          orderId: o.order_id.slice(-6),
-          days
-        }),
+        message: template,
         refType: 'order',
-        refId: o.order_id
+        refId: o.order_id,
+        days
       });
     }
   } catch (e) {
@@ -64,6 +91,9 @@ async function checkOverduePickup() {
 async function checkInactiveCustomer() {
   const results = [];
   try {
+    const crmSettings = await getCRMSettings();
+    const inactiveDays = parseInt(crmSettings.crm_inactive_days || '7');
+
     const { rows: customers } = await db.execute(`
       SELECT c.customer_id, c.customer_name, c.customer_phone,
              MAX(o.order_created_at) AS last_order
@@ -72,20 +102,19 @@ async function checkInactiveCustomer() {
       WHERE c.customer_phone IS NOT NULL
         AND c.customer_phone != ''
       GROUP BY c.customer_id
-      HAVING julianday('now') - julianday(MAX(o.order_created_at)) >= 7
-    `);
+      HAVING julianday('now') - julianday(MAX(o.order_created_at)) >= ?
+    `, [inactiveDays]);
 
     for (const c of customers) {
       const diffMs = Date.now() - new Date(c.last_order).getTime();
       const days = Math.floor(diffMs / 86400000);
+      const template = crmSettings.crm_reminder_template_inactive || TEMPLATES.inactive_customer({ customerName: c.customer_name || 'Pelanggan', days });
       results.push({
         phone: c.customer_phone,
-        message: TEMPLATES.inactive_customer({
-          customerName: c.customer_name || 'Pelanggan',
-          days
-        }),
+        message: template,
         refType: 'customer',
-        refId: c.customer_id
+        refId: c.customer_id,
+        days
       });
     }
   } catch (e) {
@@ -183,10 +212,52 @@ async function checkReadyDelivery() {
   return results;
 }
 
+async function checkPendingPickup() {
+  const results = [];
+  try {
+    const crmSettings = await getCRMSettings();
+    const pendingDays = parseInt(crmSettings.crm_pending_pickup_days || '3');
+
+    const { rows: orders } = await db.execute(`
+      SELECT o.order_id,
+             c.customer_name,
+             c.customer_phone,
+             o.order_created_at,
+             o.order_notes
+      FROM orders o
+      JOIN customers c ON o.customer_id = c.customer_id
+      WHERE o.order_status = 'selesai'
+        AND o.order_payment_status = 'paid'
+        AND o.order_status != 'diambil'
+    `);
+
+    for (const o of orders) {
+      const isDelivery = (o.order_notes || '').toLowerCase().includes('kirim');
+      const diffMs = Date.now() - new Date(o.order_created_at).getTime();
+      const days = Math.floor(diffMs / 86400000);
+
+      if (days >= pendingDays) {
+        const template = crmSettings.crm_reminder_template_pending || `📦 Pesanan Belum Diambil\n\nHalo ${o.customer_name}! 👋\nPesanan *${o.order_id.slice(-6)}* sudah selesai tapi belum diambil ${days} hari.\n\nMohon segera diambil ya! 🙏`;
+        results.push({
+          phone: o.customer_phone,
+          message: template,
+          refType: 'order',
+          refId: o.order_id,
+          days
+        });
+      }
+    }
+  } catch (e) {
+    console.error('[schedule] pending_pickup error:', e.message);
+  }
+  return results;
+}
+
 // ─── Map type → checker ───────────────────────────────────────────────────────
 const CHECKERS = {
   overdue_pickup: checkOverduePickup,
   inactive_customer: checkInactiveCustomer,
+  pending_pickup: checkPendingPickup,
   low_stock: checkLowStock,
   machine_service: checkMachineService,
   ready_delivery: checkReadyDelivery
@@ -258,6 +329,8 @@ export async function POST({ url }) {
   const startTime = Date.now();
   try {
     await ensureTable();
+    const crmSettings = await getCRMSettings();
+    const autoReminder = parseInt(crmSettings.crm_auto_reminder || '1');
 
     const typeParam = url.searchParams.get('type') || 'all';
     const types = typeParam === 'all' ? Object.keys(CHECKERS) : [typeParam];
@@ -267,6 +340,7 @@ export async function POST({ url }) {
 
     // Collect customer messages
     for (const scheduleType of types) {
+      if (scheduleType === 'pending_pickup' && !autoReminder) continue;
       const checker = CHECKERS[scheduleType];
       if (!checker) continue;
       const messages = await checker();

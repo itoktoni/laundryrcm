@@ -46,6 +46,7 @@
 		cuci: 'bg-primary',
 		kering: 'bg-kering',
 		setrika: 'bg-setrika',
+		packing: 'bg-packing',
 		selesai: 'bg-success',
 		diambil: 'bg-secondary'
 	};
@@ -55,6 +56,7 @@
 		cuci: 'Cuci',
 		kering: 'Kering',
 		setrika: 'Setrika',
+		packing: 'Packing',
 		selesai: 'Selesai',
 		diambil: 'Diambil'
 	};

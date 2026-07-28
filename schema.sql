@@ -23,6 +23,11 @@ CREATE TABLE IF NOT EXISTS customers (
 	customer_address TEXT,
 	customer_vip INTEGER NOT NULL DEFAULT 0,
 	customer_total_orders INTEGER NOT NULL DEFAULT 0,
+	customer_avg_weight REAL NOT NULL DEFAULT 0,
+	customer_avg_days REAL NOT NULL DEFAULT 0,
+	customer_last_order_date TEXT,
+	customer_notes TEXT,
+	customer_est_freq TEXT,
 	customer_created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -66,7 +71,7 @@ CREATE TABLE IF NOT EXISTS orders (
 	order_unique_code TEXT,
 	order_payment_code TEXT,
 	order_paid_amount REAL,
-	order_status TEXT NOT NULL DEFAULT 'pending' CHECK(order_status IN ('pending', 'cuci', 'kering', 'setrika', 'selesai', 'diambil')),
+	order_status TEXT NOT NULL DEFAULT 'pending' CHECK(order_status IN ('pending', 'cuci', 'kering', 'setrika', 'packing', 'selesai', 'diambil')),
 	order_payment_status TEXT NOT NULL DEFAULT 'unpaid' CHECK(order_payment_status IN ('unpaid', 'paid')),
 	order_notes TEXT,
 	order_created_by TEXT NOT NULL REFERENCES users(user_id),

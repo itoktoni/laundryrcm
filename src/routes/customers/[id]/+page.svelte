@@ -8,7 +8,7 @@
 	let totalSpent = $derived(data.totalSpent);
 	let editing = $state(false);
 
-	const statusColors = { pending: 'bg-pending', cuci: 'bg-primary', kering: 'bg-kering', setrika: 'bg-setrika', selesai: 'bg-success', diambil: 'bg-secondary' };
+	const statusColors = { pending: 'bg-pending', cuci: 'bg-primary', kering: 'bg-kering', setrika: 'bg-setrika', packing: 'bg-packing', selesai: 'bg-success', diambil: 'bg-secondary' };
 </script>
 
 <svelte:head>
@@ -62,8 +62,94 @@
 				<label for="edit_address" class="text-label-md text-on-surface-variant">Alamat</label>
 				<input id="edit_address" name="customer_address" value={customer.customer_address || ''} class="w-full h-12 px-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary text-body-md" type="text" />
 			</div>
+			<div>
+				<label for="edit_notes" class="text-label-md text-on-surface-variant">Catatan</label>
+				<textarea id="edit_notes" name="customer_notes" class="w-full px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary text-body-md" rows="2" placeholder="Catatan tentang pelanggan...">{customer.customer_notes || ''}</textarea>
+			</div>
+			<div>
+				<label for="edit_est_freq_days" class="text-label-md text-on-surface-variant">Estimasi Freq (hari)</label>
+				<input id="edit_est_freq_days" name="customer_est_freq_days" type="number" value={customer.customer_est_freq_days || ''} class="w-full h-12 px-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary text-body-md" placeholder="7" />
+			</div>
+			<div>
+				<label for="edit_est_weight" class="text-label-md text-on-surface-variant">Estimasi Weight (kg)</label>
+				<input id="edit_est_weight" name="customer_est_weight" type="number" step="0.1" value={customer.customer_est_weight || ''} class="w-full h-12 px-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary text-body-md" placeholder="10" />
+			</div>
 			<button type="submit" class="w-full h-12 bg-primary text-on-primary rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform">Simpan Perubahan</button>
 		</form>
+	{/if}
+
+	<!-- CRM Stats -->
+	{#if data.lastOrderDate}
+		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+			<div class="flex items-center justify-between">
+				<div>
+					<p class="text-label-md text-on-surface-variant">Terakhir Order</p>
+					<p class="font-headline-md text-on-surface">{formatDate(data.lastOrderDate)}</p>
+				</div>
+				<div class="text-right">
+					<p class="text-label-md text-on-surface-variant">Hari Sejak</p>
+					<p class="font-headline-md {data.daysSinceLastOrder >= 7 ? 'text-warning' : 'text-secondary'}">
+						{data.daysSinceLastOrder} hari
+					</p>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Profile Stats (computed from orders) -->
+	{#if data.profile.totalOrders > 0}
+		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+			<div class="flex items-center justify-between mb-3">
+				<h3 class="font-label-md text-label-md text-on-surface font-bold">Profil Laundry</h3>
+				<form method="POST" action="?/recalculateProfile" use:enhance>
+					<button type="submit" class="text-label-sm text-primary hover:underline">
+						Refresh Data
+					</button>
+				</form>
+			</div>
+			<div class="grid grid-cols-2 gap-4">
+				<div class="text-center">
+					<p class="font-display text-display text-primary font-bold">
+						{data.profile.totalKg}
+					</p>
+					<p class="text-label-sm text-on-surface-variant">Total Kg</p>
+				</div>
+				<div class="text-center">
+					<p class="font-display text-display text-secondary font-bold">
+						{data.profile.totalPcs}
+					</p>
+					<p class="text-label-sm text-on-surface-variant">Total PCS</p>
+				</div>
+				<div class="text-center">
+					<p class="font-display text-display text-success font-bold">
+						{data.profile.totalOrders}
+					</p>
+					<p class="text-label-sm text-on-surface-variant">Total Order</p>
+				</div>
+				<div class="text-center">
+					<p class="font-display text-display text-warning font-bold">
+						{data.profile.avgWeightPerOrder}
+					</p>
+					<p class="text-label-sm text-on-surface-variant">Avg / Order (kg)</p>
+				</div>
+			</div>
+			{#if data.profile.avgDaysBetween > 0}
+				<div class="mt-4 pt-4 border-t border-outline-variant text-center">
+					<p class="font-display text-display text-secondary font-bold">
+						{data.profile.avgDaysBetween}
+					</p>
+					<p class="text-label-sm text-on-surface-variant">Rata-rata Hari Antar Order</p>
+				</div>
+			{/if}
+		</div>
+	{/if}
+
+	<!-- Notes -->
+	{#if data.customer && data.customer.customer_notes}
+		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
+			<h3 class="font-label-md text-label-md text-on-surface font-bold mb-2">Catatan</h3>
+			<p class="text-body-sm text-on-surface-variant">{data.customer.customer_notes}</p>
+		</div>
 	{/if}
 
 	<!-- Stats -->
@@ -73,7 +159,6 @@
 			<p class="text-label-md text-on-surface-variant">Total Order</p>
 		</div>
 		<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant text-center">
-			<p class="font-display text-display text-success font-bold">{formatCurrency(totalSpent)}</p>
 			<p class="text-label-md text-on-surface-variant">Total Belanja</p>
 		</div>
 	</div>
@@ -111,11 +196,14 @@
 			<div class="space-y-3">
 				{#each orders as order}
 					<a href="/orders/{order.order_id}" class="block bg-surface-container-lowest p-4 rounded-xl border border-outline-variant active:scale-[0.98] transition-transform">
-						<div class="flex justify-between items-center">
-							<div>
+						<div class="flex justify-between items-start">
+							<div class="flex-1 min-w-0">
 								<p class="text-label-md text-on-surface-variant">{formatDate(order.order_created_at)}</p>
+								{#if order.item_summary}
+									<p class="text-body-sm text-secondary mt-1 truncate">{order.item_summary}</p>
+								{/if}
 							</div>
-							<div class="flex items-center gap-3">
+							<div class="flex items-center gap-3 ml-3 shrink-0">
 								<span class="font-headline-md text-primary">{formatCurrency(order.order_total_price)}</span>
 								<div class="w-2 h-2 rounded-full {statusColors[order.order_status]}"></div>
 							</div>

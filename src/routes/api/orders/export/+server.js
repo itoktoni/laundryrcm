@@ -44,6 +44,7 @@ const statusLabels = {
 	cuci: 'Cuci',
 	kering: 'Kering',
 	setrika: 'Setrika',
+	packing: 'Packing',
 	selesai: 'Selesai',
 	diambil: 'Diambil'
 };

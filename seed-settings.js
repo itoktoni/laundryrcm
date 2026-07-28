@@ -40,7 +40,12 @@ const rows = [
 	['webhook_debug', '0', 'private', 1, 19],
 	['printer_enabled', '1', 'public', 0, 30],
 	['printer_auto_print', '0', 'public', 0, 31],
-	['printer_copies', '1', 'public', 0, 32]
+	['printer_copies', '1', 'public', 0, 32],
+	['crm_inactive_days', '7', 'public', 0, 40],
+	['crm_pending_pickup_days', '3', 'public', 0, 41],
+	['crm_auto_reminder', '1', 'public', 0, 42],
+	['crm_reminder_template_inactive', '💜 Kangen Nih!\n\nHalo {customer_name}! 👋\nSudah {days} hari sejak terakhir kali cuci di laundry kami.\n\nYuk cuci lagi sekarang! 🧺✨', 'public', 0, 43],
+	['crm_reminder_template_pending', '📦 Pesanan Belum Diambil\n\nHalo {customer_name}! 👋\nPesanan {order_id} sudah selesai tapi belum diambil {days} hari.\n\nMohon segera diambil ya! 🙏', 'public', 0, 44]
 ];
 
 for (const [key, value, status, mandatory, urutan] of rows) {

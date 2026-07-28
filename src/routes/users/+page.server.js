@@ -7,9 +7,8 @@ export async function load({ locals }) {
 	}
 
 	const users = await db.execute({
-		sql: `SELECT user_id, user_name, user_email, user_role, user_status, user_created_at
-			FROM users
-			ORDER BY CASE user_status WHEN 'pending' THEN 0 ELSE 1 END, user_created_at DESC`
+		sql: 'SELECT user_id, user_name, user_email, user_role, user_status, user_created_at FROM users ORDER BY user_created_at DESC',
+		args: []
 	});
 
 	return { users: users.rows };

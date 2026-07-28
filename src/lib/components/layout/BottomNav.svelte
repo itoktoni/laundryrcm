@@ -5,7 +5,7 @@
 		{ href: '/dashboard', label: 'Home', icon: 'dashboard' },
 		{ href: '/orders', label: 'Orders', icon: 'receipt_long' },
 		{ href: '/orders/new', label: '', icon: 'add_circle', primary: true },
-		{ href: '/tools', label: 'Tools', icon: 'build', ownerOnly: true },
+		{ href: '/crm', label: 'CRM', icon: 'manage_accounts', ownerOnly: true },
 		{ href: '/settings', label: 'Profile', icon: 'person' }
 	].filter((item) => !item.ownerOnly || user?.role === 'owner');
 </script>

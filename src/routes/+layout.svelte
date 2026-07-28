@@ -27,7 +27,7 @@
 			<Navbar user={data.user} onMenu={() => (drawerOpen = true)} />
 		{/if}
 
-		<main class="flex-1 overflow-y-auto pb-20 md:pb-0 pt-14">
+		<main class="flex-1 overflow-y-auto pb-20 md:pb-0 pt-0 md:pt-10">
 			<div class="max-w-md mx-auto md:max-w-4xl px-container-margin py-stack-md">
 				{@render children()}
 			</div>

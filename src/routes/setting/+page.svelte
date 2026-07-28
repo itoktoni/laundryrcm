@@ -18,6 +18,7 @@
 		if (key.startsWith('ai_') || key.startsWith('qris') || key.startsWith('fonnte') || key.startsWith('telegram_') || key.startsWith('wa_') || key === 'provider') return 'integrasi';
 		if (key.startsWith('webhook_')) return 'webhook';
 		if (key.startsWith('printer_')) return 'printer';
+		if (key.startsWith('crm_')) return 'crm';
 		return 'lainnya';
 	}
 
@@ -26,6 +27,7 @@
 		{ id: 'integrasi', label: 'Integrasi' },
 		{ id: 'webhook', label: 'Webhook' },
 		{ id: 'printer', label: 'Printer' },
+		{ id: 'crm', label: 'CRM' },
 		{ id: 'lainnya', label: 'Lainnya' }
 	];
 
@@ -79,6 +81,34 @@
 	</div>
 
 	<form method="POST" action="?/save" use:enhance={() => async ({ result }) => { await applyAction(result); await invalidateAll(); if (result.type === 'success') toast('Pengaturan tersimpan'); }} class="bg-surface-container-lowest p-stack-md rounded-xl border border-outline-variant space-y-4">
+		{#if activeTab === 'crm'}
+			<div class="bg-surface-container-high p-4 rounded-xl space-y-3">
+				<h3 class="font-label-md text-label-md text-on-surface font-bold">Pengaturan CRM</h3>
+				<div class="space-y-2 text-body-sm text-on-surface-variant">
+					<div>
+						<p class="font-medium text-on-surface">Crm Inactive Days</p>
+						<p>Jumlah hari sejak pelanggan terakhir order. Pelanggan dianggap tidak aktif setelah X hari.</p>
+					</div>
+					<div>
+						<p class="font-medium text-on-surface">Crm Pending Pickup Days</p>
+						<p>Jumlah hari sejak pesanan selesai (paid) sebelum pengingat di kirim.</p>
+					</div>
+					<div>
+						<p class="font-medium text-on-surface">Crm Auto Reminder</p>
+						<p>Enable otomatisasi pengingat WhatsApp untuk pelanggan tidak aktif dan pesanan belum diambil.</p>
+					</div>
+					<div>
+						<p class="font-medium text-on-surface">Crm Reminder Template Inactive</p>
+						<p>Template pesan WhatsApp untuk pelanggan tidak aktif. Gunakan {customer_name} dan {days} untuk dinamis.</p>
+					</div>
+					<div>
+						<p class="font-medium text-on-surface">Crm Reminder Template Pending</p>
+						<p>Template pesan WhatsApp untuk pesanan belum diambil. Gunakan {customer_name}, {order_id}, dan {days} untuk dinamis.</p>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		{#if grouped[activeTab]?.length}
 			{#each grouped[activeTab] as s}
 				<div>
@@ -113,6 +143,23 @@
 					<input id={s.setting_key} name={`setting__${s.setting_key}`} value={s.setting_value ?? ''} class="w-full h-11 px-4 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm" />
 					{#if s.setting_key === 'provider'}
 						<p class="text-[11px] text-on-surface-variant mt-1">Nilai: <code>telegram</code> (balas ke Telegram), <code>whatsapp</code> / <code>wa</code> (balas ke Fonnte), lainnya = mode testing (laporan ke admin).</p>
+					{/if}
+					{#if s.setting_key === 'crm_inactive_days'}
+						<p class="text-[11px] text-on-surface-variant mt-1">Pelanggan dianggap tidak aktif setelah X hari tanpa order. Default: 7 hari.</p>
+					{/if}
+					{#if s.setting_key === 'crm_pending_pickup_days'}
+						<p class="text-[11px] text-on-surface-variant mt-1">Pengingat di kirim setelah X hari pesanan selesai tapi belum diambil. Default: 3 hari.</p>
+					{/if}
+					{#if s.setting_key === 'crm_auto_reminder'}
+						<p class="text-[11px] text-on-surface-variant mt-1">1 = aktif, 0 = nonaktif. Otomatisasi pengingat via WhatsApp.</p>
+					{/if}
+					{#if s.setting_key === 'crm_reminder_template_inactive'}
+						<textarea id={s.setting_key} name={`setting__${s.setting_key}`} rows="3" class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm">{s.setting_value ?? ''}</textarea>
+						<p class="text-[11px] text-on-surface-variant mt-1">Placeholder: <code>{'{customer_name}'}</code>, <code>{'{days}'}</code></p>
+					{/if}
+					{#if s.setting_key === 'crm_reminder_template_pending'}
+						<textarea id={s.setting_key} name={`setting__${s.setting_key}`} rows="3" class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm">{s.setting_value ?? ''}</textarea>
+						<p class="text-[11px] text-on-surface-variant mt-1">Placeholder: <code>{'{customer_name}'}</code>, <code>{'{order_id}'}</code>, <code>{'{days}'}</code></p>
 					{/if}
 				</div>
 			{/each}

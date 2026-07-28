@@ -74,12 +74,7 @@
 				<input type="text" name="name" placeholder="Nama Produk" required class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
 				<div class="grid grid-cols-2 gap-2">
 					<input type="number" name="price" step="0.01" placeholder="Harga (Rp)" required class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
-					<select name="unit" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
-						<option value="kg">Kg</option>
-						<option value="pcs">Pcs</option>
-						<option value="liter">Liter</option>
-						<option value="unit">Unit</option>
-					</select>
+					<input type="text" name="unit" placeholder="Satuan (kg, pcs, etc)" required class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
 				</div>
 				<div class="grid grid-cols-2 gap-2">
 					<select name="category_id" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
@@ -190,12 +185,7 @@
 							<input type="text" name="name" value={product.product_name} required placeholder="Nama Produk" class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
 							<div class="grid grid-cols-2 gap-2">
 								<input type="number" name="price" step="0.01" value={product.product_price} required placeholder="Harga" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
-								<select name="unit" value={product.product_unit} class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">
-									<option value="kg">Kg</option>
-									<option value="pcs">Pcs</option>
-									<option value="liter">Liter</option>
-									<option value="unit">Unit</option>
-								</select>
+								<input type="text" name="unit" value={product.product_unit} required placeholder="Satuan" class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm" />
 							</div>
 							<div class="grid grid-cols-2 gap-2">
 								<select name="category_id" value={product.category_id || ''} class="h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm">

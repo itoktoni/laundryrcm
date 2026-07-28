@@ -5,18 +5,29 @@ import { fail } from '@sveltejs/kit';
 export async function load({ url }) {
 	const search = url.searchParams.get('search') || '';
 
-	let sql = 'SELECT * FROM customers WHERE 1=1';
-	let args = [];
+	const customers = await db.execute({
+		sql: `SELECT 
+				c.*,
+				(SELECT COUNT(*) FROM orders WHERE customer_id = c.customer_id) as total_orders,
+				(SELECT SUM(CASE WHEN p.product_unit = 'kg' THEN oi.item_quantity ELSE 0 END) 
+					FROM orders o JOIN order_items oi ON o.order_id = oi.order_id 
+					JOIN products p ON oi.product_id = p.product_id WHERE o.customer_id = c.customer_id) as total_kg,
+				(SELECT MAX(order_created_at) FROM orders WHERE customer_id = c.customer_id) as last_order
+			FROM customers c
+			WHERE 1=1`,
+		args: []
+	});
 
 	if (search) {
-		sql += ' AND (customer_name LIKE ? OR customer_phone LIKE ?)';
 		const s = `%${search}%`;
-		args.push(s, s);
+		const { rows } = await db.execute({
+			sql: `SELECT * FROM customers WHERE customer_name LIKE ? OR customer_phone LIKE ? ORDER BY total_orders DESC LIMIT 50`,
+			args: [s, s]
+		});
+		customers.rows = rows;
+	} else {
+		customers.rows = customers.rows.sort((a, b) => (b.total_orders || 0) - (a.total_orders || 0));
 	}
-
-	sql += ' ORDER BY customer_total_orders DESC LIMIT 50';
-
-	const customers = await db.execute({ sql, args });
 
 	return {
 		customers: customers.rows,

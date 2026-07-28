@@ -1,5 +1,6 @@
 <script>
 	import { enhance } from '$app/forms';
+	import { formatDate } from '$lib/utils.js';
 
 	let { data, form } = $props();
 	let search = $derived(data.filters.search);
@@ -165,9 +166,21 @@
 					</a>
 
 					<div class="mt-3 flex items-center justify-between border-t border-outline-variant pt-3">
-						<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high {customer.customer_total_orders === 0 ? 'text-outline' : 'text-secondary'}">
-							<span class="material-symbols-outlined text-[13px]">receipt_long</span>
-							<span class="text-label-sm font-label-md">{customer.customer_total_orders} order</span>
+						<div class="flex flex-col gap-1">
+							<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high {customer.total_orders === 0 ? 'text-outline' : 'text-secondary'}">
+								<span class="material-symbols-outlined text-[13px]">receipt_long</span>
+								<span class="text-label-sm font-label-md">{customer.total_orders || 0} order</span>
+							</div>
+							{#if customer.total_kg > 0}
+								<div class="text-label-sm text-on-surface-variant">
+									{customer.total_kg} kg
+								</div>
+							{/if}
+							{#if customer.last_order}
+								<div class="text-label-sm text-on-surface-variant">
+									{formatDate(customer.last_order)}
+								</div>
+							{/if}
 						</div>
 
 						<form

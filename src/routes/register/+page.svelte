@@ -1,12 +1,29 @@
 <script>
+	import { register } from '$lib/client/auth.js';
 	import Input from '$lib/components/ui/Input.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 
-	let { form } = $props();
 	let name = $state('');
 	let email = $state('');
 	let password = $state('');
 	let loading = $state(false);
+	let error = $state('');
+	let success = $state(false);
+
+	async function handleRegister(e) {
+		e.preventDefault();
+		loading = true;
+		error = '';
+
+		const result = await register(name, email, password);
+
+		if (result.success) {
+			success = true;
+		} else {
+			error = result.error;
+			loading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -31,7 +48,7 @@
 
 	<!-- Form card -->
 	<div class="flex-1 px-5 pb-8 -mt-8">
-		{#if form?.success}
+		{#if success}
 			<div class="app-card shadow-card-lg rounded-3xl p-6 max-w-sm mx-auto w-full animate-fade-slide-up">
 				<div class="mb-4 flex justify-center">
 					<div class="icon-tile w-20 h-20 rounded-full bg-success/10 animate-pop-in">
@@ -48,16 +65,16 @@
 				</a>
 			</div>
 		{:else}
-			<form method="POST" class="app-card shadow-card-lg rounded-3xl p-6 space-y-4 max-w-sm mx-auto w-full animate-fade-slide-up" style="animation-delay:0.08s">
+			<form onsubmit={handleRegister} class="app-card shadow-card-lg rounded-3xl p-6 space-y-4 max-w-sm mx-auto w-full animate-fade-slide-up" style="animation-delay:0.08s">
 				<div class="pb-1">
 					<h2 class="text-[20px] font-extrabold text-on-surface tracking-tight">Buat Akun Baru</h2>
 					<p class="text-[13px] text-on-surface-variant mt-0.5">Daftar gratis, tanpa kartu kredit</p>
 				</div>
 
-				{#if form?.error}
+				{#if error}
 					<div class="flex items-center gap-2.5 rounded-xl bg-error-container px-4 py-3 text-[13px] font-semibold text-on-error-container animate-fade-in">
 						<span class="material-symbols-outlined text-[20px]">error</span>
-						{form.error}
+						{error}
 					</div>
 				{/if}
 

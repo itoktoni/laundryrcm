@@ -1,11 +1,28 @@
 <script>
+	import { login } from '$lib/client/auth.js';
+	import { goto } from '$app/navigation';
 	import Input from '$lib/components/ui/Input.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 
-	let { form } = $props();
 	let email = $state('');
 	let password = $state('');
 	let loading = $state(false);
+	let error = $state('');
+
+	async function handleLogin(e) {
+		e.preventDefault();
+		loading = true;
+		error = '';
+
+		const result = await login(email, password);
+
+		if (result.success) {
+			goto('/dashboard');
+		} else {
+			error = result.error;
+			loading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -30,16 +47,16 @@
 
 	<!-- Form card -->
 	<div class="flex-1 px-5 pb-8 -mt-8">
-		<form method="POST" class="app-card shadow-card-lg rounded-3xl p-6 space-y-4 max-w-sm mx-auto w-full animate-fade-slide-up" style="animation-delay:0.08s">
+		<form onsubmit={handleLogin} class="app-card shadow-card-lg rounded-3xl p-6 space-y-4 max-w-sm mx-auto w-full animate-fade-slide-up" style="animation-delay:0.08s">
 			<div class="pb-1">
 				<h2 class="text-[20px] font-extrabold text-on-surface tracking-tight">Selamat Datang 👋</h2>
 				<p class="text-[13px] text-on-surface-variant mt-0.5">Masuk untuk mengelola laundry Anda</p>
 			</div>
 
-			{#if form?.error}
+			{#if error}
 				<div class="flex items-center gap-2.5 rounded-xl bg-error-container px-4 py-3 text-[13px] font-semibold text-on-error-container animate-fade-in">
 					<span class="material-symbols-outlined text-[20px]">error</span>
-					{form.error}
+					{error}
 				</div>
 			{/if}
 

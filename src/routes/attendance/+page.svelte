@@ -18,14 +18,74 @@
 	let videoRef = $state(null);
 	let stream = $state(null);
 	let cameraActive = $state(false);
+	let facingMode = $state('user'); // 'user' = front, 'environment' = back
 
 	onMount(() => {
 		return () => {
-			if (stream) {
-				stream.getTracks().forEach((t) => t.stop());
-			}
+			stopCamera();
 		};
 	});
+
+	function stopCamera() {
+		if (stream) {
+			stream.getTracks().forEach((t) => t.stop());
+			stream = null;
+		}
+		cameraActive = false;
+	}
+
+	async function startCamera(mode) {
+		stopCamera();
+		try {
+			const mediaStream = await navigator.mediaDevices.getUserMedia({
+				video: { facingMode: mode || facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+				audio: false
+			});
+			stream = mediaStream;
+			cameraActive = true;
+
+			// Wait for Svelte to render the video element
+			await new Promise((r) => setTimeout(r, 100));
+
+			if (videoRef) {
+				videoRef.srcObject = mediaStream;
+				await videoRef.play();
+			}
+		} catch (err) {
+			toast('Gagal mengakses kamera: ' + err.message, 'error');
+		}
+	}
+
+	async function switchCamera() {
+		facingMode = facingMode === 'user' ? 'environment' : 'user';
+		await startCamera(facingMode);
+	}
+
+	function capturePhoto() {
+		if (!videoRef || !stream) return;
+
+		// Make sure video is playing and has valid dimensions
+		if (videoRef.videoWidth === 0 || videoRef.videoHeight === 0) {
+			toast('Kamera belum siap, tunggu sebentar...', 'error');
+			return;
+		}
+
+		const canvas = document.createElement('canvas');
+		canvas.width = videoRef.videoWidth;
+		canvas.height = videoRef.videoHeight;
+		const ctx = canvas.getContext('2d');
+
+		// Mirror horizontally if using front camera
+		if (facingMode === 'user') {
+			ctx.translate(canvas.width, 0);
+			ctx.scale(-1, 1);
+		}
+
+		ctx.drawImage(videoRef, 0, 0, canvas.width, canvas.height);
+		photoData = canvas.toDataURL('image/jpeg', 0.8);
+		stopCamera();
+		toast('Foto berhasil diambil');
+	}
 
 	function getActionLabel() {
 		if (attendanceStatus === 'need_masuk') return 'Absen Masuk';
@@ -284,8 +344,15 @@
 
 				{#if cameraActive}
 					<div class="relative rounded-lg overflow-hidden bg-black">
-						<video bind:this={videoRef} autoplay playsinline class="w-full h-64 object-cover"></video>
-						<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-3">
+						<video bind:this={videoRef} autoplay playsinline muted class="w-full h-64 object-cover {facingMode === 'user' ? 'scale-x-[-1]' : ''}"></video>
+						<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+							<button
+								type="button"
+								onclick={switchCamera}
+								class="px-4 h-12 bg-white/80 text-on-surface rounded-full font-bold active:scale-95 transition-transform flex items-center gap-1"
+							>
+								<span class="material-symbols-outlined text-[20px]">flip_camera_ios</span>
+							</button>
 							<button
 								type="button"
 								onclick={capturePhoto}
@@ -295,8 +362,8 @@
 							</button>
 							<button
 								type="button"
-								onclick={() => { stream?.getTracks().forEach(t => t.stop()); stream = null; cameraActive = false; }}
-								class="px-6 h-12 bg-surface-container-high text-on-surface rounded-full font-bold active:scale-95 transition-transform"
+								onclick={stopCamera}
+								class="px-4 h-12 bg-surface-container-high text-on-surface rounded-full font-bold active:scale-95 transition-transform"
 							>
 								Batal
 							</button>

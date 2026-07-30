@@ -47,7 +47,7 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 bg-black/40 md:hidden"
+		class="fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px] animate-fade-in md:hidden"
 		onclick={() => (open = false)}
 		onkeydown={(e) => e.key === 'Escape' && (open = false)}
 		role="button"
@@ -57,41 +57,66 @@
 {/if}
 
 <aside
-	class="fixed top-0 left-0 z-50 flex h-screen w-64 flex-col bg-surface-container-lowest dark:bg-dark-bg border-r border-outline-variant dark:border-outline transition-transform duration-200 md:hidden {open
-		? 'translate-x-0'
+	class="fixed top-0 left-0 z-50 flex h-dvh w-76 max-w-[85vw] flex-col bg-surface-container-lowest transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] rounded-r-[1.75rem] md:hidden select-none {open
+		? 'translate-x-0 shadow-2xl'
 		: '-translate-x-full'}"
+	style="width:19rem"
 >
-	<div class="flex h-14 items-center justify-between border-b border-outline-variant dark:border-outline px-4">
-		<div class="flex items-center gap-2">
-			<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">LaundryKu</h1>
+	<div class="pt-safe">
+		<div class="flex h-16 items-center justify-between px-5">
+			<div class="flex items-center gap-2.5">
+				<span class="icon-tile w-9 h-9 bg-brand-gradient text-white shadow-fab">
+					<span class="material-symbols-outlined text-[20px] fill-icon">local_laundry_service</span>
+				</span>
+				<h1 class="text-[19px] font-extrabold tracking-tight text-on-surface">
+					Laundry<span class="text-brand-gradient">Ku</span>
+				</h1>
+			</div>
+			<button
+				onclick={() => (open = false)}
+				class="pressable-sm w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors"
+				aria-label="Tutup menu"
+			>
+				<span class="material-symbols-outlined text-[20px]">close</span>
+			</button>
 		</div>
-		<button onclick={() => (open = false)} class="active:opacity-70" aria-label="Tutup menu">
-			<span class="material-symbols-outlined text-on-surface-variant">close</span>
-		</button>
+
+		<!-- User card -->
+		<div class="mx-4 mb-4 rounded-2xl bg-brand-gradient p-4 text-white relative overflow-hidden">
+			<div class="absolute -right-6 -top-8 w-28 h-28 rounded-full bg-white/10"></div>
+			<div class="absolute -right-2 top-10 w-16 h-16 rounded-full bg-white/10"></div>
+			<div class="relative flex items-center gap-3">
+				<div class="w-11 h-11 rounded-full bg-white/20 backdrop-blur flex items-center justify-center font-extrabold text-[17px] ring-2 ring-white/30">
+					{user?.name?.charAt(0)?.toUpperCase() || 'U'}
+				</div>
+				<div class="min-w-0">
+					<div class="font-bold truncate">{user?.name}</div>
+					<div class="text-[11px] text-white/80 capitalize flex items-center gap-1">
+						<span class="material-symbols-outlined text-[13px]">badge</span>
+						{user?.role}
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-	<nav class="flex-1 overflow-y-auto py-2">
+
+	<nav class="flex-1 overflow-y-auto hide-scrollbar px-3 pb-4 space-y-0.5">
 		{#each menu as item}
+			{@const active = activeHref === item.href}
 			<a
 				href={item.href}
 				onclick={() => (open = false)}
-				class="flex items-center gap-3 px-4 py-3 text-body-sm transition-colors {$page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')
-					? 'bg-primary text-on-primary hover:bg-primary'
-					: 'text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-gray-800'}"
+				class="pressable-sm flex items-center gap-3 px-4 h-11 rounded-xl text-[13.5px] transition-colors {active
+					? 'bg-primary/10 text-primary font-bold'
+					: 'text-on-surface-variant font-medium hover:bg-surface-container-low'}"
 			>
-				<span class="material-symbols-outlined text-[20px]">{item.icon}</span>
+				<span class="material-symbols-outlined text-[22px] {active ? 'fill-icon' : ''}">{item.icon}</span>
 				{item.label}
 			</a>
 		{/each}
 	</nav>
-	<div class="border-t border-outline-variant dark:border-outline p-4">
-		<div class="flex items-center gap-3">
-			<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">
-				{user?.name?.charAt(0)?.toUpperCase() || 'U'}
-			</div>
-			<div>
-				<div class="font-body-md text-on-surface">{user?.name}</div>
-				<div class="text-label-md text-on-surface-variant capitalize">{user?.role}</div>
-			</div>
-		</div>
+
+	<div class="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2">
+		<p class="text-center text-[10px] font-medium text-outline">LaundryKu v2.0 — Manajemen Laundry AI</p>
 	</div>
 </aside>

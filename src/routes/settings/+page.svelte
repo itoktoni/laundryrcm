@@ -18,8 +18,27 @@
 
 <div class="space-y-stack-lg">
 
+	<!-- Profile Hero -->
+	<section class="relative overflow-hidden rounded-3xl bg-brand-gradient p-5 text-white shadow-fab animate-fade-slide-up">
+		<div class="absolute -right-8 -top-10 w-32 h-32 rounded-full bg-white/10"></div>
+		<div class="absolute right-10 -bottom-8 w-20 h-20 rounded-full bg-white/10"></div>
+		<div class="relative flex items-center gap-4">
+			<div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur ring-2 ring-white/30 flex items-center justify-center text-[26px] font-extrabold">
+				{data.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+			</div>
+			<div class="min-w-0">
+				<h1 class="text-[20px] font-extrabold tracking-tight truncate">{data.user?.name}</h1>
+				<p class="text-[12px] text-white/80 truncate">{data.user?.email}</p>
+				<span class="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider capitalize">
+					<span class="material-symbols-outlined text-[12px]">badge</span>
+					{data.user?.role}
+				</span>
+			</div>
+		</div>
+	</section>
+
 	<!-- Profile Info -->
-	<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+	<section class="app-card p-stack-md animate-fade-slide-up">
 		<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Informasi Akun</h2>
 		<div class="space-y-3">
 			<div class="flex items-center gap-3 p-3 bg-surface rounded-lg border border-outline-variant">
@@ -67,7 +86,7 @@
 	</section>
 
 	<!-- Change Password -->
-	<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+	<section class="app-card p-stack-md animate-fade-slide-up">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Keamanan</h2>
 			<button type="button" onclick={() => (showPw = !showPw)} class="text-label-md text-primary font-bold">
@@ -95,7 +114,7 @@
 				{#if form?.pwSuccess}
 					<p class="text-body-sm text-success">Password berhasil diubah</p>
 				{/if}
-				<button type="submit" class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-[0.98] transition-transform">
+				<button type="submit" class="pressable w-full h-12 bg-primary bg-brand-gradient text-white rounded-xl font-bold text-[13px] shadow-fab">
 					Simpan Password
 				</button>
 			</form>
@@ -103,10 +122,10 @@
 	</section>
 
 	<!-- About -->
-	<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-stack-md shadow-sm">
+	<section class="app-card p-stack-md animate-fade-slide-up">
 		<h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-4">Tentang</h2>
 		<div class="space-y-2 text-body-sm text-on-surface-variant">
-			<p>LaundryKu v1.0</p>
+			<p>LaundryKu v2.0</p>
 			<p>Sistem Manajemen Laundry berbasis AI</p>
 			<p>Gratis untuk semua pemilik laundry</p>
 		</div>
@@ -114,7 +133,7 @@
 
 	<!-- Logout -->
 	<form method="POST" action="/logout" use:enhance>
-		<button type="submit" class="w-full h-12 flex items-center justify-center gap-2 bg-error-container text-error rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform">
+		<button type="submit" class="pressable w-full h-13 flex items-center justify-center gap-2 bg-error-container text-error rounded-2xl font-bold text-[14px]">
 			<span class="material-symbols-outlined">logout</span>
 			Keluar dari Akun
 		</button>

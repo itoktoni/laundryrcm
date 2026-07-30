@@ -49,32 +49,37 @@
 	});
 </script>
 
-<aside class="hidden h-screen w-64 flex-col bg-surface-container-lowest dark:bg-dark-bg border-r border-outline-variant dark:border-outline md:flex">
-	<div class="flex h-14 items-center gap-2 border-b border-outline-variant dark:border-outline px-4">
-		<span class="material-symbols-outlined text-primary">local_laundry_service</span>
-		<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">LaundryKu</h1>
+<aside class="hidden h-dvh w-64 flex-col bg-surface-container-lowest border-r border-outline-variant md:flex select-none">
+	<div class="flex h-16 items-center gap-2.5 px-5">
+		<span class="icon-tile w-9 h-9 bg-brand-gradient text-white shadow-fab">
+			<span class="material-symbols-outlined text-[20px] fill-icon">local_laundry_service</span>
+		</span>
+		<h1 class="text-[19px] font-extrabold tracking-tight text-on-surface">
+			Laundry<span class="text-brand-gradient">Ku</span>
+		</h1>
 	</div>
-	<nav class="flex-1 overflow-y-auto py-2">
+	<nav class="flex-1 overflow-y-auto hide-scrollbar px-3 py-4 space-y-0.5">
 		{#each menu as item}
+			{@const active = activeHref === item.href}
 			<a
 				href={item.href}
-				class="flex items-center gap-3 px-4 py-3 text-body-sm transition-colors {activeHref === item.href
-					? 'bg-primary text-on-primary hover:bg-primary'
-					: 'text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-gray-800'}"
+				class="pressable-sm flex items-center gap-3 px-4 h-11 rounded-xl text-[13.5px] transition-colors {active
+					? 'bg-primary/10 text-primary font-bold'
+					: 'text-on-surface-variant font-medium hover:bg-surface-container-low'}"
 			>
-				<span class="material-symbols-outlined text-[20px]">{item.icon}</span>
+				<span class="material-symbols-outlined text-[22px] {active ? 'fill-icon' : ''}">{item.icon}</span>
 				{item.label}
 			</a>
 		{/each}
 	</nav>
-	<div class="border-t border-outline-variant dark:border-outline p-4">
-		<div class="flex items-center gap-3">
-			<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">
+	<div class="p-3">
+		<div class="flex items-center gap-3 rounded-2xl bg-surface-container-low p-3">
+			<div class="w-10 h-10 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold shadow-fab">
 				{user?.name?.charAt(0)?.toUpperCase() || 'U'}
 			</div>
-			<div>
-				<div class="font-body-md text-on-surface">{user?.name}</div>
-				<div class="text-label-md text-on-surface-variant">{user?.role}</div>
+			<div class="min-w-0">
+				<div class="font-bold text-body-sm text-on-surface truncate">{user?.name}</div>
+				<div class="text-label-sm text-on-surface-variant capitalize">{user?.role}</div>
 			</div>
 		</div>
 	</div>

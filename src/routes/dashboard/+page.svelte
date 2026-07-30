@@ -5,6 +5,41 @@
 	let { data } = $props();
 	let stats = $derived(data.stats);
 	let recentOrders = $derived(data.recentOrders);
+	let weeklyTotal = $derived(data.weekly.data.reduce((sum, v) => sum + Number(v), 0));
+
+	const hour = new Date().getHours();
+	const greeting = hour < 11 ? 'Selamat Pagi' : hour < 15 ? 'Selamat Siang' : hour < 19 ? 'Selamat Sore' : 'Selamat Malam';
+	const todayLabel = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
+
+	const orderStatusMeta = {
+		pending: { dot: 'bg-pending', label: 'Antre' },
+		cuci: { dot: 'bg-primary', label: 'Cuci' },
+		kering: { dot: 'bg-kering', label: 'Kering' },
+		setrika: { dot: 'bg-setrika', label: 'Setrika' },
+		packing: { dot: 'bg-packing', label: 'Packing' },
+		selesai: { dot: 'bg-success', label: 'Selesai' },
+		diambil: { dot: 'bg-secondary', label: 'Diambil' }
+	};
+
+	/** @param {unknown} status */
+	function statusMetaFor(status) {
+		const key = String(status);
+		return orderStatusMeta[/** @type {keyof typeof orderStatusMeta} */ (key)] || orderStatusMeta.pending;
+	}
+
+	const ownerActions = [
+		{ href: '/orders/new', icon: 'add_circle', label: 'Order Baru', color: 'bg-primary/10 text-primary' },
+		{ href: '/customers', icon: 'group', label: 'Pelanggan', color: 'bg-kering/10 text-kering' },
+		{ href: '/finance', icon: 'outbox', label: 'Pengeluaran', color: 'bg-warning/10 text-warning' },
+		{ href: '/reports', icon: 'assessment', label: 'Laporan', color: 'bg-success/10 text-success' }
+	];
+	const staffActions = [
+		{ href: '/orders/new', icon: 'add_circle', label: 'Order Baru', color: 'bg-primary/10 text-primary' },
+		{ href: '/orders', icon: 'receipt_long', label: 'Order', color: 'bg-kering/10 text-kering' },
+		{ href: '/attendance', icon: 'how_to_reg', label: 'Absensi', color: 'bg-warning/10 text-warning' },
+		{ href: '/customers', icon: 'group', label: 'Pelanggan', color: 'bg-success/10 text-success' }
+	];
+	let quickActions = $derived(data.user?.role === 'owner' ? ownerActions : staffActions);
 
 	let canvasEl = $state(null);
 	let chart;
@@ -14,7 +49,7 @@
 		Chart.register(...registerables);
 
 		const styles = getComputedStyle(document.documentElement);
-		const primary = styles.getPropertyValue('--color-primary')?.trim() || '#004ac6';
+		const primary = styles.getPropertyValue('--color-primary')?.trim() || '#2563eb';
 
 		chart = new Chart(canvasEl, {
 			type: 'bar',
@@ -25,8 +60,9 @@
 						label: 'Omset',
 						data: data.weekly.data,
 						backgroundColor: primary,
-						borderRadius: 6,
-						maxBarThickness: 36
+						borderRadius: 8,
+						borderSkipped: false,
+						maxBarThickness: 28
 					}
 				]
 			},
@@ -61,95 +97,128 @@
 	<title>Dashboard - LaundryKu</title>
 </svelte:head>
 
-<!-- Welcome Section -->
-<section class="mb-stack-lg">
-	<p class="font-label-md text-label-md text-on-surface-variant">Halo, {data.user?.name} 👋</p>
-	<h2 class="font-headline-md text-headline-md text-on-surface">Statistik Toko Anda</h2>
+<!-- Greeting -->
+<section class="mb-5 animate-fade-slide-up">
+	<p class="text-[12px] font-semibold text-on-surface-variant capitalize">{todayLabel}</p>
+	<h2 class="mt-0.5 text-[24px] font-extrabold tracking-tight text-on-surface">{greeting}, {data.user?.name?.split(' ')[0]} 👋</h2>
 </section>
 
 {#if data.attendanceNeeded === 'masuk'}
-	<section class="mb-stack-lg">
-		<a href="/attendance" class="block bg-warning-container border border-warning rounded-xl p-4 active:scale-[0.98] transition-transform">
-			<div class="flex items-center gap-3">
-				<span class="material-symbols-outlined text-warning text-3xl">warning</span>
-				<div>
-					<p class="font-body-md text-warning font-semibold">Belum Absen Masuk</p>
-					<p class="text-label-sm text-warning">Klik di sini untuk absen sekarang</p>
-				</div>
+	<section class="mb-4 animate-fade-slide-up">
+		<a href="/attendance" class="pressable flex items-center gap-3 rounded-2xl bg-warning-container border border-warning/40 p-4">
+			<span class="icon-tile w-11 h-11 rounded-xl bg-warning/15 text-warning">
+				<span class="material-symbols-outlined text-[24px]">fingerprint</span>
+			</span>
+			<div class="flex-1">
+				<p class="font-bold text-[14px] text-on-warning-container">Belum Absen Masuk</p>
+				<p class="text-[11px] font-medium text-on-warning-container/80">Ketuk untuk absen sekarang</p>
 			</div>
+			<span class="material-symbols-outlined text-on-warning-container/60">chevron_right</span>
 		</a>
 	</section>
 {:else if data.attendanceNeeded === 'keluar'}
-	<section class="mb-stack-lg">
-		<a href="/attendance" class="block bg-warning-container border border-warning rounded-xl p-4 active:scale-[0.98] transition-transform">
-			<div class="flex items-center gap-3">
-				<span class="material-symbols-outlined text-warning text-3xl">login</span>
-				<div>
-					<p class="font-body-md text-warning font-semibold">Belum Absen Keluar</p>
-					<p class="text-label-sm text-warning">Klik di sini untuk absen keluar</p>
-				</div>
+	<section class="mb-4 animate-fade-slide-up">
+		<a href="/attendance" class="pressable flex items-center gap-3 rounded-2xl bg-warning-container border border-warning/40 p-4">
+			<span class="icon-tile w-11 h-11 rounded-xl bg-warning/15 text-warning">
+				<span class="material-symbols-outlined text-[24px]">logout</span>
+			</span>
+			<div class="flex-1">
+				<p class="font-bold text-[14px] text-on-warning-container">Belum Absen Keluar</p>
+				<p class="text-[11px] font-medium text-on-warning-container/80">Ketuk untuk absen keluar</p>
 			</div>
+			<span class="material-symbols-outlined text-on-warning-container/60">chevron_right</span>
 		</a>
 	</section>
 {/if}
 
-<!-- Summary Bento Grid -->
-<section class="grid grid-cols-2 gap-stack-sm mb-stack-lg">
-	<div class="col-span-2 bg-primary-container p-4 rounded-xl text-on-primary-container flex justify-between items-center overflow-hidden relative">
-		<div class="relative z-10">
-			<p class="font-label-md text-label-md opacity-90">Omset Hari Ini</p>
-			<p class="font-display text-display font-bold">{formatCurrency(stats.revenueToday)}</p>
+<!-- Revenue Hero -->
+<section class="mb-4 animate-fade-slide-up" style="animation-delay:0.05s">
+	<div class="relative overflow-hidden rounded-3xl bg-brand-gradient p-5 text-white shadow-fab">
+		<div class="absolute -right-8 -top-10 w-36 h-36 rounded-full bg-white/10"></div>
+		<div class="absolute right-14 -bottom-8 w-24 h-24 rounded-full bg-white/10"></div>
+		<div class="relative">
+			<div class="flex items-start justify-between">
+				<div>
+					<p class="text-[11px] font-bold uppercase tracking-widest text-white/70">Omset Hari Ini</p>
+					<p class="mt-1.5 text-[32px] leading-none font-extrabold tracking-tight">{formatCurrency(stats.revenueToday)}</p>
+				</div>
+				<span class="icon-tile w-11 h-11 rounded-xl bg-white/15 ring-1 ring-white/20">
+					<span class="material-symbols-outlined text-[22px]">payments</span>
+				</span>
+			</div>
+			<div class="mt-4 flex flex-wrap gap-2">
+				<span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold ring-1 ring-white/10">
+					<span class="material-symbols-outlined text-[14px]">receipt_long</span>
+					{stats.ordersToday} order hari ini
+				</span>
+				<span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold ring-1 ring-white/10">
+					<span class="material-symbols-outlined text-[14px]">calendar_month</span>
+					{formatCurrency(stats.monthlyRevenue)} bulan ini
+				</span>
+			</div>
 		</div>
-		<div class="absolute -right-4 -bottom-4 opacity-10">
-			<span class="material-symbols-outlined text-[120px]">payments</span>
-		</div>
-	</div>
-	<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
-		<div class="flex items-center gap-2 mb-1">
-			<span class="material-symbols-outlined text-primary text-sm">receipt_long</span>
-			<p class="font-label-md text-label-md text-on-surface-variant">Order Aktif</p>
-		</div>
-		<p class="font-headline-lg text-headline-lg text-on-surface">{stats.activeOrders}</p>
-	</div>
-	<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant">
-		<div class="flex items-center gap-2 mb-1">
-			<span class="material-symbols-outlined text-success text-sm">person_add</span>
-			<p class="font-label-md text-label-md text-on-surface-variant">Pelanggan Baru</p>
-		</div>
-		<p class="font-headline-lg text-headline-lg text-on-surface">{stats.newCustomers}</p>
 	</div>
 </section>
 
-<!-- Charts Section -->
-<section class="mb-stack-lg bg-surface-container-low p-4 rounded-xl border border-outline-variant">
-	<div class="flex justify-between items-center mb-4">
-		<h3 class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Omset 7 Hari Terakhir</h3>
+<!-- Stat Tiles -->
+<section class="grid grid-cols-3 gap-2.5 mb-6 animate-fade-slide-up" style="animation-delay:0.1s">
+	<div class="app-card p-3.5">
+		<span class="icon-tile w-9 h-9 rounded-xl bg-primary/10 text-primary mb-2.5">
+			<span class="material-symbols-outlined text-[20px]">autorenew</span>
+		</span>
+		<p class="text-[22px] font-extrabold text-on-surface leading-none">{stats.activeOrders}</p>
+		<p class="mt-1.5 text-[10.5px] font-semibold text-on-surface-variant leading-tight">Order Aktif</p>
 	</div>
-	<div class="h-48">
+	<div class="app-card p-3.5">
+		<span class="icon-tile w-9 h-9 rounded-xl bg-kering/10 text-kering mb-2.5">
+			<span class="material-symbols-outlined text-[20px]">today</span>
+		</span>
+		<p class="text-[22px] font-extrabold text-on-surface leading-none">{stats.ordersToday}</p>
+		<p class="mt-1.5 text-[10.5px] font-semibold text-on-surface-variant leading-tight">Order Hari Ini</p>
+	</div>
+	<div class="app-card p-3.5">
+		<span class="icon-tile w-9 h-9 rounded-xl bg-success/10 text-success mb-2.5">
+			<span class="material-symbols-outlined text-[20px]">person_add</span>
+		</span>
+		<p class="text-[22px] font-extrabold text-on-surface leading-none">{stats.newCustomers}</p>
+		<p class="mt-1.5 text-[10.5px] font-semibold text-on-surface-variant leading-tight">Pelanggan Baru</p>
+	</div>
+</section>
+
+<!-- Weekly Chart -->
+<section class="app-card p-4 mb-6 animate-fade-slide-up" style="animation-delay:0.15s">
+	<div class="flex justify-between items-center mb-4">
+		<div>
+			<h3 class="text-[14px] font-extrabold text-on-surface">Omset 7 Hari Terakhir</h3>
+			<p class="text-[11px] font-medium text-on-surface-variant mt-0.5">Total {formatCurrency(weeklyTotal)}</p>
+		</div>
+		<span class="icon-tile w-9 h-9 rounded-xl bg-primary/10 text-primary">
+			<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+		</span>
+	</div>
+	<div class="h-44">
 		<canvas bind:this={canvasEl}></canvas>
 	</div>
 </section>
 
 <!-- Low Stock Alert -->
 {#if data.lowStock.length > 0}
-	<section class="mb-stack-lg">
-		<div class="bg-warning-container border border-warning rounded-xl p-4">
+	<section class="mb-6 animate-fade-slide-up" style="animation-delay:0.2s">
+		<div class="rounded-2xl bg-warning-container border border-warning/40 p-4">
 			<div class="flex items-center gap-2 mb-3">
-				<span class="material-symbols-outlined text-warning">warning</span>
-				<h3 class="font-label-md text-label-md text-on-warning-container font-bold uppercase tracking-wider">Stok Menipis</h3>
+				<span class="material-symbols-outlined text-warning fill-icon">warning</span>
+				<h3 class="text-[12px] font-bold uppercase tracking-wider text-on-warning-container">Stok Menipis</h3>
 			</div>
 			<div class="space-y-2">
 				{#each data.lowStock as item}
-					<a href="/inventory" class="block bg-surface-container-lowest rounded-lg p-3 active:scale-[0.98] transition-transform">
-						<div class="flex justify-between items-center">
-							<div>
-								<p class="font-body-md text-on-surface font-semibold">{item.inventory_name}</p>
-								<p class="text-label-sm text-on-surface-variant">Min: {item.inventory_min_stock} {item.inventory_unit}</p>
-							</div>
-							<div class="text-right">
-								<p class="font-headline-md text-error">{item.inventory_quantity}</p>
-								<p class="text-label-sm text-on-surface-variant">{item.inventory_unit}</p>
-							</div>
+					<a href="/inventory" class="pressable flex justify-between items-center bg-surface-container-lowest rounded-xl p-3">
+						<div>
+							<p class="text-[14px] text-on-surface font-bold">{item.inventory_name}</p>
+							<p class="text-[11px] text-on-surface-variant">Min: {item.inventory_min_stock} {item.inventory_unit}</p>
+						</div>
+						<div class="text-right">
+							<p class="text-[18px] font-extrabold text-error leading-none">{item.inventory_quantity}</p>
+							<p class="text-[10px] font-semibold text-on-surface-variant mt-0.5">{item.inventory_unit}</p>
 						</div>
 					</a>
 				{/each}
@@ -159,46 +228,56 @@
 {/if}
 
 <!-- Quick Actions -->
-<section class="mb-stack-lg">
-	<h3 class="font-label-md text-label-md mb-stack-sm text-on-surface font-bold uppercase tracking-wider">Aksi Cepat</h3>
-	<div class="grid grid-cols-2 gap-stack-sm">
-		<a href="/orders/new" class="flex items-center justify-center gap-2 py-4 bg-primary text-on-primary rounded-xl font-bold active:scale-95 transition-transform {data.user?.role !== 'owner' ? 'col-span-2' : ''}">
-			<span class="material-symbols-outlined">add_circle</span>
-			Order Baru
-		</a>
-		{#if data.user?.role === 'owner'}
-		<a href="/finance" class="flex items-center justify-center gap-2 py-4 bg-surface-container-highest text-on-surface border border-outline-variant rounded-xl font-bold active:scale-95 transition-transform">
-			<span class="material-symbols-outlined">outbox</span>
-			Pengeluaran
-		</a>
-		{/if}
+<section class="mb-6 animate-fade-slide-up" style="animation-delay:0.2s">
+	<h3 class="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant mb-3">Aksi Cepat</h3>
+	<div class="grid grid-cols-4 gap-3">
+		{#each quickActions as action}
+			<a href={action.href} class="pressable flex flex-col items-center gap-2">
+				<span class="icon-tile w-14 h-14 rounded-2xl {action.color} shadow-card">
+					<span class="material-symbols-outlined text-[26px]">{action.icon}</span>
+				</span>
+				<span class="text-[11px] font-semibold text-on-surface-variant text-center leading-tight">{action.label}</span>
+			</a>
+		{/each}
 	</div>
 </section>
 
 <!-- Recent Orders -->
-<section class="mb-stack-lg">
-	<h3 class="font-label-md text-label-md mb-stack-sm text-on-surface font-bold uppercase tracking-wider">Order Terbaru</h3>
+<section class="mb-6 animate-fade-slide-up" style="animation-delay:0.25s">
+	<div class="flex items-center justify-between mb-3">
+		<h3 class="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Order Terbaru</h3>
+		<a href="/orders" class="flex items-center gap-0.5 text-[12px] font-bold text-primary pressable-sm">
+			Lihat Semua
+			<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+		</a>
+	</div>
 	{#if recentOrders.length === 0}
-		<p class="text-body-sm text-on-surface-variant">Belum ada order</p>
+		<div class="app-card p-8 text-center">
+			<span class="material-symbols-outlined text-[40px] text-outline-variant">receipt_long</span>
+			<p class="mt-2 text-[13px] font-medium text-on-surface-variant">Belum ada order hari ini</p>
+			<a href="/orders/new" class="pressable inline-flex items-center gap-2 mt-4 h-11 px-5 bg-primary bg-brand-gradient text-white rounded-xl font-bold text-[13px] shadow-fab">
+				<span class="material-symbols-outlined text-[18px]">add</span>
+				Buat Order Pertama
+			</a>
+		</div>
 	{:else}
-		<div class="space-y-3">
+		<div class="space-y-2.5 stagger">
 			{#each recentOrders as order}
-				<a href="/orders/{order.order_id}" class="block bg-surface-container-lowest p-4 rounded-xl border border-outline-variant active:scale-[0.98] transition-transform">
-					<div class="flex justify-between items-start mb-2">
-						<div>
-							<h3 class="font-headline-md text-headline-md text-on-surface">{order.customer_name}</h3>
-							<p class="text-label-md font-label-md text-outline">{formatDate(order.order_created_at)}</p>
-						</div>
-						<div class="text-right">
-							<span class="block font-headline-md text-headline-md text-primary">{formatCurrency(order.order_total_price)}</span>
-						</div>
+				{@const meta = statusMetaFor(order.order_status)}
+				<a href="/orders/{order.order_id}" class="app-card pressable flex items-center gap-3 p-3.5">
+					<div class="icon-tile w-11 h-11 rounded-xl bg-primary-fixed text-on-primary-fixed font-extrabold text-[15px]">
+						{String(order.customer_name || '?').charAt(0).toUpperCase()}
 					</div>
-					<div class="flex justify-between items-center pt-3 border-t border-outline-variant">
-						<div class="flex items-center gap-2">
-							<div class="w-2 h-2 rounded-full {order.order_status === 'pending' ? 'bg-pending' : order.order_status === 'cuci' ? 'bg-primary' : order.order_status === 'setrika' ? 'bg-setrika' : 'bg-success'}"></div>
-							<span class="text-label-md font-label-md text-primary capitalize">{order.order_status}</span>
+					<div class="flex-1 min-w-0">
+						<h3 class="font-bold text-[14px] text-on-surface truncate">{order.customer_name}</h3>
+						<p class="text-[11px] font-medium text-on-surface-variant">{formatDate(order.order_created_at)}</p>
+					</div>
+					<div class="text-right shrink-0">
+						<p class="font-extrabold text-[14px] text-primary">{formatCurrency(order.order_total_price)}</p>
+						<div class="mt-1 inline-flex items-center gap-1.5">
+							<span class="w-1.5 h-1.5 rounded-full {meta.dot} {order.order_status === 'cuci' || order.order_status === 'setrika' ? 'animate-pulse' : ''}"></span>
+							<span class="text-[11px] font-bold text-on-surface-variant">{meta.label}</span>
 						</div>
-						<span class="text-label-md font-label-md text-outline">Lihat Detail</span>
 					</div>
 				</a>
 			{/each}

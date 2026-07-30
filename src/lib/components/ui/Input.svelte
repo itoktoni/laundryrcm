@@ -2,9 +2,9 @@
 	let { label = '', type = 'text', name = '', value = $bindable(''), placeholder = '', required = false, disabled = false, error = '', id = '' } = $props();
 </script>
 
-<div class="space-y-1">
+<div class="space-y-1.5">
 	{#if label}
-		<label for={id} class="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
+		<label for={id} class="block text-[13px] font-semibold text-on-surface-variant">{label}</label>
 	{/if}
 	<input
 		{type}
@@ -14,9 +14,12 @@
 		{required}
 		{disabled}
 		bind:value
-		class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 {error ? 'border-red-500' : ''}"
+		class="w-full h-12 rounded-xl border bg-surface-container-lowest px-4 text-[15px] text-on-surface placeholder:text-outline-variant focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:opacity-50 transition-all {error ? 'border-error focus:ring-error/15 focus:border-error' : 'border-outline-variant'}"
 	/>
 	{#if error}
-		<p class="text-xs text-red-500">{error}</p>
+		<p class="text-xs font-medium text-error flex items-center gap-1">
+			<span class="material-symbols-outlined text-[14px]">error</span>
+			{error}
+		</p>
 	{/if}
 </div>

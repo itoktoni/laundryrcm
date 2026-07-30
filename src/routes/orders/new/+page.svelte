@@ -164,7 +164,7 @@
 					placeholder="Cari & pilih pelanggan..."
 				/>
 			</div>
-			<button type="button" onclick={() => showNewCustomer = true} class="w-touch-target h-touch-target rounded-lg bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform flex-shrink-0">
+			<button type="button" onclick={() => showNewCustomer = true} class="pressable-sm icon-tile w-12 h-12 rounded-xl bg-primary bg-brand-gradient text-white shadow-fab flex-shrink-0" aria-label="Tambah pelanggan baru">
 				<span class="material-symbols-outlined">add</span>
 			</button>
 		</div>
@@ -208,31 +208,36 @@
 	</BottomSheet>
 
 	<!-- Product Selection -->
-	<section class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-stack-md">
+	<section class="app-card p-4 space-y-stack-md">
 		<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Pilih Produk & Layanan</label>
 
-		<div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2 mt-2">
-			<button type="button" onclick={() => activeCategory = 'all'} class="flex-shrink-0 px-4 py-1.5 {activeCategory === 'all' ? 'bg-primary text-on-primary' : 'border border-outline-variant text-secondary'} rounded-full text-label-md font-label-md active:scale-95 transition-transform">
+		<div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1 mt-1 -mx-4 px-4">
+			<button type="button" onclick={() => activeCategory = 'all'} class="chip flex-shrink-0 {activeCategory === 'all' ? 'chip-active' : ''}">
 				Semua
 			</button>
 			{#each data.categories as cat}
-				<button type="button" onclick={() => activeCategory = cat.category_id} class="flex-shrink-0 px-4 py-1.5 {activeCategory === cat.category_id ? 'bg-primary text-on-primary' : 'border border-outline-variant text-secondary'} rounded-full text-label-md font-label-md active:scale-95 transition-transform">
+				<button type="button" onclick={() => activeCategory = cat.category_id} class="chip flex-shrink-0 {activeCategory === cat.category_id ? 'chip-active' : ''}">
 					{cat.category_name}
 				</button>
 			{/each}
 		</div>
 
 		<div class="relative">
-			<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]">search</span>
-			<input bind:value={searchQuery} class="w-full pl-10 pr-4 h-10 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-container-lowest outline-none transition-all font-body-sm text-body-sm" placeholder="Cari produk..." type="text" />
+			<span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]">search</span>
+			<input bind:value={searchQuery} class="w-full pl-11 pr-4 h-11 rounded-xl border border-outline-variant focus:border-primary focus:ring-4 focus:ring-primary/15 bg-surface-container-low outline-none transition-all text-[14px]" placeholder="Cari produk..." type="text" />
 		</div>
 
 		<div class="grid grid-cols-2 gap-2">
 			{#each filteredProducts as p}
-				<button type="button" onclick={() => addProduct(p.product_id)} class="cursor-pointer block active:scale-95 transition-transform">
-					<div class="flex flex-col items-center text-center p-3 border border-outline-variant rounded-lg bg-surface-container-lowest transition-all h-full justify-center hover:bg-secondary-container hover:border-primary">
-						<span class="text-label-md font-bold text-on-surface leading-tight">{p.product_name}</span>
-						<span class="text-[10px] text-secondary">{formatCurrency(p.product_price)}/{p.product_unit}</span>
+				<button type="button" onclick={() => addProduct(p.product_id)} class="pressable group text-left">
+					<div class="flex flex-col justify-between gap-2 p-3 border border-outline-variant rounded-2xl bg-surface-container-lowest h-full min-h-[5.25rem] group-active:border-primary transition-colors">
+						<span class="text-[13px] font-bold text-on-surface leading-tight">{p.product_name}</span>
+						<div class="flex items-center justify-between gap-1">
+							<span class="text-[12px] font-extrabold text-primary">{formatCurrency(p.product_price)}<span class="text-[10px] font-semibold text-on-surface-variant">/{p.product_unit}</span></span>
+							<span class="icon-tile w-6 h-6 rounded-full bg-primary/10 text-primary shrink-0">
+								<span class="material-symbols-outlined text-[16px]">add</span>
+							</span>
+						</div>
 					</div>
 				</button>
 			{/each}
@@ -244,18 +249,18 @@
 		<section class="space-y-stack-sm">
 			<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Order Items</label>
 			{#each items as item, i}
-				<div class="p-3 bg-surface-container-lowest rounded-xl border border-outline-variant">
-					<div class="flex items-center justify-between gap-2 mb-2">
-						<p class="text-sm font-semibold text-on-surface min-w-0 truncate">
-							{item.name} <span class="font-normal text-on-surface-variant">- {formatCurrency(item.price)}/{item.unit}</span>
+				<div class="app-card p-3.5 animate-fade-slide-up">
+					<div class="flex items-center justify-between gap-2 mb-2.5">
+						<p class="text-[13px] font-bold text-on-surface min-w-0 truncate">
+							{item.name} <span class="font-semibold text-on-surface-variant">- {formatCurrency(item.price)}/{item.unit}</span>
 						</p>
-						<button type="button" onclick={() => removeItem(i)} class="w-7 h-7 shrink-0 rounded-full bg-error-container flex items-center justify-center" aria-label="Hapus">
-							<span class="material-symbols-outlined text-error text-[16px]">close</span>
+						<button type="button" onclick={() => removeItem(i)} class="pressable-sm icon-tile w-7 h-7 shrink-0 rounded-full bg-error/10 text-error" aria-label="Hapus">
+							<span class="material-symbols-outlined text-[16px]">close</span>
 						</button>
 					</div>
 					<div class="flex items-center justify-between gap-2">
-						<div class="flex items-center gap-1.5">
-							<button type="button" onclick={() => updateQty(i, -1)} class="w-8 h-8 rounded-full bg-outline-variant flex items-center justify-center" aria-label="Kurangi">
+						<div class="flex items-center gap-1 bg-surface-container-low rounded-full p-1">
+							<button type="button" onclick={() => updateQty(i, -1)} class="pressable-sm icon-tile w-8 h-8 rounded-full bg-surface-container-lowest text-on-surface shadow-card" aria-label="Kurangi">
 								<span class="material-symbols-outlined text-[18px]">remove</span>
 							</button>
 							<input
@@ -265,13 +270,13 @@
 								min={item.unit === 'kg' ? '0.1' : '1'}
 								value={item.quantity}
 								oninput={(e) => setQty(i, e.currentTarget.value)}
-								class="w-20 h-8 text-center text-sm font-semibold text-on-surface bg-surface-container-low border border-outline-variant rounded-lg"
+								class="w-16 h-8 text-center text-[13px] font-bold text-on-surface bg-transparent border-0 outline-none"
 							/>
-							<button type="button" onclick={() => updateQty(i, 1)} class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center" aria-label="Tambah">
+							<button type="button" onclick={() => updateQty(i, 1)} class="pressable-sm icon-tile w-8 h-8 rounded-full bg-primary bg-brand-gradient text-white" aria-label="Tambah">
 								<span class="material-symbols-outlined text-[18px]">add</span>
 							</button>
 						</div>
-						<span class="text-sm font-bold text-primary whitespace-nowrap">{formatCurrency(item.subtotal)}</span>
+						<span class="text-[14px] font-extrabold text-primary whitespace-nowrap">{formatCurrency(item.subtotal)}</span>
 					</div>
 				</div>
 			{/each}
@@ -282,7 +287,7 @@
 	<section class="space-y-2">
 		<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Promo</label>
 		{#if promoApplied}
-			<div class="flex items-center justify-between p-3 bg-success/10 border border-success rounded-lg">
+			<div class="flex items-center justify-between p-3.5 bg-success/10 border border-success/50 rounded-2xl animate-fade-slide-up">
 				<div class="flex items-center gap-2">
 					<span class="material-symbols-outlined text-success text-[20px]">check_circle</span>
 					<div>
@@ -295,10 +300,10 @@
 		{:else}
 			<div class="flex gap-2">
 				<div class="relative flex-1">
-					<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary text-[20px]">sell</span>
-					<input bind:value={promoCode} class="w-full pl-10 pr-4 h-11 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-container-lowest outline-none text-body-md" placeholder="Kode promo..." type="text" />
+					<span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary text-[20px]">sell</span>
+					<input bind:value={promoCode} class="w-full pl-11 pr-4 h-12 rounded-xl border border-outline-variant focus:border-primary focus:ring-4 focus:ring-primary/15 bg-surface-container-lowest outline-none text-[14px] transition-all" placeholder="Kode promo..." type="text" />
 				</div>
-				<button type="button" onclick={applyPromo} class="px-4 h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-[0.98] transition-transform">PAKAI</button>
+				<button type="button" onclick={applyPromo} class="pressable px-5 h-12 bg-primary bg-brand-gradient text-white rounded-xl font-bold text-[13px] shadow-fab">PAKAI</button>
 			</div>
 			{#if promoError}
 				<p class="text-label-md text-error">{promoError}</p>
@@ -306,7 +311,7 @@
 			{#if data.promotions.length > 0}
 				<div class="flex flex-wrap gap-2">
 					{#each data.promotions.filter(p => p.promo_code) as promo}
-						<button type="button" onclick={() => { promoCode = promo.promo_code; applyPromo(); }} class="px-3 py-1 border border-outline-variant rounded-full text-label-md text-secondary hover:bg-secondary-container active:scale-95 transition-transform">
+						<button type="button" onclick={() => { promoCode = promo.promo_code; applyPromo(); }} class="chip !h-8 !px-3 !text-[11px]">
 							{promo.promo_code}
 						</button>
 					{/each}
@@ -316,7 +321,7 @@
 	</section>
 
 	<!-- Summary -->
-	<section class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-3">
+	<section class="app-card p-4 space-y-3">
 		<div class="flex justify-between text-body-sm">
 			<span class="text-on-surface-variant">Subtotal</span>
 			<span class="font-medium text-on-surface">{formatCurrency(subtotal)}</span>
@@ -363,11 +368,11 @@
 	<input type="hidden" name="payment_status" value={paymentStatus} />
 
 	<div class="grid grid-cols-2 gap-3">
-		<button type="submit" class="h-14 bg-surface-container-high text-on-surface rounded-xl border border-outline-variant font-headline-md text-headline-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+		<button type="submit" class="pressable h-14 bg-surface-container-high text-on-surface rounded-2xl border border-outline-variant font-bold text-[15px] flex items-center justify-center gap-2">
 			<span class="material-symbols-outlined text-[20px]">save</span>
 			Simpan
 		</button>
-		<button type="submit" formaction="?/createPending" disabled={creatingPending} class="h-14 bg-primary text-on-primary rounded-xl font-headline-md text-headline-md shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-60">
+		<button type="submit" formaction="?/createPending" disabled={creatingPending} class="pressable h-14 bg-primary bg-brand-gradient text-white rounded-2xl font-bold text-[15px] shadow-fab flex items-center justify-center gap-2 disabled:opacity-60">
 			<span class="material-symbols-outlined text-[20px]">qr_code_2</span>
 			{creatingPending ? 'Memproses...' : 'Bayar'}
 		</button>

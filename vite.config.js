@@ -9,6 +9,9 @@ const tmpCacheDir = path.join(os.tmpdir(), 'laundry-vite-cache');
 export default defineConfig({
 	server: {
 		port: 3000,
+		// watch: {
+		// 	usePolling: true,
+		// },
 		strictPort: false,
 		allowedHosts: process.env.WEBHOOK
 			? process.env.WEBHOOK.split(',').map((h) => h.trim()).filter(Boolean)

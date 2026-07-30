@@ -219,11 +219,15 @@
 									<p class="text-label-md text-on-surface font-bold">
 										{activity.activity_type === 'customer_inactive' ? 'Pelanggan Tidak Aktif' : 'Pesanan Belum Diambil'}
 									</p>
-									<p class="text-body-sm text-on-surface-variant">
-										{activity.activity_type === 'customer_inactive'
-											? `${activity.customer_name} - ${Math.round(activity.days_diff)} hari`
-											: `${activity.customer_name} - ${activity.customer_phone}`}
-									</p>
+								<p class="text-body-sm text-on-surface-variant">
+									{#if activity.activity_type === 'customer_inactive'}
+										{activity.customer_name} - {Math.round(activity.days_diff)} hari
+									{:else if activity.activity_type === 'pending_pickup'}
+										{activity.customer_name}
+										<br>
+										{activity.customer_phone}
+									{/if}
+								</p>
 								</div>
 							</div>
 							<div class="text-right">

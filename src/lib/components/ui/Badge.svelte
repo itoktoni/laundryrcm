@@ -2,14 +2,14 @@
 	let { variant = 'default', children } = $props();
 
 	const variants = {
-		default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-		primary: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-		success: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-		warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-		danger: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+		default: 'bg-surface-container-high text-on-surface-variant',
+		primary: 'bg-primary/10 text-primary',
+		success: 'bg-success/10 text-success',
+		warning: 'bg-warning/10 text-warning',
+		danger: 'bg-error/10 text-error'
 	};
 </script>
 
-<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {variants[variant]}">
+<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold {variants[variant]}">
 	{@render children()}
 </span>

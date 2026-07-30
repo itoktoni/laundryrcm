@@ -5,7 +5,9 @@
 
 	const ownerMenu = [
 		{ href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+		{ href: '/attendance', label: 'Absensi', icon: 'how_to_reg' },
 		{ href: '/orders', label: 'Order', icon: 'receipt_long' },
+		{ href: '/products', label: 'Produk', icon: 'inventory_2' },
 		{ href: '/categories', label: 'Kategori', icon: 'category' },
 		{ href: '/customers', label: 'Pelanggan', icon: 'people' },
 		{ href: '/crm', label: 'CRM', icon: 'manage_accounts' },
@@ -24,6 +26,8 @@
 	];
 
 	const karyawanMenu = [
+		{ href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+		{ href: '/attendance', label: 'Absensi', icon: 'how_to_reg' },
 		{ href: '/orders', label: 'Order', icon: 'receipt_long' },
 		{ href: '/customers', label: 'Pelanggan', icon: 'people' },
 		{ href: '/tools/sop', label: 'Template SOP', icon: 'description' },

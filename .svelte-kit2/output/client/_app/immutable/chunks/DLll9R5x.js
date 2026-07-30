@@ -1,0 +1,1 @@
+import{E as e,O as t,W as n,_ as r,a as i,ot as a,x as o,z as s}from"./DLaYtdz8.js";import"./xihTtKlq.js";var c=t(`<div><!></div>`);function l(t,l){let u=i(l,`class`,3,``),d=i(l,`padding`,3,`p-4`);var f=c();o(n(f),()=>l.children),a(f),s(()=>r(f,1,`app-card ${d()??``} ${u()??``}`)),e(t,f)}export{l as t};

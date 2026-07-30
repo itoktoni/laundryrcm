@@ -1,0 +1,1 @@
+import{D as e,R as t,T as n,U as r,a as i,at as a,b as o,g as s}from"./Bu7pAgVG.js";import"./xihTtKlq.js";var c=e(`<div><!></div>`);function l(e,l){let u=i(l,`class`,3,``);var d=c();o(r(d),()=>l.children),a(d),t(()=>s(d,1,`rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 ${u()??``}`)),n(e,d)}export{l as t};

@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/tools/calculator/omset/+page.svelte";

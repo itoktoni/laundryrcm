@@ -1,0 +1,17 @@
+import { C as escape_html, S as attr, a as head, r as derived } from "../../../../../chunks/server.js";
+//#region src/routes/tools/calculator/omset/+page.svelte
+function _page($$renderer) {
+	let targetOmset = 15e6;
+	let rataHarga = 15e3;
+	let targetKgBulan = derived(() => Math.ceil(targetOmset / rataHarga));
+	let targetKgHari = derived(() => Math.ceil(targetKgBulan() / 30));
+	let targetOrderHari = derived(() => Math.ceil(targetKgHari() / 5));
+	head("g2bpr4", $$renderer, ($$renderer) => {
+		$$renderer.title(($$renderer) => {
+			$$renderer.push(`<title>Kalkulator Target Omset - LaundryKu</title>`);
+		});
+	});
+	$$renderer.push(`<div class="space-y-stack-lg"><div class="flex items-center gap-2"><a href="/tools/calculator" class="text-on-surface-variant" aria-label="Kembali"><span class="material-symbols-outlined">arrow_back</span></a> <h1 class="font-headline-lg text-headline-lg text-on-surface">Target Omset</h1></div> <div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-4"><div><label class="text-label-md text-on-surface-variant">Target Omset / Bulan</label> <input type="number"${attr("value", targetOmset)} class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm mt-1"/></div> <div><label class="text-label-md text-on-surface-variant">Rata-rata Harga / kg</label> <input type="number"${attr("value", rataHarga)} class="w-full h-11 px-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm mt-1"/></div></div> <div class="grid grid-cols-3 gap-stack-sm"><div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant text-center"><p class="font-headline-lg text-primary">${escape_html(targetKgBulan())}</p> <p class="text-label-md text-on-surface-variant">kg/bulan</p></div> <div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant text-center"><p class="font-headline-lg text-primary">${escape_html(targetKgHari())}</p> <p class="text-label-md text-on-surface-variant">kg/hari</p></div> <div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant text-center"><p class="font-headline-lg text-primary">${escape_html(targetOrderHari())}</p> <p class="text-label-md text-on-surface-variant">order/hari</p></div></div></div>`);
+}
+//#endregion
+export { _page as default };

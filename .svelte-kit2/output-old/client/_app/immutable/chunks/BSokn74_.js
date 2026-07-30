@@ -1,0 +1,1 @@
+import{$ as e}from"./Bu7pAgVG.js";import"./DFYh09zs.js";var t=e([]),n=0;function r(e,r=`success`,a=3e3){let o=++n;return t.update(t=>[...t,{id:o,message:e,type:r}]),a&&setTimeout(()=>i(o),a),o}function i(e){t.update(t=>t.filter(t=>t.id!==e))}export{r as n,t as r,i as t};

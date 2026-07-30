@@ -1,0 +1,211 @@
+{
+	"/": [
+		"src/routes/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/api/ai": [
+		"src/routes/api/ai/+server.js"
+	],
+	"/api/attendance": [
+		"src/routes/api/attendance/+server.js"
+	],
+	"/api/attendance/location": [
+		"src/routes/api/attendance/location/+server.js"
+	],
+	"/api/crm": [
+		"src/routes/api/crm/+server.js"
+	],
+	"/api/finance/export": [
+		"src/routes/api/finance/export/+server.js"
+	],
+	"/api/orders/export": [
+		"src/routes/api/orders/export/+server.js"
+	],
+	"/api/qris": [
+		"src/routes/api/qris/+server.js"
+	],
+	"/api/telegram/setwebhook": [
+		"src/routes/api/telegram/setwebhook/+server.js"
+	],
+	"/api/telegram/webhook": [
+		"src/routes/api/telegram/webhook/+server.js"
+	],
+	"/api/wa/webhook": [
+		"src/routes/api/wa/webhook/+server.js"
+	],
+	"/api/webhook/payment": [
+		"src/routes/api/webhook/payment/+server.js"
+	],
+	"/api/webhook/schedule": [
+		"src/routes/api/webhook/schedule/+server.js"
+	],
+	"/attendance": [
+		"src/routes/attendance/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/categories": [
+		"src/routes/categories/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/crm": [
+		"src/routes/crm/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/customers": [
+		"src/routes/customers/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/customers/[id]": [
+		"src/routes/customers/[id]/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/dashboard": [
+		"src/routes/dashboard/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/finance": [
+		"src/routes/finance/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/inventory": [
+		"src/routes/inventory/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/inventory/export": [
+		"src/routes/inventory/export/+server.js"
+	],
+	"/inventory/[id]": [
+		"src/routes/inventory/[id]/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/login": [
+		"src/routes/login/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/logout": [
+		"src/routes/logout/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/machines": [
+		"src/routes/machines/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/machines/export": [
+		"src/routes/machines/export/+server.js"
+	],
+	"/orders": [
+		"src/routes/orders/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/orders/new": [
+		"src/routes/orders/new/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/orders/[id]": [
+		"src/routes/orders/[id]/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/orders/[id]/status": [
+		"src/routes/orders/[id]/status/+server.js"
+	],
+	"/products": [
+		"src/routes/products/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/promo": [
+		"src/routes/promo/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/promo/export": [
+		"src/routes/promo/export/+server.js"
+	],
+	"/register": [
+		"src/routes/register/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/reports_attendance": [
+		"src/routes/reports_attendance/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/reports": [
+		"src/routes/reports/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/schedule": [
+		"src/routes/schedule/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/settings": [
+		"src/routes/settings/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/setting": [
+		"src/routes/setting/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools": [
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools/calculator": [
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools/calculator/harga": [
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools/calculator/omset": [
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools/calculator/profit": [
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools/calculator/sdm": [
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools/faq": [
+		"src/routes/tools/faq/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/tools/sop": [
+		"src/routes/tools/sop/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	],
+	"/users": [
+		"src/routes/users/+page.server.js",
+		"src/routes/+layout.js",
+		"src/routes/+layout.server.js"
+	]
+}

@@ -5,5 +5,11 @@
   "server": {
     "url": "https://laundrycrm.netlify.app/",
     "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true,
+    "allowMediaPlaybackRequiresUserAction": false
   }
 }

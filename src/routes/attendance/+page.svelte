@@ -2,6 +2,20 @@
 	import { onMount, tick } from 'svelte';
 	import { toast } from '$lib/stores/toast.js';
 
+	// Try loading Capacitor Camera plugin (native)
+	let CapacitorCamera = null;
+	let CameraResultType = null;
+	let CameraSource = null;
+	async function loadNativeCamera() {
+		try {
+			const mod = await import('@capacitor/camera');
+			CapacitorCamera = mod.Camera;
+			CameraResultType = mod.CameraResultType;
+			CameraSource = mod.CameraSource;
+			return true;
+		} catch { return false; }
+	}
+
 	let { data } = $props();
 	let attendanceStatus = $derived(data.attendanceStatus);
 	let todayRecords = $derived(data.todayRecords);
@@ -18,61 +32,63 @@
 	let videoRef = $state(null);
 	let stream = $state(null);
 	let cameraActive = $state(false);
-	let facingMode = $state('user'); // 'user' = front, 'environment' = back
+	let facingMode = $state('user');
 
 	onMount(() => {
-		return () => {
-			stopCamera();
-		};
+		return () => { stopCamera(); };
 	});
 
 	function stopCamera() {
-		if (stream) {
-			stream.getTracks().forEach((t) => t.stop());
-			stream = null;
-		}
+		if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
 		cameraActive = false;
 	}
 
-	async function startCamera(mode) {
-		// Stop any existing stream first
-		if (stream) {
-			stream.getTracks().forEach((t) => t.stop());
-			stream = null;
+	/**
+	 * Take photo — try native Capacitor Camera first, fallback to WebRTC
+	 */
+	async function takePhoto() {
+		// Try native camera first (opens device camera app)
+		const hasNative = await loadNativeCamera();
+		if (hasNative && window.Capacitor?.isNativePlatform?.()) {
+			try {
+				const image = await CapacitorCamera.getPhoto({
+					quality: 80,
+					allowEditing: false,
+					resultType: CameraResultType.DataUrl,
+					source: CameraSource.Camera,
+					width: 1280,
+					height: 720
+				});
+				photoData = image.dataUrl;
+				toast('Foto berhasil diambil');
+				return;
+			} catch (err) {
+				if (err.message?.includes('cancel') || err.message?.includes('User cancelled')) return;
+				console.warn('Native camera failed, trying WebRTC...', err);
+			}
 		}
 
+		// Fallback: WebRTC getUserMedia
+		await startCamera(facingMode);
+	}
+
+	async function startCamera(mode) {
+		if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
 		try {
-			// Get media stream FIRST (before showing video element)
 			const mediaStream = await navigator.mediaDevices.getUserMedia({
 				video: { facingMode: mode || facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
 				audio: false
 			});
 			stream = mediaStream;
-
-			// Now show the video element
 			cameraActive = true;
-
-			// Wait for Svelte to actually render the <video> element in the DOM
 			await tick();
-			// Extra safety: wait a bit more for the element to be fully ready
 			await new Promise((r) => setTimeout(r, 200));
-
 			if (videoRef) {
 				videoRef.srcObject = mediaStream;
-				videoRef.muted = true; // Required for autoplay
+				videoRef.muted = true;
 				videoRef.playsInline = true;
-				try {
-					await videoRef.play();
-				} catch (playErr) {
-					console.warn('Video play failed, retrying...', playErr);
-					// Retry after a short delay
-					await new Promise((r) => setTimeout(r, 300));
-					await videoRef.play();
-				}
-			} else {
-				console.error('videoRef is null after tick');
-				toast('Gagal menampilkan kamera', 'error');
-				stopCamera();
+				try { await videoRef.play(); }
+				catch { await new Promise((r) => setTimeout(r, 300)); await videoRef.play(); }
 			}
 		} catch (err) {
 			toast('Gagal mengakses kamera: ' + err.message, 'error');
@@ -87,24 +103,14 @@
 
 	function capturePhoto() {
 		if (!videoRef || !stream) return;
-
-		// Make sure video is playing and has valid dimensions
 		if (videoRef.videoWidth === 0 || videoRef.videoHeight === 0) {
-			toast('Kamera belum siap, tunggu sebentar...', 'error');
-			return;
+			toast('Kamera belum siap...', 'error'); return;
 		}
-
 		const canvas = document.createElement('canvas');
 		canvas.width = videoRef.videoWidth;
 		canvas.height = videoRef.videoHeight;
 		const ctx = canvas.getContext('2d');
-
-		// Mirror horizontally if using front camera
-		if (facingMode === 'user') {
-			ctx.translate(canvas.width, 0);
-			ctx.scale(-1, 1);
-		}
-
+		if (facingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
 		ctx.drawImage(videoRef, 0, 0, canvas.width, canvas.height);
 		photoData = canvas.toDataURL('image/jpeg', 0.8);
 		stopCamera();
@@ -338,7 +344,7 @@
 
 				{#if cameraActive}
 					<div class="relative rounded-lg overflow-hidden bg-black">
-						<video bind:this={videoRef} autoplay playsinline muted class="w-full h-64 object-cover {facingMode === 'user' ? 'scale-x-[-1]' : ''}"></video>
+						<video bind:this={videoRef} id="video" autoplay playsinline webkit-playsinline muted class="w-full h-64 object-cover {facingMode === 'user' ? 'scale-x-[-1]' : ''}"></video>
 						<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
 							<button
 								type="button"
@@ -378,7 +384,7 @@
 					<div class="flex flex-col gap-3">
 						<button
 							type="button"
-							onclick={startCamera}
+							onclick={takePhoto}
 							class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-95 transition-transform"
 						>
 							Buka Kamera

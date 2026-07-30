@@ -58,8 +58,7 @@
 		<!-- Table Header -->
 		<div class="grid grid-cols-12 gap-2 px-4 py-3 bg-surface-container-high text-label-md text-on-surface-variant font-bold">
 			<div class="col-span-5">Nama Kategori</div>
-			<div class="col-span-2 text-center">Produk</div>
-			<div class="col-span-2 text-center">Dibuat</div>
+			<div class="col-span-4 text-center">Produk</div>
 			<div class="col-span-3 text-right">Aksi</div>
 		</div>
 
@@ -87,13 +86,10 @@
 							<span class="font-body-md text-on-surface font-semibold">{cat.category_name}</span>
 						{/if}
 					</div>
-					<div class="col-span-2 text-center">
-						<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">{cat.product_count || 0} produk</span>
+					<div class="col-span-4 text-center">
+						<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">{cat.product_count || 0}</span>
 					</div>
-					<div class="col-span-2 text-center text-label-sm text-on-surface-variant">
-						{new Date(cat.category_created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-					</div>
-					<div class="col-span-3 flex items-center justify-end gap-1">
+					<div class="col-span-3 flex items-end justify-end gap-1">
 						{#if editId === cat.category_id}
 							<button onclick={() => (editId = null)} class="h-8 px-2 rounded-lg bg-surface-container-high text-on-surface-variant text-label-sm font-bold active:scale-95 transition-transform">
 								Batal

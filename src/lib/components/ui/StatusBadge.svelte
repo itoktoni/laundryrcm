@@ -14,18 +14,19 @@
 	};
 
 	const colors = {
-		pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-		cuci: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-		kering: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-		setrika: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-		packing: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-		selesai: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-		diambil: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-		unpaid: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-		paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+		pending: 'bg-pending/15 text-secondary',
+		cuci: 'bg-primary/10 text-primary',
+		kering: 'bg-kering/10 text-kering',
+		setrika: 'bg-setrika/10 text-setrika',
+		packing: 'bg-packing/15 text-warning',
+		selesai: 'bg-success/10 text-success',
+		diambil: 'bg-surface-container-high text-on-surface-variant',
+		unpaid: 'bg-error/10 text-error',
+		paid: 'bg-success/10 text-success'
 	};
 </script>
 
-<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {colors[status] || colors.pending}">
+<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold {colors[status] || colors.pending}">
+	<span class="w-1.5 h-1.5 rounded-full bg-current"></span>
 	{labels[status] || status}
 </span>

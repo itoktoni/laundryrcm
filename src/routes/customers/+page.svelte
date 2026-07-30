@@ -38,15 +38,15 @@
 
 <div class="space-y-stack-lg">
 	<!-- Header -->
-	<div class="flex items-end justify-between gap-3">
+	<div class="flex items-end justify-between gap-3 animate-fade-slide-up">
 		<div>
-			<h1 class="font-headline-lg text-headline-lg text-on-surface">Pelanggan</h1>
-			<p class="text-body-sm text-on-surface-variant">Kelola data pelanggan laundry</p>
+			<h1 class="text-[24px] font-extrabold tracking-tight text-on-surface">Pelanggan</h1>
+			<p class="text-[12px] font-medium text-on-surface-variant">Kelola data pelanggan laundry</p>
 		</div>
 		<button
 			type="button"
 			onclick={() => (showAdd = !showAdd)}
-			class="inline-flex items-center gap-2 h-11 px-4 bg-primary text-on-primary rounded-xl font-bold text-label-md active:scale-95 transition-transform shrink-0"
+			class="pressable inline-flex items-center gap-2 h-11 px-4 bg-primary bg-brand-gradient text-white rounded-xl font-bold text-[13px] shadow-fab shrink-0"
 		>
 			<span class="material-symbols-outlined text-[20px]">{showAdd ? 'close' : 'add'}</span>
 			<span class="hidden sm:inline">{showAdd ? 'Tutup' : 'Tambah Customer'}</span>
@@ -63,7 +63,7 @@
 					if (result.type === 'success') showAdd = false;
 				};
 			}}
-			class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant space-y-3"
+			class="app-card p-4 space-y-3 animate-fade-slide-up"
 		>
 			<div>
 				<label for="cust_name" class="text-label-md text-on-surface-variant">Nama</label>
@@ -77,36 +77,45 @@
 				<label for="cust_address" class="text-label-md text-on-surface-variant">Alamat</label>
 				<input id="cust_address" name="customer_address" class="w-full h-11 px-4 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm mt-1" type="text" placeholder="Opsional" />
 			</div>
-			<button type="submit" class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-[0.98] transition-transform">
+			<button type="submit" class="pressable w-full h-12 bg-primary bg-brand-gradient text-white rounded-xl font-bold text-[13px] shadow-fab">
 				Simpan Customer
 			</button>
 		</form>
 	{/if}
 
 	<!-- Stat cards -->
-	<div class="grid grid-cols-3 gap-stack-sm">
-		<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 text-center">
-			<p class="font-display text-display text-primary font-bold">{stats.total}</p>
-			<p class="text-label-sm text-on-surface-variant">Total</p>
+	<div class="grid grid-cols-3 gap-2.5 animate-fade-slide-up" style="animation-delay:0.05s">
+		<div class="app-card p-3.5">
+			<span class="icon-tile w-9 h-9 rounded-xl bg-primary/10 text-primary mb-2">
+				<span class="material-symbols-outlined text-[20px]">group</span>
+			</span>
+			<p class="text-[22px] font-extrabold text-on-surface leading-none">{stats.total}</p>
+			<p class="mt-1 text-[10.5px] font-semibold text-on-surface-variant">Total</p>
 		</div>
-		<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 text-center">
-			<p class="font-display text-display text-warning font-bold">{stats.vip}</p>
-			<p class="text-label-sm text-on-surface-variant">VIP</p>
+		<div class="app-card p-3.5">
+			<span class="icon-tile w-9 h-9 rounded-xl bg-warning/10 text-warning mb-2">
+				<span class="material-symbols-outlined text-[20px] fill-icon">star</span>
+			</span>
+			<p class="text-[22px] font-extrabold text-on-surface leading-none">{stats.vip}</p>
+			<p class="mt-1 text-[10.5px] font-semibold text-on-surface-variant">VIP</p>
 		</div>
-		<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 text-center">
-			<p class="font-display text-display text-success font-bold">{stats.orders}</p>
-			<p class="text-label-sm text-on-surface-variant">Order</p>
+		<div class="app-card p-3.5">
+			<span class="icon-tile w-9 h-9 rounded-xl bg-success/10 text-success mb-2">
+				<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+			</span>
+			<p class="text-[22px] font-extrabold text-on-surface leading-none">{stats.orders}</p>
+			<p class="mt-1 text-[10.5px] font-semibold text-on-surface-variant">Order</p>
 		</div>
 	</div>
 
 	<!-- Search -->
 	<div class="relative w-full">
-		<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+		<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
 		<form method="GET">
 			<input
 				name="search"
 				value={search}
-				class="w-full h-12 pl-10 pr-4 bg-surface-container-low dark:bg-gray-800 border border-outline-variant dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-body-md placeholder-outline-variant transition-all"
+				class="w-full h-12 pl-11 pr-4 bg-surface-container-lowest border border-outline-variant rounded-2xl focus:border-primary focus:ring-4 focus:ring-primary/15 text-[14px] placeholder:text-outline-variant outline-none transition-all"
 				placeholder="Cari nama atau HP..."
 				type="text"
 			/>
@@ -114,13 +123,11 @@
 	</div>
 
 	<!-- Filter Chips -->
-	<div class="flex gap-2 overflow-x-auto no-scrollbar">
+	<div class="flex gap-2 overflow-x-auto hide-scrollbar">
 		{#each filters as f}
 			<button
 				onclick={() => (activeFilter = f.id)}
-				class="px-5 py-2 rounded-full font-label-md text-label-md whitespace-nowrap active:scale-95 transition-all {activeFilter === f.id
-					? 'bg-primary text-on-primary'
-					: 'bg-surface-container-high text-on-surface-variant'}"
+				class="chip {activeFilter === f.id ? 'chip-active' : ''}"
 			>
 				{f.label}
 			</button>
@@ -132,7 +139,7 @@
 	{/if}
 
 	<!-- Customer List -->
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-md">
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-stack-md">
 		{#if filtered.length === 0}
 			<div class="col-span-full flex flex-col items-center py-16 text-center">
 				<div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center">
@@ -142,7 +149,7 @@
 			</div>
 		{:else}
 			{#each filtered as customer}
-				<div class="group relative bg-surface-container-lowest rounded-2xl border border-outline-variant hover:border-primary hover:shadow-md transition-all p-4">
+				<div class="group relative app-card p-4 hover:shadow-card-lg transition-shadow">
 					<a href="/customers/{customer.customer_id}" class="flex items-center gap-3">
 						<div class="relative shrink-0">
 							<div class="w-12 h-12 rounded-2xl {customer.customer_vip ? 'bg-warning/20 text-warning' : 'bg-primary-fixed text-on-primary-fixed'} flex items-center justify-center font-bold text-headline-md">
@@ -173,12 +180,7 @@
 							</div>
 							{#if customer.total_kg > 0}
 								<div class="text-label-sm text-on-surface-variant">
-									{customer.total_kg} kg
-								</div>
-							{/if}
-							{#if customer.last_order}
-								<div class="text-label-sm text-on-surface-variant">
-									{formatDate(customer.last_order)}
+									{customer.total_kg} kg terakhir pesan tanggal {formatDate(customer.last_order)}
 								</div>
 							{/if}
 						</div>
@@ -202,7 +204,3 @@
 	</div>
 </div>
 
-<style>
-	.no-scrollbar::-webkit-scrollbar { display: none; }
-	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-</style>

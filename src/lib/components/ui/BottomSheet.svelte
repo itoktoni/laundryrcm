@@ -8,25 +8,25 @@
 
 {#if open}
 	<!-- Backdrop -->
-	<div class="fixed inset-0 z-[60] bg-black/50" onclick={close}></div>
+	<div class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px] animate-fade-in" onclick={close}></div>
 
 	<!-- Sheet -->
-	<div class="fixed bottom-0 left-0 right-0 z-[60] bg-surface rounded-t-2xl shadow-lg animate-slide-up" style="margin-bottom: -10px;">
+	<div class="fixed bottom-0 left-0 right-0 z-[60] mx-auto max-w-lg bg-surface-container-lowest rounded-t-[1.75rem] shadow-2xl animate-slide-up">
 		<!-- Handle -->
-		<div class="flex justify-center pt-3 pb-2">
-			<div class="w-10 h-1 bg-outline-variant rounded-full"></div>
+		<div class="flex justify-center pt-3 pb-1">
+			<div class="w-10 h-1.5 bg-outline-variant rounded-full"></div>
 		</div>
 
 		<!-- Header -->
-		<div class="flex items-center justify-between px-container-margin pb-3 border-b border-outline-variant">
-			<h2 class="font-headline-md text-headline-md text-on-surface">{title}</h2>
-			<button type="button" onclick={close} class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container-high active:scale-95 transition-transform">
-				<span class="material-symbols-outlined text-on-surface-variant">close</span>
+		<div class="flex items-center justify-between px-5 pb-3 pt-1 border-b border-outline-variant/70">
+			<h2 class="text-[17px] font-extrabold text-on-surface tracking-tight">{title}</h2>
+			<button type="button" onclick={close} class="pressable-sm w-9 h-9 -mr-2 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" aria-label="Tutup">
+				<span class="material-symbols-outlined text-[20px]">close</span>
 			</button>
 		</div>
 
 		<!-- Content -->
-		<div class="px-container-margin py-stack-md pb-8 max-h-[70vh] overflow-y-auto">
+		<div class="px-5 py-4 max-h-[70vh] overflow-y-auto pb-[max(2rem,env(safe-area-inset-bottom))]">
 			{@render children()}
 		</div>
 	</div>
@@ -38,6 +38,6 @@
 		to { transform: translateY(0); }
 	}
 	.animate-slide-up {
-		animation: slide-up 0.3s ease-out;
+		animation: slide-up 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 </style>

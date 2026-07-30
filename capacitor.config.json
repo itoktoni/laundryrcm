@@ -1,0 +1,20 @@
+{
+	"appId": "com.laundryku.app",
+	"appName": "LaundryKu",
+	"webDir": "build",
+	"backgroundColor": "#f8fafc",
+	"android": {
+		"allowMixedContent": false
+	},
+	"server": {
+		"url": "https://laundry-app.netlify.app",
+		"cleartext": false
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1200,
+			"backgroundColor": "#2563eb",
+			"showSpinner": false
+		}
+	}
+}

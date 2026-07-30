@@ -16,7 +16,7 @@
 	});
 </script>
 
-<div class="flex h-screen bg-surface dark:bg-dark-bg text-on-surface">
+<div class="flex h-dvh bg-surface text-on-surface">
 	{#if data.user}
 		<Sidebar user={data.user} />
 		<Drawer user={data.user} bind:open={drawerOpen} />
@@ -27,7 +27,7 @@
 			<Navbar user={data.user} onMenu={() => (drawerOpen = true)} />
 		{/if}
 
-		<main class="flex-1 overflow-y-auto pb-20 md:pb-0 pt-0 md:pt-10">
+		<main class="flex-1 overflow-y-auto {data.user ? 'pb-28 md:pb-8' : ''}">
 			<div class="max-w-md mx-auto md:max-w-4xl px-container-margin py-stack-md">
 				{@render children()}
 			</div>

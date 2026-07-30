@@ -44,6 +44,7 @@
 	const statusFlow = ['pending', 'cuci', 'kering', 'setrika', 'packing', 'selesai', 'diambil'];
 	const statusColors = { pending: 'bg-pending', cuci: 'bg-primary', kering: 'bg-kering', setrika: 'bg-setrika', packing: 'bg-packing', selesai: 'bg-success', diambil: 'bg-secondary' };
 	const statusLabels = { pending: 'Antre', cuci: 'Cuci', kering: 'Kering', setrika: 'Setrika', packing: 'Packing', selesai: 'Selesai', diambil: 'Diambil' };
+	let currentIdx = $derived(statusFlow.indexOf(String(order.order_status)));
 
 	function getNextStatus(current) {
 		const idx = statusFlow.indexOf(current);
@@ -335,13 +336,18 @@
 
 <div class="space-y-stack-lg">
 	<!-- Header -->
-	<div class="flex items-center justify-between">
-		<div>
-			<h1 class="font-headline-lg text-headline-lg text-on-surface">#{order.order_id.slice(0, 8).toUpperCase()}</h1>
-			<p class="text-label-md text-on-surface-variant">{formatDate(order.order_created_at)}</p>
+	<div class="flex items-center justify-between gap-3 animate-fade-slide-up">
+		<div class="flex items-center gap-2.5 min-w-0">
+			<a href="/orders" class="pressable-sm icon-tile w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant shrink-0" aria-label="Kembali">
+				<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+			</a>
+			<div class="min-w-0">
+				<h1 class="text-[20px] font-extrabold tracking-tight text-on-surface">#{order.order_id.slice(0, 8).toUpperCase()}</h1>
+				<p class="text-[11px] font-medium text-on-surface-variant">{formatDate(order.order_created_at)}</p>
+			</div>
 		</div>
-		<div class="flex items-center gap-2">
-			<button type="button" onclick={shareInvoice} class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center active:scale-[0.95] transition-transform" title="Kirim Invoice ke WhatsApp">
+		<div class="flex items-center gap-2 shrink-0">
+			<button type="button" onclick={shareInvoice} class="pressable-sm icon-tile w-10 h-10 rounded-full bg-success text-white shadow-[0_4px_12px_-4px_rgb(22_163_74/0.5)]" title="Kirim Invoice ke WhatsApp">
 				<span class="material-symbols-outlined text-[20px]">chat</span>
 			</button>
 			<PrintButton {order} {items} storeName={store.store_name || 'LaundryKu'} storeAddress={store.store_address || ''} storePhone={store.store_phone || ''} />
@@ -349,16 +355,19 @@
 	</div>
 
 	<!-- Customer -->
-	<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
+	<div class="app-card p-4 animate-fade-slide-up">
 		<div class="flex items-center gap-3">
-			<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-headline-md">
+			<div class="icon-tile w-12 h-12 rounded-2xl bg-primary-fixed text-on-primary-fixed font-extrabold text-[18px]">
 				{order.customer_name.charAt(0)}
 			</div>
 			<div class="flex-1">
 				<div class="flex items-center gap-2 flex-wrap">
-					<h3 class="font-headline-md text-headline-md text-on-surface">{order.customer_name}</h3>
+					<h3 class="text-[16px] font-extrabold text-on-surface">{order.customer_name}</h3>
 					{#if order.customer_vip}
-						<span class="px-2 py-0.5 bg-warning text-on-surface text-[10px] font-bold rounded uppercase tracking-wider">VIP</span>
+						<span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-warning/15 text-warning text-[10px] font-bold rounded-full uppercase tracking-wider">
+							<span class="material-symbols-outlined text-[12px] fill-icon">star</span>
+							VIP
+						</span>
 					{/if}
 				</div>
 				<p class="text-body-sm text-on-surface-variant">{order.customer_phone}</p>
@@ -392,15 +401,15 @@
 	</div>
 
 	<!-- Items -->
-	<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant space-y-3">
-		<label class="font-label-md text-label-md text-on-surface-variant uppercase">Item</label>
+	<div class="app-card p-4 space-y-3 animate-fade-slide-up">
+		<label class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Item</label>
 		{#each items as item}
-			<div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg border border-outline-variant">
+			<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-xl">
 				<div>
-					<p class="font-body-md text-on-surface font-semibold">{item.product_name}</p>
-					<p class="text-label-md text-on-surface-variant">{item.item_quantity} {item.product_unit} × {formatCurrency(item.item_price)}</p>
+					<p class="text-[14px] text-on-surface font-bold">{item.product_name}</p>
+					<p class="text-[11px] font-medium text-on-surface-variant">{item.item_quantity} {item.product_unit} × {formatCurrency(item.item_price)}</p>
 				</div>
-				<span class="font-headline-md text-primary">{formatCurrency(item.item_subtotal)}</span>
+				<span class="text-[14px] font-extrabold text-primary">{formatCurrency(item.item_subtotal)}</span>
 			</div>
 		{/each}
 
@@ -421,13 +430,13 @@
 					<span class="text-on-surface">+{formatCurrency(order.order_unique_code)}</span>
 				</div>
 			{/if}
-			<div class="flex justify-between pt-2 border-t border-outline-variant">
-				<span class="font-headline-md text-on-surface">{order.order_unique_code ? 'Total Dibayar' : 'Total'}</span>
-				<span class="font-display text-display text-primary">{formatCurrency(order.order_unique_code ? order.order_paid_amount : order.order_total_price)}</span>
+			<div class="flex justify-between items-end pt-2 border-t border-outline-variant">
+				<span class="text-[14px] font-bold text-on-surface">{order.order_unique_code ? 'Total Dibayar' : 'Total'}</span>
+				<span class="text-[26px] font-extrabold tracking-tight text-primary leading-none">{formatCurrency(order.order_unique_code ? order.order_paid_amount : order.order_total_price)}</span>
 			</div>
 			<div class="flex justify-between text-body-sm pt-1">
 				<span class="text-on-surface-variant">Status</span>
-				<span class="text-success font-label-md">{order.order_payment_status === 'paid' ? 'Lunas' : 'Belum Bayar'}</span>
+				<span class="font-bold {order.order_payment_status === 'paid' ? 'text-success' : 'text-error'}">{order.order_payment_status === 'paid' ? 'Lunas' : 'Belum Bayar'}</span>
 			</div>
 			{#if order.order_payment_code}
 				<div class="flex justify-between text-body-sm pt-1">
@@ -440,8 +449,8 @@
 
 	<!-- Notes -->
 	{#if order.order_notes || order.customer_notes}
-		<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
-			<p class="font-label-md text-label-md text-on-surface-variant uppercase mb-2">Catatan</p>
+		<div class="app-card p-4 animate-fade-slide-up">
+			<p class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mb-2">Catatan</p>
 			{#if order.order_notes}
 				<p class="text-body-sm text-on-surface mb-2">Order: {order.order_notes}</p>
 			{/if}
@@ -452,48 +461,60 @@
 	{/if}
 
 	<!-- Status Timeline -->
-	<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant">
-		<p class="font-label-md text-label-md text-on-surface-variant uppercase mb-4">Status Order</p>
-		<div class="flex justify-between">
+	<div class="app-card p-4 animate-fade-slide-up">
+		<div class="flex items-center justify-between mb-5">
+			<p class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Status Order</p>
+			<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold bg-primary/10 text-primary">
+				<span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+				{statusLabels[order.order_status]}
+			</span>
+		</div>
+		<div class="relative flex justify-between px-1">
+			<div class="absolute top-4 left-7 right-7 h-1 bg-surface-container-highest rounded-full"></div>
+			<div class="absolute top-4 left-7 h-1 bg-brand-gradient rounded-full transition-all duration-500" style="width: calc((100% - 3.5rem) * {currentIdx / (statusFlow.length - 1)});"></div>
 			{#each statusFlow as status, i}
-				<button type="button" onclick={() => setStatus(status)} class="flex flex-col items-center gap-1 cursor-pointer" title="Set status ke {status}">
-					<div class="w-8 h-8 rounded-full flex items-center justify-center {order.order_status === status ? 'bg-primary text-on-primary' : statusFlow.indexOf(status) < statusFlow.indexOf(order.order_status) ? 'bg-success text-on-primary' : 'bg-outline-variant text-on-surface-variant'}">
-						{#if statusFlow.indexOf(status) < statusFlow.indexOf(order.order_status)}
+				<button type="button" onclick={() => setStatus(status)} class="pressable-sm relative flex flex-col items-center gap-1.5 cursor-pointer z-10" title="Set status ke {statusLabels[status]}">
+					<div class="w-8 h-8 rounded-full flex items-center justify-center transition-all {i === currentIdx ? 'bg-brand-gradient text-white ring-4 ring-primary/20 shadow-fab' : i < currentIdx ? 'bg-success text-white' : 'bg-surface-container-highest text-on-surface-variant'}">
+						{#if i < currentIdx}
 							<span class="material-symbols-outlined text-[16px]">check</span>
 						{:else}
 							<span class="text-[10px] font-bold">{i + 1}</span>
 						{/if}
 					</div>
-					<span class="text-[9px] {order.order_status === status ? 'text-primary font-bold' : 'text-on-surface-variant'}">{status}</span>
+					<span class="text-[9px] font-bold {i === currentIdx ? 'text-primary' : 'text-on-surface-variant'}">{statusLabels[status]}</span>
 				</button>
 			{/each}
 		</div>
+		<p class="mt-4 text-center text-[10px] font-medium text-outline">Ketuk status untuk mengubah</p>
 	</div>
 
 	<!-- Actions -->
-	<div class="flex gap-3">
-		{#if canDelete}
-			<form method="POST" action="?/deleteOrder" use:enhance class="flex-1" onsubmit={() => confirm(`Yakin ingin menghapus order #${order.order_id.slice(0, 8).toUpperCase()}? Data yang sudah dihapus tidak bisa dikembalikan.`)}>
-				<button type="submit" class="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-					<span class="material-symbols-outlined text-[18px]">delete</span>
-					Hapus
-				</button>
-			</form>
-		{/if}
+	<div class="space-y-2.5">
 		{#if nextStatus}
-			<form method="POST" action="?/updateStatus" use:enhance class="flex-1">
+			<form method="POST" action="?/updateStatus" use:enhance>
 				<input type="hidden" name="status" value={nextStatus} />
-				<button type="submit" class="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-					Move to {nextStatus}
+				<button type="submit" class="pressable w-full h-13 bg-primary bg-brand-gradient text-white rounded-2xl font-bold text-[15px] shadow-fab flex items-center justify-center gap-2">
+					Proses ke {statusLabels[nextStatus]}
+					<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
 				</button>
 			</form>
 		{/if}
-	{#if order.order_payment_status === 'unpaid'}
-		<button type="button" onclick={() => (showQris = true)} class="flex-1 h-12 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-label-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-			<span class="material-symbols-outlined text-[18px]">qr_code_2</span>
-			Bayar
-		</button>
-	{/if}
+		<div class="flex gap-2.5">
+			{#if canDelete}
+				<form method="POST" action="?/deleteOrder" use:enhance class="flex-1" onsubmit={() => confirm(`Yakin ingin menghapus order #${order.order_id.slice(0, 8).toUpperCase()}? Data yang sudah dihapus tidak bisa dikembalikan.`)}>
+					<button type="submit" class="pressable w-full h-12 bg-error/10 text-error border border-error/20 rounded-2xl font-bold text-[13px] flex items-center justify-center gap-2">
+						<span class="material-symbols-outlined text-[18px]">delete</span>
+						Hapus
+					</button>
+				</form>
+			{/if}
+			{#if order.order_payment_status === 'unpaid'}
+				<button type="button" onclick={() => (showQris = true)} class="pressable flex-1 h-12 bg-success text-white rounded-2xl font-bold text-[13px] shadow-[0_6px_16px_-6px_rgb(22_163_74/0.5)] flex items-center justify-center gap-2">
+					<span class="material-symbols-outlined text-[18px]">qr_code_2</span>
+					Bayar Sekarang
+				</button>
+			{/if}
+		</div>
 	</div>
 </div>
 

@@ -3,7 +3,7 @@
 	import { tick, onDestroy } from 'svelte';
 	import { enhance } from '$app/forms';
 
-	let { open = $bindable(false), amount = 0, orderId = null, onPaid, onConfirm } = $props();
+	let { open = $bindable(false), amount = 0, orderId = null, onPaid = undefined, onConfirm = undefined } = $props();
 
 	let qrisData = $state(null);
 	let loading = $state(false);

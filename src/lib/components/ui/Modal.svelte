@@ -18,21 +18,19 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4 animate-fade-in"
 		onclick={handleBackdropClick}
 		role="dialog"
 		aria-modal="true"
 	>
-		<div class="w-full max-w-lg rounded-xl bg-white shadow-xl dark:bg-gray-800">
-			<div class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-				<button onclick={close} class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700">
-					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-					</svg>
+		<div class="w-full max-w-lg app-card shadow-card-lg animate-pop-in overflow-hidden">
+			<div class="flex items-center justify-between border-b border-outline-variant/70 px-5 py-4">
+				<h3 class="text-[17px] font-extrabold text-on-surface tracking-tight">{title}</h3>
+				<button onclick={close} class="pressable-sm w-9 h-9 -mr-2 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" aria-label="Tutup">
+					<span class="material-symbols-outlined text-[20px]">close</span>
 				</button>
 			</div>
-			<div class="p-4">
+			<div class="p-5 max-h-[75vh] overflow-y-auto">
 				{@render children()}
 			</div>
 		</div>

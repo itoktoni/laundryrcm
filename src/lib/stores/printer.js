@@ -58,7 +58,7 @@ export async function connectPrinter(options = {}) {
 		if (!BluetoothPrinter.isSupported()) {
 			_state.connecting = false;
 			_state.supported = false;
-			_state.error = 'Web Bluetooth tidak didukung. Gunakan Chrome/Edge terbaru.';
+			_state.error = 'Bluetooth tidak didukung. Pastikan izin Bluetooth sudah diizinkan.';
 			notify();
 			return false;
 		}

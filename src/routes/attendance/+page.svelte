@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { toast } from '$lib/stores/toast.js';
 
 	let { data } = $props();
@@ -35,24 +35,48 @@
 	}
 
 	async function startCamera(mode) {
-		stopCamera();
+		// Stop any existing stream first
+		if (stream) {
+			stream.getTracks().forEach((t) => t.stop());
+			stream = null;
+		}
+
 		try {
+			// Get media stream FIRST (before showing video element)
 			const mediaStream = await navigator.mediaDevices.getUserMedia({
 				video: { facingMode: mode || facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
 				audio: false
 			});
 			stream = mediaStream;
+
+			// Now show the video element
 			cameraActive = true;
 
-			// Wait for Svelte to render the video element
-			await new Promise((r) => setTimeout(r, 100));
+			// Wait for Svelte to actually render the <video> element in the DOM
+			await tick();
+			// Extra safety: wait a bit more for the element to be fully ready
+			await new Promise((r) => setTimeout(r, 200));
 
 			if (videoRef) {
 				videoRef.srcObject = mediaStream;
-				await videoRef.play();
+				videoRef.muted = true; // Required for autoplay
+				videoRef.playsInline = true;
+				try {
+					await videoRef.play();
+				} catch (playErr) {
+					console.warn('Video play failed, retrying...', playErr);
+					// Retry after a short delay
+					await new Promise((r) => setTimeout(r, 300));
+					await videoRef.play();
+				}
+			} else {
+				console.error('videoRef is null after tick');
+				toast('Gagal menampilkan kamera', 'error');
+				stopCamera();
 			}
 		} catch (err) {
 			toast('Gagal mengakses kamera: ' + err.message, 'error');
+			cameraActive = false;
 		}
 	}
 

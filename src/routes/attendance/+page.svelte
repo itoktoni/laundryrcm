@@ -106,36 +106,6 @@
 		return 'text-warning';
 	}
 
-	async function startCamera() {
-		try {
-			const mediaStream = await navigator.mediaDevices.getUserMedia({
-				video: { facingMode: 'environment' },
-				audio: false
-			});
-			stream = mediaStream;
-			if (videoRef) {
-				videoRef.srcObject = mediaStream;
-			}
-			cameraActive = true;
-		} catch (err) {
-			toast('Gagal mengakses kamera: ' + err.message, 'error');
-		}
-	}
-
-	function capturePhoto() {
-		if (!videoRef || !stream) return;
-		const canvas = document.createElement('canvas');
-		canvas.width = videoRef.videoWidth || 640;
-		canvas.height = videoRef.videoHeight || 480;
-		const ctx = canvas.getContext('2d');
-		ctx.drawImage(videoRef, 0, 0, canvas.width, canvas.height);
-		photoData = canvas.toDataURL('image/jpeg', 0.8);
-		stream.getTracks().forEach((t) => t.stop());
-		stream = null;
-		cameraActive = false;
-		toast('Foto berhasil diambil');
-	}
-
 	async function getLocation() {
 		return new Promise((resolve, reject) => {
 			if (!navigator.geolocation) {

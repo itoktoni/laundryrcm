@@ -1,20 +1,5 @@
 <script>
-	import { onMount, tick } from 'svelte';
 	import { toast } from '$lib/stores/toast.js';
-
-	// Try loading Capacitor Camera plugin (native)
-	let CapacitorCamera = null;
-	let CameraResultType = null;
-	let CameraSource = null;
-	async function loadNativeCamera() {
-		try {
-			const mod = await import('@capacitor/camera');
-			CapacitorCamera = mod.Camera;
-			CameraResultType = mod.CameraResultType;
-			CameraSource = mod.CameraSource;
-			return true;
-		} catch { return false; }
-	}
 
 	let { data } = $props();
 	let attendanceStatus = $derived(data.attendanceStatus);
@@ -29,92 +14,25 @@
 	let resultType = $state('');
 	let isSavingLocation = $state(false);
 
-	let videoRef = $state(null);
-	let stream = $state(null);
-	let cameraActive = $state(false);
-	let facingMode = $state('user');
+	let fileInputRef = $state(null);
 
-	onMount(() => {
-		return () => { stopCamera(); };
-	});
-
-	function stopCamera() {
-		if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
-		cameraActive = false;
+	function openCamera() {
+		if (fileInputRef) fileInputRef.click();
 	}
 
-	/**
-	 * Take photo — try native Capacitor Camera first, fallback to WebRTC
-	 */
-	async function takePhoto() {
-		// Try native camera first (opens device camera app)
-		const hasNative = await loadNativeCamera();
-		if (hasNative && window.Capacitor?.isNativePlatform?.()) {
-			try {
-				const image = await CapacitorCamera.getPhoto({
-					quality: 80,
-					allowEditing: false,
-					resultType: CameraResultType.DataUrl,
-					source: CameraSource.Camera,
-					width: 1280,
-					height: 720
-				});
-				photoData = image.dataUrl;
-				toast('Foto berhasil diambil');
-				return;
-			} catch (err) {
-				if (err.message?.includes('cancel') || err.message?.includes('User cancelled')) return;
-				console.warn('Native camera failed, trying WebRTC...', err);
-			}
+	function onFileSelected(e) {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		if (!file.type.startsWith('image/')) {
+			toast('File harus berupa gambar', 'error');
+			return;
 		}
-
-		// Fallback: WebRTC getUserMedia
-		await startCamera(facingMode);
-	}
-
-	async function startCamera(mode) {
-		if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; }
-		try {
-			const mediaStream = await navigator.mediaDevices.getUserMedia({
-				video: { facingMode: mode || facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-				audio: false
-			});
-			stream = mediaStream;
-			cameraActive = true;
-			await tick();
-			await new Promise((r) => setTimeout(r, 200));
-			if (videoRef) {
-				videoRef.srcObject = mediaStream;
-				videoRef.muted = true;
-				videoRef.playsInline = true;
-				try { await videoRef.play(); }
-				catch { await new Promise((r) => setTimeout(r, 300)); await videoRef.play(); }
-			}
-		} catch (err) {
-			toast('Gagal mengakses kamera: ' + err.message, 'error');
-			cameraActive = false;
-		}
-	}
-
-	async function switchCamera() {
-		facingMode = facingMode === 'user' ? 'environment' : 'user';
-		await startCamera(facingMode);
-	}
-
-	function capturePhoto() {
-		if (!videoRef || !stream) return;
-		if (videoRef.videoWidth === 0 || videoRef.videoHeight === 0) {
-			toast('Kamera belum siap...', 'error'); return;
-		}
-		const canvas = document.createElement('canvas');
-		canvas.width = videoRef.videoWidth;
-		canvas.height = videoRef.videoHeight;
-		const ctx = canvas.getContext('2d');
-		if (facingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
-		ctx.drawImage(videoRef, 0, 0, canvas.width, canvas.height);
-		photoData = canvas.toDataURL('image/jpeg', 0.8);
-		stopCamera();
-		toast('Foto berhasil diambil');
+		const reader = new FileReader();
+		reader.onload = () => {
+			photoData = reader.result;
+			toast('Foto berhasil diambil');
+		};
+		reader.readAsDataURL(file);
 	}
 
 	function getActionLabel() {
@@ -342,54 +260,36 @@
 			<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant space-y-4">
 				<h3 class="font-label-md text-label-md text-on-surface font-bold">1. Ambil Foto</h3>
 
-				{#if cameraActive}
-					<div class="relative rounded-lg overflow-hidden bg-black">
-						<video bind:this={videoRef} id="video" autoplay playsinline webkit-playsinline muted class="w-full h-64 object-cover {facingMode === 'user' ? 'scale-x-[-1]' : ''}"></video>
-						<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-							<button
-								type="button"
-								onclick={switchCamera}
-								class="px-4 h-12 bg-white/80 text-on-surface rounded-full font-bold active:scale-95 transition-transform flex items-center gap-1"
-							>
-								<span class="material-symbols-outlined text-[20px]">flip_camera_ios</span>
-							</button>
-							<button
-								type="button"
-								onclick={capturePhoto}
-								class="px-6 h-12 bg-primary text-on-primary rounded-full font-bold active:scale-95 transition-transform"
-							>
-								Ambil Foto
-							</button>
-							<button
-								type="button"
-								onclick={stopCamera}
-								class="px-4 h-12 bg-surface-container-high text-on-surface rounded-full font-bold active:scale-95 transition-transform"
-							>
-								Batal
-							</button>
-						</div>
-					</div>
-				{:else if photoData}
+				<!-- Hidden file input that opens camera -->
+				<input
+					bind:this={fileInputRef}
+					type="file"
+					accept="image/*"
+					capture="camera"
+					class="hidden"
+					onchange={onFileSelected}
+				/>
+
+				{#if photoData}
 					<div class="relative rounded-lg overflow-hidden bg-black">
 						<img src={photoData} alt="Foto absensi" class="w-full h-64 object-cover" />
 					</div>
 					<button
 						type="button"
-						onclick={reset}
+						onclick={() => { photoData = null; if (fileInputRef) fileInputRef.value = ''; }}
 						class="w-full h-11 bg-surface-container-high text-on-surface rounded-lg font-bold text-label-md active:scale-95 transition-transform"
 					>
 						Ambil Ulang Foto
 					</button>
 				{:else}
-					<div class="flex flex-col gap-3">
-						<button
-							type="button"
-							onclick={takePhoto}
-							class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-95 transition-transform"
-						>
-							Buka Kamera
-						</button>
-					</div>
+					<button
+						type="button"
+						onclick={openCamera}
+						class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-95 transition-transform flex items-center justify-center gap-2"
+					>
+						<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+						Buka Kamera
+					</button>
 				{/if}
 			</div>
 

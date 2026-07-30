@@ -14,25 +14,79 @@
 	let resultType = $state('');
 	let isSavingLocation = $state(false);
 
-	let fileInputRef = $state(null);
+	let videoRef = $state(null);
+	let canvasRef = $state(null);
+	let stream = $state(null);
+	let cameraActive = $state(false);
+	let facingMode = $state('user');
 
-	function openCamera() {
-		if (fileInputRef) fileInputRef.click();
+	function stopCamera() {
+		if (stream) {
+			stream.getTracks().forEach((t) => t.stop());
+			stream = null;
+		}
+		cameraActive = false;
 	}
 
-	function onFileSelected(e) {
-		const file = e.target.files?.[0];
-		if (!file) return;
-		if (!file.type.startsWith('image/')) {
-			toast('File harus berupa gambar', 'error');
-			return;
-		}
-		const reader = new FileReader();
-		reader.onload = () => {
-			photoData = reader.result;
-			toast('Foto berhasil diambil');
+	function startCamera() {
+		stopCamera();
+		const constraints = {
+			video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+			audio: false
 		};
-		reader.readAsDataURL(file);
+		navigator.mediaDevices.getUserMedia(constraints)
+			.then(onMediaStream)
+			.catch(onMediaError);
+	}
+
+	function onMediaStream(mediaStream) {
+		stream = mediaStream;
+		cameraActive = true;
+
+		// Wait for Svelte to render the video element
+		requestAnimationFrame(() => {
+			if (!videoRef) {
+				// Try again after a short delay
+				setTimeout(() => {
+					if (videoRef) attachStream(mediaStream);
+					else toast('Gagal menampilkan kamera', 'error');
+				}, 300);
+				return;
+			}
+			attachStream(mediaStream);
+		});
+	}
+
+	function attachStream(mediaStream) {
+		videoRef.srcObject = mediaStream;
+		videoRef.addEventListener('loadedmetadata', function onMeta() {
+			videoRef.removeEventListener('loadedmetadata', onMeta);
+			videoRef.setAttribute('width', videoRef.videoWidth);
+			videoRef.setAttribute('height', videoRef.videoHeight);
+			if (canvasRef) {
+				canvasRef.setAttribute('width', videoRef.videoWidth);
+				canvasRef.setAttribute('height', videoRef.videoHeight);
+			}
+			videoRef.play();
+		}, { once: true });
+	}
+
+	function onMediaError(err) {
+		toast('Gagal mengakses kamera: ' + err.message, 'error');
+	}
+
+	function takePhoto() {
+		if (!videoRef || !canvasRef) return;
+		const ctx = canvasRef.getContext('2d');
+		ctx.drawImage(videoRef, 0, 0, videoRef.videoWidth, videoRef.videoHeight);
+		photoData = canvasRef.toDataURL('image/jpeg', 0.8);
+		stopCamera();
+		toast('Foto berhasil diambil');
+	}
+
+	function switchCamera() {
+		facingMode = facingMode === 'user' ? 'environment' : 'user';
+		startCamera();
 	}
 
 	function getActionLabel() {
@@ -260,23 +314,44 @@
 			<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant space-y-4">
 				<h3 class="font-label-md text-label-md text-on-surface font-bold">1. Ambil Foto</h3>
 
-				<!-- Hidden file input that opens camera -->
-				<input
-					bind:this={fileInputRef}
-					type="file"
-					accept="image/*"
-					capture="camera"
-					class="hidden"
-					onchange={onFileSelected}
-				/>
+				<!-- Hidden canvas for capture (from javascript-camera-capture) -->
+				<canvas bind:this={canvasRef} class="hidden"></canvas>
 
-				{#if photoData}
+				{#if cameraActive}
+					<div class="relative rounded-lg overflow-hidden bg-black">
+						<!-- svelte-ignore a11y_media_has_caption -->
+						<video bind:this={videoRef} autoplay playsinline webkit-playsinline muted class="w-full h-64 object-cover {facingMode === 'user' ? 'scale-x-[-1]' : ''}"></video>
+						<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+							<button
+								type="button"
+								onclick={switchCamera}
+								class="px-4 h-12 bg-white/80 text-on-surface rounded-full font-bold active:scale-95 transition-transform flex items-center gap-1"
+							>
+								<span class="material-symbols-outlined text-[20px]">flip_camera_ios</span>
+							</button>
+							<button
+								type="button"
+								onclick={takePhoto}
+								class="px-6 h-12 bg-primary text-on-primary rounded-full font-bold active:scale-95 transition-transform"
+							>
+								Ambil Foto
+							</button>
+							<button
+								type="button"
+								onclick={stopCamera}
+								class="px-4 h-12 bg-surface-container-high text-on-surface rounded-full font-bold active:scale-95 transition-transform"
+							>
+								Batal
+							</button>
+						</div>
+					</div>
+				{:else if photoData}
 					<div class="relative rounded-lg overflow-hidden bg-black">
 						<img src={photoData} alt="Foto absensi" class="w-full h-64 object-cover" />
 					</div>
 					<button
 						type="button"
-						onclick={() => { photoData = null; if (fileInputRef) fileInputRef.value = ''; }}
+						onclick={() => { photoData = null; }}
 						class="w-full h-11 bg-surface-container-high text-on-surface rounded-lg font-bold text-label-md active:scale-95 transition-transform"
 					>
 						Ambil Ulang Foto
@@ -284,7 +359,7 @@
 				{:else}
 					<button
 						type="button"
-						onclick={openCamera}
+						onclick={startCamera}
 						class="w-full h-11 bg-primary text-on-primary rounded-lg font-bold text-label-md active:scale-95 transition-transform flex items-center justify-center gap-2"
 					>
 						<span class="material-symbols-outlined text-[20px]">photo_camera</span>

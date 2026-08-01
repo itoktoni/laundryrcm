@@ -1,9 +1,9 @@
 import { db } from '$lib/server/db.js';
 
 // Urutan status order (sesuai alur yang dipakai di seluruh aplikasi)
-export const STATUS_FLOW = ['pending', 'cuci', 'kering', 'setrika', 'packing', 'selesai', 'diambil'];
+const STATUS_FLOW = ['pending', 'cuci', 'kering', 'setrika', 'packing', 'selesai', 'diambil'];
 
-export const STATUS_LABELS = {
+const STATUS_LABELS = {
 	pending: 'Antre',
 	cuci: 'Cuci',
 	kering: 'Kering',
@@ -13,7 +13,7 @@ export const STATUS_LABELS = {
 	diambil: 'Diambil'
 };
 
-export const STATUS_COLORS = {
+const STATUS_COLORS = {
 	pending: 'bg-pending',
 	cuci: 'bg-primary',
 	kering: 'bg-kering',
